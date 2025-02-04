@@ -1,0 +1,24 @@
+{
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "nodemon": "^3.1.9",
+    "typescript": "^5.7.3"
+  },
+  "name": "okto-sdkv2-ts-template",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start:build": "tsc -w",
+    "start:run": "nodemon build/index.js",
+    "start": "concurrently npm:start:*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@okto_web3/core-js-sdk": "^0.0.0-dev.37",
+    "concurrently": "^9.1.2",
+    "dotenv": "^16.4.7"
+  }
+}
