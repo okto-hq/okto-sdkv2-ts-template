@@ -122,6 +122,8 @@ const generateAuthenticatePayload = async (
     paymaster: OktoPaymaster,
     paymasterData,
   };
+
+  return payload;
 };
 
 const authenticate = async () => {
