@@ -9,9 +9,9 @@ dotenv.config();
 const main = async () => {
     // Initialize OktoClient
     const oktoClient = new OktoClient({
-        environment: process.env.ENVIRONMENT as Env,
-        vendorPrivKey: process.env.VENDOR_PRIVATE_KEY as Env,
-        vendorSWA: process.env.VENDOR_SWA as Env,
+        environment: process.env.OKTO_ENVIRONMENT as Env,
+        vendorPrivKey: process.env.OKTO_CLIENT_PRIVATE_KEY as Env,
+        vendorSWA: process.env.OKTO_CLIENT_SWA as Env,
     });
 
     // Log in using Google OAuth and Okto Client
