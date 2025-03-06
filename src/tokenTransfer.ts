@@ -316,7 +316,7 @@ async function executeUserOp(userop: any) {
   }
 }
 
-async function transferToken(config: Config, data: Data, sessionConfig: sessionConfig) {
+async function transferToken(data: Data, sessionConfig: sessionConfig) {
   const nonce = uuidv4();
   const jobParametersAbiType = "(string caip2Id, string recipientWalletAddress, string tokenAddress, uint amount)";
   const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
@@ -344,8 +344,8 @@ async function transferToken(config: Config, data: Data, sessionConfig: sessionC
         functionName: "initiateJob",
         args: [
           toHex(nonceToBigInt(nonce), { size: 32 }),
-          config.clientSWA,
-          config.userSWA,
+          clientSWA,
+          sessionConfig.userSWA,
           encodeAbiParameters(
             parseAbiParameters("(bool gsnEnabled, bool sponsorshipEnabled)"),
             [
@@ -377,7 +377,7 @@ async function transferToken(config: Config, data: Data, sessionConfig: sessionC
   );
 
   const userOp = {
-    sender: config.userSWA,
+    sender: sessionConfig.userSWA,
     nonce: toHex(nonceToBigInt(nonce), { size: 32 }),
     paymaster: "0x0871051BfF8C7041c985dEddFA8eF63d23AD3Fa0",    //paymaster address
     callGasLimit: toHex(Constants.GAS_LIMITS.CALL_GAS_LIMIT),
@@ -404,10 +404,6 @@ async function transferToken(config: Config, data: Data, sessionConfig: sessionC
   console.log(jobId);
 }
 
-const config: Config = {
-  clientSWA,
-  userSWA: ''
-}
 
 const data: Data = {
   caipId: '',
@@ -422,4 +418,4 @@ const sessionConfig: sessionConfig = {
   userSWA: ''
 }
 
-transferToken(config, data, sessionConfig);
+transferToken(data, sessionConfig);
