@@ -37,6 +37,9 @@ const main = async () => {
     const authToken = await oktoClient.getAuthorizationToken()
     console.log('Auth Token: ', authToken);
 
+    //printing oktoclient details
+    console.log('Okto Client: ', oktoClient);
+
     // Get your wallets
     const wallets = await getAccount(oktoClient)
     console.log('Wallets: ', wallets);
