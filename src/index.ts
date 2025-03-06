@@ -40,9 +40,9 @@ const main = async () => {
     //printing oktoclient details
     console.log('Okto Client: ', oktoClient);
 
-    // Get your wallets
-    const wallets = await getAccount(oktoClient)
-    console.log('Wallets: ', wallets);
+    // // Get your wallets
+    // const wallets = await getAccount(oktoClient)
+    // console.log('Wallets: ', wallets);
 
     // // Check your portfolio
     // const portfolio = await getPortfolio(oktoClient)
