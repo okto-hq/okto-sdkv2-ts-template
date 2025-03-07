@@ -1,4 +1,4 @@
-// This script shows how to create the okto auth token for delegated access to the Okto APIs give the session private key and UserSWA
+// This script shows how to create the okto auth token for delegated access to the Okto APIs given the session private key and UserSWA
 // This script is intended to be run in a Node.js environment
 
 import { secp256k1 } from "@noble/curves/secp256k1";
