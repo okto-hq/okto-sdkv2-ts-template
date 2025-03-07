@@ -406,18 +406,18 @@ async function transferToken(data: Data, sessionConfig: sessionConfig) {
   console.log(jobId);
 }
 
-
+// To get the capId, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
 const data: Data = {
-  caipId: '',
-  recipient: '',
-  token: '',
-  amount: 0
+  caipId: 'eip155:84532', // BASE_TESTNET
+  recipient: '0x967b26c9e77f2f5e0753bcbcb2bb624e5bbff24c', // Sample recipient on BASE_TESTNET
+  token: '', // Left empty, because transferring native token
+  amount: 10000000000000 // denomination in lowest decimal (18 for WETH)
 }
 
 const sessionConfig: sessionConfig = {
-  sessionPrivKey: '',
-  sessionPubkey: '',
-  userSWA: ''
+  sessionPrivKey: '0x096644bf3e32614bb33961d9762d9f2b2768b4ed2e968de2b59c8148875dcec0',
+  sessionPubkey: '0x04f8e7094449d09d932f78ca4413fbff252fbe4f99445bcc4a4d5d16c31d898f4b8b080289a906334b2bfe6379547c97c6b624afdf0bcdfab5fdfcc28d0dbb98df',
+  userSWA: '0x61795557B50DC229199cE51c46935d7eC560c52F'
 }
 
 transferToken(data, sessionConfig);

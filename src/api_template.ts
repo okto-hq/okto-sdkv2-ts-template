@@ -296,6 +296,13 @@ const OktoAuthTokenGenerator = async () => {
         sessionPubKey: session.uncompressedPublicKeyHexWith0x,
         userSWA: response.data.result.userSWA,
       };
+      console.log("Session Config: ", sessionConfig);
+      // Sample Response:
+      // Session Config: {
+      //   sessionPrivKey: '0x096644bf3e32614bb33961d9762d9f2b2768b4ed2e968de2b59c8148875dcec0',
+      //     sessionPubKey: '0x04f8e7094449d09d932f78ca4413fbff252fbe4f99445bcc4a4d5d16c31d898f4b8b080289a906334b2bfe6379547c97c6b624afdf0bcdfab5fdfcc28d0dbb98df',
+      //       userSWA: '0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5'
+      // }
 
       // Get the authorization token using the sessionConfig object
       const authToken = await getAuthorizationToken(sessionConfig);
@@ -309,7 +316,7 @@ const OktoAuthTokenGenerator = async () => {
   } catch (err: any) {
     console.error(
       err.response.data.error.message ||
-        "An error occurred while fetching the Okto token"
+      "An error occurred while fetching the Okto token"
     );
   }
 };
