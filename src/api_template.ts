@@ -273,6 +273,7 @@ const OktoAuthTokenGenerator = async () => {
   const serliazedPayload = serializeJSON(requestBody, null);
 
   // invoke the JSON RPC Method for Authenticate
+  // NOTE: The google ID token has a very short expiry. Please generate a new token just before running this code. You can check the expiry at jwt.io
   try {
     const response = await axios.post(
       "https://sandbox-okto-gateway.oktostage.com/rpc",
