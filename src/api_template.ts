@@ -315,4 +315,4 @@ const OktoAuthTokenGenerator = async () => {
 
 OktoAuthTokenGenerator();
 //you can now invoke any other Okto endpoint using the authToken generated above
-//refer to our docs at docs.okto.tech/docs/openapi for API refences
+//refer to our docs at docs.okto.tech/docs/openapi for API references
