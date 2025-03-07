@@ -23,6 +23,7 @@ const clientPrivateKey = process.env.OKTO_CLIENT_PRIVATE_KEY as Hash;
 const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
 
+//same ABI for all intents
 var INTENT_ABI = [
   {
     constant: false,
@@ -64,6 +65,7 @@ var INTENT_ABI = [
   }
 ];
 
+// the contract addresses are for okto testnet only
 var Constants = {
   HOURS_IN_MS: 60 * 60 * 1e3,
   EXECUTE_USEROP_FUNCTION_SELECTOR: "0x8dd7712f",
@@ -105,7 +107,7 @@ var Constants = {
   }
 };
 
-// this function is used to create paymaster information
+//This function is used to create paymaster information
 async function generatePaymasterData(
   address: any,
   privateKey: any,
