@@ -13,7 +13,9 @@ export interface SessionConfig {
 
 
 /**
- * Signs a user operation with the provided session private key
+ * Signs a user operation
+ * @param sessionConfig Object containing session keys and user SWA
+ * @returns signed userOp
  */
 export async function signUserOp(userop: any, sessionConfig: SessionConfig) {
     const privateKey = sessionConfig.sessionPrivKey as `0x${string}`;
@@ -30,7 +32,9 @@ export async function signUserOp(userop: any, sessionConfig: SessionConfig) {
 }
 
 /**
- * Executes a signed user operation and returns the job ID
+ * Executes a signed user operation 
+ * @param signed UserOp
+ * @returns jobId
  */
 export async function executeUserOp(userop: any, authToken: string) {
     try {

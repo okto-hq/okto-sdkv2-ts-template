@@ -20,6 +20,8 @@ const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
 
 /*
 * Generates Paymaster Data
+* @param includes clientSWA, clientPriv to generate the paymasterData
+* @returns paymaster data
 */
 export async function generatePaymasterData(
     address: any,

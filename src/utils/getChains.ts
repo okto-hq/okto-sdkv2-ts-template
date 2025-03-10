@@ -1,5 +1,10 @@
 import axios from "axios";
 
+/**
+ * Retrieves all the enabled networks from the Okto Client Dashboard
+ * @param Okto Auth Token 
+ * @returns Object containing details of all chains
+ */
 export async function getChains(OktoAuthToken: string) {
     try {
         const response = await axios.get(

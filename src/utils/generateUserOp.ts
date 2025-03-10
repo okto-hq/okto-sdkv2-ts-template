@@ -9,6 +9,11 @@ import {
 } from "viem";
 import { Constants } from "../helper/constants.js";
 
+/**
+ * Creates the Packed UserOp
+ * @param userOp details
+ * @returns userOp Object
+ */
 export function generatePackedUserOp(userOp: any) {
     if (!userOp.sender || !userOp.nonce || !userOp.callData || !userOp.preVerificationGas || !userOp.verificationGasLimit || !userOp.callGasLimit || !userOp.maxFeePerGas || !userOp.maxPriorityFeePerGas || userOp.paymaster == void 0 || !userOp.paymasterVerificationGasLimit || !userOp.paymasterPostOpGasLimit || userOp.paymasterData == void 0) {
         throw new Error("Invalid UserOp");
@@ -44,6 +49,11 @@ export function generatePackedUserOp(userOp: any) {
     };
 }
 
+/**
+ * Generates the userOp Hash
+ * @param userOp object
+ * @returns userOp hash
+ */
 export function generateUserOpHash(userOp: any) {
     const pack = encodeAbiParameters(
         parseAbiParameters(
