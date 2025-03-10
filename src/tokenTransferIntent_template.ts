@@ -7,7 +7,6 @@ import {
   type Hex,
 } from "viem";
 import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
 import { INTENT_ABI } from "./utils/abi.js";
 import { Constants } from "./utils/constants.js";
 import { paymasterData } from "./utils/paymaster.js";

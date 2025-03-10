@@ -1,84 +1,11 @@
 // This script shows how to create the okto auth token for delegated access to the Okto APIs given the session private key and UserSWA
 // This script is intended to be run in a Node.js environment
 
-import { secp256k1 } from "@noble/curves/secp256k1";
-import { keccak_256 } from "@noble/hashes/sha3";
-import { signMessage } from "viem/accounts";
 import dotenv from "dotenv";
+import { SessionKey } from "./utils/sessionKey.js";
+import { getAuthorizationToken } from "./utils/authToken.js";
 
 dotenv.config();
-
-var SessionKey = class _SessionKey {
-  priv;
-  constructor(privKey: any) {
-    if (privKey) {
-      this.priv = Uint8Array.from(
-        Buffer.from(privKey.replace("0x", ""), "hex")
-      );
-    } else {
-      this.priv = secp256k1.utils.randomPrivateKey();
-    }
-  }
-  get privateKey() {
-    return this.priv;
-  }
-  get uncompressedPublicKey() {
-    return secp256k1.getPublicKey(this.priv, false);
-  }
-  get compressedPublicKey() {
-    return secp256k1.getPublicKey(this.priv, true);
-  }
-  get privateKeyHex() {
-    return Buffer.from(this.priv).toString("hex");
-  }
-  get uncompressedPublicKeyHex() {
-    return Buffer.from(this.uncompressedPublicKey).toString("hex");
-  }
-  get privateKeyHexWith0x() {
-    return `0x${Buffer.from(this.priv).toString("hex")}`;
-  }
-  get uncompressedPublicKeyHexWith0x() {
-    return `0x${Buffer.from(this.uncompressedPublicKey).toString("hex")}`;
-  }
-  get ethereumAddress() {
-    const publicKeyWithoutPrefix = this.uncompressedPublicKey.slice(1);
-    const hash = keccak_256(publicKeyWithoutPrefix);
-    return `0x${Buffer.from(hash.slice(-20)).toString("hex")}`;
-  }
-  static create() {
-    return new _SessionKey(null);
-  }
-  static fromPrivateKey(privateKey: any) {
-    return new _SessionKey(privateKey);
-  }
-  verifySignature({ payload, signature }: any) {
-    return secp256k1.verify(payload, signature, this.uncompressedPublicKey);
-  }
-};
-
-// this function is used to create the Okto Auth Token after successfull authentication
-async function getAuthorizationToken(sessionConfig: any) {
-  const sessionPriv = sessionConfig?.sessionPrivKey;
-  const sessionPub = sessionConfig?.sessionPubKey;
-  if (sessionPriv === void 0 || sessionPub === void 0) {
-    throw new Error("Session keys are not set");
-  }
-  const data = {
-    expire_at: Math.round(Date.now() / 1e3) + 60 * 90,
-    session_pub_key: sessionPub,
-  };
-
-  // Okto auth token is nothing but the session public key encrypted with the session private key
-  const payload = {
-    type: "ecdsa_uncompressed",
-    data,
-    data_signature: await signMessage({
-      message: JSON.stringify(data),
-      privateKey: sessionPriv,
-    }),
-  };
-  return btoa(JSON.stringify(payload));
-}
 
 // This function explains how to construct the payload, excute Okto Authentication and create the Okto auth Token for futhrer API usage
 const OktoAuthTokenGenerator = async () => {

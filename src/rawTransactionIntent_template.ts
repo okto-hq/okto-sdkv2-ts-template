@@ -8,7 +8,6 @@ import {
   type Hex
 } from "viem";
 import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
 import { INTENT_ABI } from "./utils/abi.js";
 import { Constants } from "./utils/constants.js";
 import { paymasterData } from "./utils/paymaster.js";
@@ -173,9 +172,9 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig) {
         validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
       }),
     };
-  console.log("UserOp: ", userOp);
+  console.log("Unsigned UserOp: ", userOp);
   // Sample Response:
-  // UserOp: {
+  // Unsigned UserOp: {
   //   sender: '0x61795557B50DC229199cE51c46935d7eC560c52F',
   //   nonce: '0x0000000000000000000000000000000020ae9739583540b5a091d3cbd7f63012',
   //   paymaster: '0x0871051BfF8C7041c985dEddFA8eF63d23AD3Fa0',
