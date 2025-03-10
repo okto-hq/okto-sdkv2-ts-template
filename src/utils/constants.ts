@@ -1,0 +1,47 @@
+export class Constants {
+
+    static readonly HOURS_IN_MS = 60 * 60 * 1e3;
+
+    static readonly EXECUTE_USEROP_FUNCTION_SELECTOR = "0x8dd7712f";
+
+    static readonly FUNCTION_NAME = "initiateJob";
+
+    static readonly USEROP_VALUE = BigInt(0);
+
+    static readonly GAS_LIMITS = {
+        CALL_GAS_LIMIT: BigInt(3e5),
+        VERIFICATION_GAS_LIMIT: BigInt(2e5),
+        PRE_VERIFICATION_GAS: BigInt(5e4),
+        MAX_FEE_PER_GAS: BigInt(2e9),
+        MAX_PRIORITY_FEE_PER_GAS: BigInt(2e9),
+        PAYMASTER_POST_OP_GAS_LIMIT: BigInt(1e5),
+        PAYMASTER_VERIFICATION_GAS_LIMIT: BigInt(1e5)
+    };
+
+    static readonly INTENT_TYPE = {
+        TOKEN_TRANSFER: "TOKEN_TRANSFER",
+        NFT_TRANSFER: "NFT_TRANSFER",
+        NFT_COLLECTION_CREATION: "NFT_COLLECTION_CREATION",
+        RAW_TRANSACTION: "RAW_TRANSACTION"
+    };
+    
+    static readonly ENV_CONFIG = {
+        STAGING: {
+            PAYMASTER_ADDRESS: "0x0871051BfF8C7041c985dEddFA8eF63d23AD3Fa0",
+            JOB_MANAGER_ADDRESS: "0xED3D17cae886e008D325Ad7c34F3bdE030B80c2E",
+            ENTRYPOINT_CONTRACT_ADDRESS: "0x8D29ECb381CA4874767Ef3744F6df37748B12715",
+            CHAIN_ID: 24879
+        },
+        SANDBOX: {
+            PAYMASTER_ADDRESS: "0x5408fAa7F005c46B85d82060c532b820F534437c",
+            JOB_MANAGER_ADDRESS: "0x21E822446C32FA22b29392F29597ebdcFd8511f8",
+            ENTRYPOINT_CONTRACT_ADDRESS: "0xA5E95a08229A816c9f3902E4a5a618C3928ad3bA",
+            CHAIN_ID: 8801
+        },
+        // PRODUCTION: {
+        //   PAYMASTER_ADDRESS: '0x0871051BfF8C7041c985dEddFA8eF63d23AD3Fa0' as Hex,
+        //   JOB_MANAGER_ADDRESS: '0xED3D17cae886e008D325Ad7c34F3bdE030B80c2E' as Hex,
+        //   CHAIN_ID: 24879,
+        // },
+    };
+};
