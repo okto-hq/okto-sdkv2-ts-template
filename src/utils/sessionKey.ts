@@ -1,8 +1,13 @@
 import { secp256k1 } from "@noble/curves/secp256k1";
 import { keccak_256 } from "@noble/hashes/sha3";
 
-/*
-* Class used to create Session Key
+/**
+* Class used to create and manage session keys
+* 
+* This class provides functionality to create, manage, and use session keys. It handles both creation of 
+* new random keys and importing existing private keys.
+* 
+* @param privKey - Optional existing private key to import. If not provided, a random private key will be generated.
 */
 export class SessionKey {
     priv;

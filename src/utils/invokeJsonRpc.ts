@@ -3,11 +3,17 @@ import { v4 as uuidv4 } from "uuid";
 import { serializeJSON } from "../helper/serializeJson.js";
 
 /**
- * Invokes the Okto authenticate JSON-RPC method
- * @param authPayload The authentication payload
- * @param endpoint The Okto RPC endpoint URL
- * @returns The authentication response
- */
+* Invokes the Okto authenticate JSON-RPC method
+* 
+* This function sends an authentication request to the Okto RPC gateway using
+* the JSON-RPC 2.0 protocol.
+* 
+* @param authPayload - The authentication payload object containing session, clientSWA and clientPrivateKey
+* 
+* @returns The response from the authentication request if successful.
+* 
+* @throws Error if authentication fails, with details about the failure.
+*/
 export async function invokeJsonRpc(
     authPayload: any,
 ) {

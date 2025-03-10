@@ -3,7 +3,6 @@ import {
     encodePacked,
     fromHex,
     keccak256,
-    pad,
     parseAbiParameters,
     toHex,
     type Hash,
@@ -18,11 +17,16 @@ dotenv.config();
 const clientPrivateKey = process.env.OKTO_CLIENT_PRIVATE_KEY as Hash;
 const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
 
-/*
-* Generates Paymaster Data
-* @param includes clientSWA, clientPriv to generate the paymasterData
-* @returns paymaster data
-*/
+/**
+ * Generates paymaster data for transactions
+ * 
+ * @param address - The client's Smart Wallet Account (SWA) address
+ * @param privateKey - The client's private key used for signing
+ * @param nonce - The transaction nonce
+ * @param validUntil - Timestamp until which the paymaster data is valid (in seconds)
+ * @param validAfter - Timestamp after which the paymaster data becomes valid (in seconds)
+ * @returns A hex string containing the encoded paymaster data including signature
+ */
 export async function generatePaymasterData(
     address: any,
     privateKey: any,

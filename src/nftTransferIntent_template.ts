@@ -31,18 +31,21 @@ interface Data {
 }
 
 /**
- * NFT Transfer Intent: this function executes the nft transfer between addresses.
+ * NFT Transfer Intent: this function executes the NFT transfer between addresses.
  * For more information, check https://docs.okto.tech/docs/openapi/nftTransfer
+ * 
+ * @param data - The parameters for transferring the NFT (caip2Id, nftId, recipientWalletAddress, collectionAddress, nftType, amount)
+ * @param sessionConfig - The sessionConfig object containing user SWA and session keys.
+ * @returns The jobid for the NFT transfer.
  */
 async function transferNft(data: Data, sessionConfig: SessionConfig) {
   const nonce = uuidv4();
   const jobParametersAbiType = "(string caip2Id, string nftId, string recipientWalletAddress, string collectionAddress, string nftType, uint amount)";
   const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
 
-  // Fetch all enabled networks
+  // Note: only the chains enabled on the Client's developer dashboard is will shown in the response.
   const chains = await getChains(OktoAuthToken);
   console.log("Chains: ", chains);
-  // Note: only the chains enables on the Client's developer dashboard is will shown in the response.
   // Sample Response:
   // Chains: [
   //   {

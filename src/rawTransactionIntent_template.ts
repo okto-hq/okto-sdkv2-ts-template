@@ -35,9 +35,13 @@ interface Data {
 }
 
 /**
-* Raw Transaction Intent: this function executes raw EVM transactions.
-* For more information, check https://docs.okto.tech/docs/openapi/evmRawTransaction
-*/
+ * EvM Raw Transaction Intent: this function executes the raw transaction between addresses.
+ * For more information, check https://docs.okto.tech/docs/openapi/evmRawTransaction
+ * 
+ * @param data - The parameters for transferring the Raw Transaction (caip2Id, transaction)
+ * @param sessionConfig - The sessionConfig object containing user SWA and session keys.
+ * @returns The jobid for the NFT transfer.
+ */
 async function rawTransaction(data: Data, sessionConfig: SessionConfig) {
   console.log("Data: ", data);
   console.log("Session Config: ", sessionConfig);
@@ -46,10 +50,9 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig) {
   const jobParametersAbiType = "(string caip2Id, bytes[] transactions)";
   const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
 
-  // Fetch all enables networks
+  // Note: only the chains enabled on the Client's developer dashboard is will shown in the response.
   const chains = await getChains(OktoAuthToken);
   console.log("Chains: ", chains);
-  // Note: only the chains enabled on the Client's developer dashboard is will shown in the response.
   // Sample Response:
   // Chains: [
   //   {

@@ -14,8 +14,6 @@ import { Constants } from "./helper/constants.js";
 import { getAuthorizationToken } from "./utils/getAuthorizationToken.js";
 import dotenv from "dotenv";
 import { invokeJsonRpc } from "./utils/invokeJsonRpc.js";
-import axios from "axios";
-import { serializeJSON } from "./helper/serializeJson.js";
 
 dotenv.config();
 

@@ -1,9 +1,16 @@
 import { signMessage } from "viem/accounts";
 
 /**
- * Creates the Okto Auth Token after successful authentication
- * @param sessionConfig Object containing session keys and user SWA
- * @returns Base64 encoded authorization token
+ * Creates the Okto Auth Token
+ * 
+ * This function is used to create the Okto Auth Token after successfull authentication
+ * 
+ * @param sessionConfig - Object containing session authentication details:
+ *   - sessionPrivKey: The private key of the current session
+ *   - sessionPubKey: The public key corresponding to the session private key
+ * 
+ * @returns Base64 encoded authorization token 
+ * @throws Error if session keys are not provided in the configuration
  */
 
 export async function getAuthorizationToken(sessionConfig: any) {

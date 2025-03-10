@@ -29,19 +29,22 @@ interface Data {
 }
 
 /**
- * Token Transfer Intent: this function executes the token transfer between addresses.
+ * Creates and executes a user operation for token transfer.
+ *
+ * This function initiates the process of transferring a token by encoding the necessary parameters into a User Operation.
  * For more information, check https://docs.okto.tech/docs/openapi/tokenTransfer
+ *
+ * @param data - The parameters for transferring the token (caip2Id, recipientWalletAddress, tokenAddress, amount)
+ * @param sessionConfig - The sessionConfig object containing user SWA and session keys.
+ * @returns The jobid for the token transfer.
  */
 export async function transferToken(data: Data, sessionConfig: SessionConfig) {
-  console.log("Data: ", data);
-  console.log("Session Config: ", sessionConfig);
-
   const nonce = uuidv4();
   const jobParametersAbiType =
     "(string caip2Id, string recipientWalletAddress, string tokenAddress, uint amount)";
   const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
 
-  // Note: only the chains enables on the Client's developer dashboard is will shown in the response
+  // Note: only the chains enables on the Client's Developer Dashboard will be shown in the response
   const chains = await getChains(OktoAuthToken);
   console.log("Chains: ", chains);
   // Sample Response:

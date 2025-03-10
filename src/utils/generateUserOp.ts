@@ -10,9 +10,13 @@ import {
 import { Constants } from "../helper/constants.js";
 
 /**
- * Creates the Packed UserOp
- * @param userOp details
- * @returns userOp Object
+ * Creates the Packed UserOp (User Operation)
+ * 
+ * This function packages various user operation parameters into a structured format.
+ * 
+ * @param userOp - Object containing the user operation details. 
+ * @returns Formatted UserOp object with packed gas parameters
+ * @throws Error if any required parameters are missing
  */
 export function generatePackedUserOp(userOp: any) {
     if (!userOp.sender || !userOp.nonce || !userOp.callData || !userOp.preVerificationGas || !userOp.verificationGasLimit || !userOp.callGasLimit || !userOp.maxFeePerGas || !userOp.maxPriorityFeePerGas || userOp.paymaster == void 0 || !userOp.paymasterVerificationGasLimit || !userOp.paymasterPostOpGasLimit || userOp.paymasterData == void 0) {
@@ -50,9 +54,12 @@ export function generatePackedUserOp(userOp: any) {
 }
 
 /**
- * Generates the userOp Hash
- * @param userOp object
- * @returns userOp hash
+ * Generates the userOp Hash 
+ * Creates a unique hash that identifies the user operation.
+ * This hash is used for signing purpose.
+ * 
+ * @param userOp - Packed user operation object (output from generatePackedUserOp)
+ * @returns The keccak256 hash of the user operation.
  */
 export function generateUserOpHash(userOp: any) {
     const pack = encodeAbiParameters(
