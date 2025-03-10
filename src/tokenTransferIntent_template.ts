@@ -7,9 +7,9 @@ import {
   type Hex,
 } from "viem";
 import { v4 as uuidv4 } from "uuid";
-import { INTENT_ABI } from "./utils/abi.js";
+import { INTENT_ABI } from "./helper/abi.js";
 import { Constants } from "./helper/constants.js";
-import { paymasterData } from "./utils/paymaster.js";
+import { paymasterData } from "./utils/generatePaymasterData.js";
 import { nonceToBigInt } from "./helper/nonceToBigInt.js";
 import { signUserOp, executeUserOp, type SessionConfig } from "./utils/userOpExecutor.js";
 import { getChains } from "./utils/getChains.js";
@@ -32,7 +32,7 @@ interface Data {
  * Token Transfer Intent: this function executes the token transfer between addresses.
  * For more information, check https://docs.okto.tech/docs/openapi/tokenTransfer
  */
-async function transferToken(data: Data, sessionConfig: SessionConfig) {
+export async function transferToken(data: Data, sessionConfig: SessionConfig) {
   console.log("Data: ", data);
   console.log("Session Config: ", sessionConfig);
 
