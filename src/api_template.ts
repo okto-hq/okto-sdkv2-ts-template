@@ -14,8 +14,11 @@ import { Constants } from "./utils/constants.js";
 import { getAuthorizationToken } from "./utils/authToken.js";
 import dotenv from "dotenv";
 import { invokeJsonRpc } from "./utils/invokeJsonRpc.js";
+import axios from "axios";
+import { serializeJSON } from "./utils/serializeJson.js";
 
 dotenv.config();
+
 const clientPrivateKey = process.env.OKTO_CLIENT_PRIVATE_KEY as Hash;
 const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
 const googleIdToken = process.env.GOOGLE_ID_TOKEN as string;
@@ -145,7 +148,7 @@ const OktoAuthTokenGenerator = async () => {
         userSWA: response.data.result.userSWA,
       };
       console.log("Session Config: ", sessionConfig);
-      // Sample Response:
+      // Sample Response: Store the sessionConfig safely for delegated access
       // Session Config: {
       //   sessionPrivKey: '0x096644bf3e32614bb33961d9762d9f2b2768b4ed2e968de2b59c8148875dcec0',
       //     sessionPubKey: '0x04f8e7094449d09d932f78ca4413fbff252fbe4f99445bcc4a4d5d16c31d898f4b8b080289a906334b2bfe6379547c97c6b624afdf0bcdfab5fdfcc28d0dbb98df',
@@ -159,12 +162,11 @@ const OktoAuthTokenGenerator = async () => {
       // Sample Response:
       // Okto session authToken:  eyJ0eXBlIjoiZWNkc2FfdW5jb21wcmVzc2VkIiwiZGF0YSI6eyJleHBpcmVfYXQiOjE3NDEyNjk1NjYsInNlc3Npb25fcHViX2tleSI6IjB4MDQyMDM5ZjJmMGY5MTBjNDc0YWJmZWYyOWFkMmNlODBiZjg5YTU0ZjZlMjBiODI4MWI0NTQxMzZiNmJhODYyODUwNWY4ZTFmMDllNTFiOGU1NWYxMTNhNzZlZTc5NDY0M2Q4MjA3ZmNhY2E5MjZkMzJhMDBhMzZhY2M3YmVlYjY5ZiJ9LCJkYXRhX3NpZ25hdHVyZSI6IjB4ZmE4YWE5OTAyMzRkOTA0Y2Y3ZmNhN2QxMDlmOGIzZTM0N2MyZjM2ODBiN2IyNzYzYTY4MmY5NGQyNjAyZGRkMjJhZDg2ZjhjMTgxMzllMDBkZmNiNzk3Y2RhNWUxMTQ4YzQ1YjE2Njg2YmYxMDUzMjJjNjIwYTU2MDkzZTYyODIxYyJ9
     } else {
-      console.error(response.data.error.message || "Failed to get Okto token");
+      console.error("Failed to get Okto token");
     }
   } catch (err: any) {
     console.error(
-      err.response.data.error.message ||
-      "An error occurred while fetching the Okto token"
+      err.message || "An error occurred while fetching the Okto token"
     );
   }
 };

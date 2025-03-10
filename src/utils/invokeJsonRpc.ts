@@ -10,7 +10,6 @@ import { serializeJSON } from "./serializeJson.js";
  */
 export async function invokeJsonRpc(
     authPayload: any,
-    endpoint: string = "https://sandbox-okto-gateway.oktostage.com/rpc"
 ) {
     // Construct the request body for the authenticate JSON RPC Method
     const requestBody = {
@@ -23,14 +22,14 @@ export async function invokeJsonRpc(
     const serializedPayload = serializeJSON(requestBody, null);
 
     try {
-        const response = await axios.post(endpoint, serializedPayload, {
+        const response = await axios.post("https://sandbox-okto-gateway.oktostage.com/rpc", serializedPayload, {
             headers: {
                 "Content-Type": "application/json",
             },
         });
 
         if (response.status === 200) {
-            return response.data;
+            return response;
         } else {
             throw new Error(response.data.error?.message || "Authentication failed");
         }
