@@ -10,12 +10,12 @@ import {
 import { signMessage } from "viem/accounts";
 import { generatePaymasterData } from "./utils/paymaster.js";
 import { SessionKey } from "./utils/sessionKey.js";
-import { Constants } from "./utils/constants.js";
+import { Constants } from "./helper/constants.js";
 import { getAuthorizationToken } from "./utils/authToken.js";
 import dotenv from "dotenv";
 import { invokeJsonRpc } from "./utils/invokeJsonRpc.js";
 import axios from "axios";
-import { serializeJSON } from "./utils/serializeJson.js";
+import { serializeJSON } from "./helper/serializeJson.js";
 
 dotenv.config();
 

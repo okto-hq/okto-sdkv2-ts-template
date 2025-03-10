@@ -3,7 +3,7 @@ import axios from "axios";
 import { signMessage } from "viem/accounts";
 import { fromHex } from "viem";
 import { generatePackedUserOp, generateUserOpHash } from "./generateUserOp.js";
-import { serializeJSON } from "./serializeJson.js";
+import { serializeJSON } from "../helper/serializeJson.js";
 
 export interface SessionConfig {
     sessionPrivKey: string;

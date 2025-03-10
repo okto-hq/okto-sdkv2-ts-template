@@ -7,7 +7,7 @@ import {
     type Hex,
     concat,
 } from "viem";
-import { Constants } from "./constants.js";
+import { Constants } from "../helper/constants.js";
 
 export function generatePackedUserOp(userOp: any) {
     if (!userOp.sender || !userOp.nonce || !userOp.callData || !userOp.preVerificationGas || !userOp.verificationGasLimit || !userOp.callGasLimit || !userOp.maxFeePerGas || !userOp.maxPriorityFeePerGas || userOp.paymaster == void 0 || !userOp.paymasterVerificationGasLimit || !userOp.paymasterPostOpGasLimit || userOp.paymasterData == void 0) {

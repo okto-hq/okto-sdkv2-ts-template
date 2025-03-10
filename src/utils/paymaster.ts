@@ -9,7 +9,7 @@ import {
     type Hash,
     type Hex
 } from "viem";
-import { nonceToBigInt } from "./nonceToBigInt.js";
+import { nonceToBigInt } from "../helper/nonceToBigInt.js";
 import { signMessage } from "viem/accounts";
 import dotenv from "dotenv";
 

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import { serializeJSON } from "./serializeJson.js";
+import { serializeJSON } from "../helper/serializeJson.js";
 
 /**
  * Invokes the Okto authenticate JSON-RPC method

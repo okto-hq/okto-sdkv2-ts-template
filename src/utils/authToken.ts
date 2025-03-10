@@ -5,6 +5,7 @@ import { signMessage } from "viem/accounts";
  * @param sessionConfig Object containing session keys and user SWA
  * @returns Base64 encoded authorization token
  */
+
 export async function getAuthorizationToken(sessionConfig: any) {
     const sessionPriv = sessionConfig?.sessionPrivKey;
     const sessionPub = sessionConfig?.sessionPubKey;
