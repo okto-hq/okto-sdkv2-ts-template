@@ -14,6 +14,7 @@ import { paymasterData } from "./utils/paymaster.js";
 import { nonceToBigInt } from "./utils/nonceToBigInt.js";
 import { signUserOp, executeUserOp, type SessionConfig } from "./utils/userOpExecutor.js";
 import dotenv from "dotenv";
+import { getChains } from "./utils/getChains.js";
 
 dotenv.config();
 
@@ -40,12 +41,7 @@ async function transferNft(data: Data, sessionConfig: SessionConfig) {
   const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
 
   // Fetch all enabled networks
-  const getChainsResponse = await axios.get("https://sandbox-api.okto.tech/api/oc/v1/supported/networks", {
-    headers: {
-      "Authorization": `Bearer ${OktoAuthToken}`
-    }
-  });
-  const chains = getChainsResponse.data.data.network;
+  const chains = await getChains(OktoAuthToken);
   console.log("Chains: ", chains);
   // Note: only the chains enables on the Client's developer dashboard is will shown in the response.
   // Sample Response:
@@ -100,13 +96,10 @@ async function transferNft(data: Data, sessionConfig: SessionConfig) {
   //   }
   // ]
 
-  const currentChain = (chains ?? []).find(
-    (chain: any) => chain.caip_id === data.caipId
-  );
+  const currentChain = chains.find((chain: any) => chain.caip_id === data.caipId);
   if (!currentChain) {
     throw new Error(`Chain Not Supported`);
   }
-
 
   const calldata = encodeAbiParameters(
     parseAbiParameters('bytes4, address, uint256, bytes'),
