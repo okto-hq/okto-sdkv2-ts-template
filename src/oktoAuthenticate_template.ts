@@ -1,132 +1,29 @@
-import { secp256k1 } from "@noble/curves/secp256k1";
-import { keccak_256 } from "@noble/hashes/sha3";
-import { parse as uuidParse, v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import {
   encodeAbiParameters,
-  encodePacked,
-  fromHex,
   keccak256,
   parseAbiParameters,
   toBytes,
-  toHex as toHex2,
   type Hash,
   type Hex,
 } from "viem";
-import axios from "axios";
 import { signMessage } from "viem/accounts";
+import { generatePaymasterData } from "./utils/generatePaymasterData.js";
+import { SessionKey } from "./utils/sessionKey.js";
+import { Constants } from "./helper/constants.js";
+import { getAuthorizationToken } from "./utils/getAuthorizationToken.js";
 import dotenv from "dotenv";
+import { invokeJsonRpc } from "./utils/invokeJsonRpc.js";
 
 dotenv.config();
+
 const clientPrivateKey = process.env.OKTO_CLIENT_PRIVATE_KEY as Hash;
 const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
 const googleIdToken = process.env.GOOGLE_ID_TOKEN as string;
 
-var SessionKey = class _SessionKey {
-  priv;
-  constructor(privKey: any) {
-    if (privKey) {
-      this.priv = Uint8Array.from(
-        Buffer.from(privKey.replace("0x", ""), "hex")
-      );
-    } else {
-      this.priv = secp256k1.utils.randomPrivateKey();
-    }
-  }
-  get privateKey() {
-    return this.priv;
-  }
-  get uncompressedPublicKey() {
-    return secp256k1.getPublicKey(this.priv, false);
-  }
-  get compressedPublicKey() {
-    return secp256k1.getPublicKey(this.priv, true);
-  }
-  get privateKeyHex() {
-    return Buffer.from(this.priv).toString("hex");
-  }
-  get uncompressedPublicKeyHex() {
-    return Buffer.from(this.uncompressedPublicKey).toString("hex");
-  }
-  get privateKeyHexWith0x() {
-    return `0x${Buffer.from(this.priv).toString("hex")}`;
-  }
-  get uncompressedPublicKeyHexWith0x() {
-    return `0x${Buffer.from(this.uncompressedPublicKey).toString("hex")}`;
-  }
-  get ethereumAddress() {
-    const publicKeyWithoutPrefix = this.uncompressedPublicKey.slice(1);
-    const hash = keccak_256(publicKeyWithoutPrefix);
-    return `0x${Buffer.from(hash.slice(-20)).toString("hex")}`;
-  }
-  static create() {
-    return new _SessionKey(null);
-  }
-  static fromPrivateKey(privateKey: any) {
-    return new _SessionKey(privateKey);
-  }
-  verifySignature({ payload, signature }: any) {
-    return secp256k1.verify(payload, signature, this.uncompressedPublicKey);
-  }
-};
-
-function nonceToBigInt(nonce: string): bigint {
-  const uuidBytes = uuidParse(nonce); // Get the 16-byte array of the UUID
-  let bigInt = BigInt(0);
-
-  for (let i = 0; i < uuidBytes.length; i++) {
-    if (uuidBytes[i] !== undefined) {
-      bigInt = (bigInt << BigInt(8)) | BigInt(uuidBytes[i]!);
-    }
-  }
-
-  return bigInt;
-}
-
-// this function is used to create paymaster information
-async function generatePaymasterData(
-  address: any,
-  privateKey: any,
-  nonce: any,
-  validUntil: any,
-  validAfter: any
-) {
-  if (validUntil instanceof Date) {
-    validUntil = Math.floor(validUntil.getTime() / 1e3);
-  } else if (typeof validUntil === "bigint") {
-    validUntil = parseInt(validUntil.toString());
-  }
-  if (validAfter instanceof Date) {
-    validAfter = Math.floor(validAfter.getTime() / 1e3);
-  } else if (typeof validAfter === "bigint") {
-    validAfter = parseInt(validAfter.toString());
-  } else if (validAfter === void 0) {
-    validAfter = 0;
-  }
-  const paymasterDataHash = keccak256(
-    encodePacked(
-      ["bytes32", "address", "uint48", "uint48"],
-      [
-        toHex2(nonceToBigInt(nonce), { size: 32 }),
-        address,
-        validUntil,
-        validAfter,
-      ]
-    )
-  );
-  const sig = await signMessage({
-    message: {
-      raw: fromHex(paymasterDataHash, "bytes"),
-    },
-    privateKey,
-  });
-  const paymasterData = encodeAbiParameters(
-    parseAbiParameters("address, uint48, uint48, bytes"),
-    [address, validUntil, validAfter, sig]
-  );
-  return paymasterData;
-}
-
-// This function explains the construction of the okto auth UserOp payload
+/*
+* This function explains the construction of the okto auth UserOp payload
+*/
 async function generateAuthPayload(
   authData: any,
   sessionKey: any,
@@ -142,13 +39,14 @@ async function generateAuthPayload(
   payload.sessionData.sessionPk = sessionKey.uncompressedPublicKeyHexWith0x;
   payload.sessionData.maxPriorityFeePerGas = "0xBA43B7400"; // constant on okto chain
   payload.sessionData.maxFeePerGas = "0xBA43B7400"; // constant on okto chain
-  payload.sessionData.paymaster = "0x5408fAa7F005c46B85d82060c532b820F534437c"; // okto testnet paymaster address
+  payload.sessionData.paymaster = Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS; // okto testnet paymaster address
   console.log("clientSWA", clientSWA);
+
   payload.sessionData.paymasterData = await generatePaymasterData(
     clientSWA,
     clientPriv,
     nonce,
-    new Date(Date.now() + 6 * 60 * 60 * 1e3), // hours in milliseconds
+    new Date(Date.now() + 6 * Constants.HOURS_IN_MS), // hours in milliseconds
     0
   );
 
@@ -198,44 +96,14 @@ async function generateAuthPayload(
   return payload;
 }
 
-function serializeJSON(obj: any, space: any) {
-  return JSON.stringify(
-    obj,
-    (key, value) =>
-      typeof value === "bigint" ? value.toString() + "n" : value,
-    space
-  );
-}
-
-// this function is used to create the Okto Auth Token after successfull authentication
-async function getAuthorizationToken(sessionConfig: any) {
-  const sessionPriv = sessionConfig?.sessionPrivKey;
-  const sessionPub = sessionConfig?.sessionPubKey;
-  if (sessionPriv === void 0 || sessionPub === void 0) {
-    throw new Error("Session keys are not set");
-  }
-  const data = {
-    expire_at: Math.round(Date.now() / 1e3) + 60 * 90,
-    session_pub_key: sessionPub,
-  };
-
-  // Okto auth token is nothing but the session public key encrypted with the session private key
-  const payload = {
-    type: "ecdsa_uncompressed",
-    data,
-    data_signature: await signMessage({
-      message: JSON.stringify(data),
-      privateKey: sessionPriv,
-    }),
-  };
-  return btoa(JSON.stringify(payload));
-}
-
-// This function explains how to construct the payload, excute Okto Authentication and create the Okto auth Token for futhrer API usage
+/**
+* This function explains how to construct the payload, excute Okto Authentication and 
+* create the Okto auth Token for futhrer API usage
+*/
 const OktoAuthTokenGenerator = async () => {
   // Construct the data object with the googleIdToken and the provider.
   // For testing purposes, you can generate the id token from here
-  // - https://docsv2-staging.okto.tech/docs/openapi/authenticate/google-oauth/get-token-id
+  // - https://docs.okto.tech/docs/openapi/authenticate/google-oauth/get-token-id
   const data = {
     idToken: googleIdToken,
     provider: "google",
@@ -262,28 +130,10 @@ const OktoAuthTokenGenerator = async () => {
     clientPrivateKey
   );
 
-  // Construct the request body for the authenticate JSON RPC Method
-  const requestBody = {
-    method: "authenticate",
-    jsonrpc: "2.0",
-    id: uuidv4(),
-    params: [authPayload],
-  };
-
-  const serliazedPayload = serializeJSON(requestBody, null);
-
   // invoke the JSON RPC Method for Authenticate
   // NOTE: The google ID token has a very short expiry. Please generate a new token just before running this code. You can check the expiry at jwt.io
   try {
-    const response = await axios.post(
-      "https://sandbox-okto-gateway.oktostage.com/rpc",
-      serliazedPayload,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await invokeJsonRpc(authPayload);
 
     if (response.status === 200) {
       console.log("User SWA: ", response.data.result.userSWA);
@@ -297,7 +147,7 @@ const OktoAuthTokenGenerator = async () => {
         userSWA: response.data.result.userSWA,
       };
       console.log("Session Config: ", sessionConfig);
-      // Sample Response:
+      // Sample Response: Store the sessionConfig safely for delegated access
       // Session Config: {
       //   sessionPrivKey: '0x096644bf3e32614bb33961d9762d9f2b2768b4ed2e968de2b59c8148875dcec0',
       //     sessionPubKey: '0x04f8e7094449d09d932f78ca4413fbff252fbe4f99445bcc4a4d5d16c31d898f4b8b080289a906334b2bfe6379547c97c6b624afdf0bcdfab5fdfcc28d0dbb98df',
@@ -311,12 +161,11 @@ const OktoAuthTokenGenerator = async () => {
       // Sample Response:
       // Okto session authToken:  eyJ0eXBlIjoiZWNkc2FfdW5jb21wcmVzc2VkIiwiZGF0YSI6eyJleHBpcmVfYXQiOjE3NDEyNjk1NjYsInNlc3Npb25fcHViX2tleSI6IjB4MDQyMDM5ZjJmMGY5MTBjNDc0YWJmZWYyOWFkMmNlODBiZjg5YTU0ZjZlMjBiODI4MWI0NTQxMzZiNmJhODYyODUwNWY4ZTFmMDllNTFiOGU1NWYxMTNhNzZlZTc5NDY0M2Q4MjA3ZmNhY2E5MjZkMzJhMDBhMzZhY2M3YmVlYjY5ZiJ9LCJkYXRhX3NpZ25hdHVyZSI6IjB4ZmE4YWE5OTAyMzRkOTA0Y2Y3ZmNhN2QxMDlmOGIzZTM0N2MyZjM2ODBiN2IyNzYzYTY4MmY5NGQyNjAyZGRkMjJhZDg2ZjhjMTgxMzllMDBkZmNiNzk3Y2RhNWUxMTQ4YzQ1YjE2Njg2YmYxMDUzMjJjNjIwYTU2MDkzZTYyODIxYyJ9
     } else {
-      console.error(response.data.error.message || "Failed to get Okto token");
+      console.error("Failed to get Okto token");
     }
   } catch (err: any) {
     console.error(
-      err.response.data.error.message ||
-      "An error occurred while fetching the Okto token"
+      err.message || "An error occurred while fetching the Okto token"
     );
   }
 };

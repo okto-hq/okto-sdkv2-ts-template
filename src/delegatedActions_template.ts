@@ -1,99 +1,32 @@
 // This script shows how to create the okto auth token for delegated access to the Okto APIs given the session private key and UserSWA
 // This script is intended to be run in a Node.js environment
 
-import { secp256k1 } from "@noble/curves/secp256k1";
-import { keccak_256 } from "@noble/hashes/sha3";
-import { signMessage } from "viem/accounts";
+import { transferToken } from "./tokenTransferIntent_template.js";
+import { getAuthorizationToken } from "./utils/getAuthorizationToken.js";
+import { SessionKey } from "./utils/sessionKey.js";
 import dotenv from "dotenv";
 
 dotenv.config();
-
-var SessionKey = class _SessionKey {
-  priv;
-  constructor(privKey: any) {
-    if (privKey) {
-      this.priv = Uint8Array.from(
-        Buffer.from(privKey.replace("0x", ""), "hex")
-      );
-    } else {
-      this.priv = secp256k1.utils.randomPrivateKey();
-    }
-  }
-  get privateKey() {
-    return this.priv;
-  }
-  get uncompressedPublicKey() {
-    return secp256k1.getPublicKey(this.priv, false);
-  }
-  get compressedPublicKey() {
-    return secp256k1.getPublicKey(this.priv, true);
-  }
-  get privateKeyHex() {
-    return Buffer.from(this.priv).toString("hex");
-  }
-  get uncompressedPublicKeyHex() {
-    return Buffer.from(this.uncompressedPublicKey).toString("hex");
-  }
-  get privateKeyHexWith0x() {
-    return `0x${Buffer.from(this.priv).toString("hex")}`;
-  }
-  get uncompressedPublicKeyHexWith0x() {
-    return `0x${Buffer.from(this.uncompressedPublicKey).toString("hex")}`;
-  }
-  get ethereumAddress() {
-    const publicKeyWithoutPrefix = this.uncompressedPublicKey.slice(1);
-    const hash = keccak_256(publicKeyWithoutPrefix);
-    return `0x${Buffer.from(hash.slice(-20)).toString("hex")}`;
-  }
-  static create() {
-    return new _SessionKey(null);
-  }
-  static fromPrivateKey(privateKey: any) {
-    return new _SessionKey(privateKey);
-  }
-  verifySignature({ payload, signature }: any) {
-    return secp256k1.verify(payload, signature, this.uncompressedPublicKey);
-  }
-};
-
-// this function is used to create the Okto Auth Token after successfull authentication
-async function getAuthorizationToken(sessionConfig: any) {
-  const sessionPriv = sessionConfig?.sessionPrivKey;
-  const sessionPub = sessionConfig?.sessionPubKey;
-  if (sessionPriv === void 0 || sessionPub === void 0) {
-    throw new Error("Session keys are not set");
-  }
-  const data = {
-    expire_at: Math.round(Date.now() / 1e3) + 60 * 90,
-    session_pub_key: sessionPub,
-  };
-
-  // Okto auth token is nothing but the session public key encrypted with the session private key
-  const payload = {
-    type: "ecdsa_uncompressed",
-    data,
-    data_signature: await signMessage({
-      message: JSON.stringify(data),
-      privateKey: sessionPriv,
-    }),
-  };
-  return btoa(JSON.stringify(payload));
-}
-
+var sessionConfig;
 // This function explains how to construct the payload, excute Okto Authentication and create the Okto auth Token for futhrer API usage
 const OktoAuthTokenGenerator = async () => {
   // assumed to be stored by the client
-  const userSWA = "0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5";
+  const userSWA = "0x61795557B50DC229199cE51c46935d7eC560c52F";
   const priv = [
-    42, 22, 96, 6, 206, 114, 117, 231, 152, 86, 24, 197, 254, 229, 5, 79, 142,
-    74, 38, 159, 172, 154, 22, 134, 62, 240, 142, 178, 50, 155, 65, 245,
+    156, 150, 227, 117, 91, 218, 80, 251,
+    105, 128, 46, 209, 189, 220, 200, 124,
+    162, 40, 156, 154, 123, 217, 85, 57,
+    167, 84, 209, 1, 177, 69, 166, 29
   ];
 
+  // Convert the numeric array to a hex string
+  const privKeyHex = "0x" + Buffer.from(priv).toString('hex');
+
   // Construct the session object using the session private key above
-  const session = SessionKey.fromPrivateKey(priv);
+  const session = SessionKey.fromPrivateKey(privKeyHex);
 
   //construct session config using the session object and userSWA
-  const sessionConfig = {
+  sessionConfig = {
     sessionPrivKey: session.privateKeyHexWith0x,
     sessionPubKey: session.uncompressedPublicKeyHexWith0x,
     userSWA,
@@ -110,3 +43,12 @@ const OktoAuthTokenGenerator = async () => {
 OktoAuthTokenGenerator();
 //you can now invoke any other Okto endpoint using the authToken generated above
 //refer to our docs at docs.okto.tech/docs/openapi for API references
+
+// Invoking an Intent using Delegated actions
+if (sessionConfig)
+  transferToken({
+    caipId: "eip155:84532", // BASE_TESTNET
+    recipient: "0x967b26c9e77f2f5e0753bcbcb2bb624e5bbff24c", // Sample recipient on BASE_TESTNET
+    token: "", // Left empty, because transferring native token
+    amount: 1000000000000, // denomination in lowest decimal (18 for WETH)
+  }, sessionConfig)
