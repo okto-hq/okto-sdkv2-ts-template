@@ -30,7 +30,9 @@ async function generateAuthPayload(
   clientSWA: any,
   clientPriv: any
 ) {
+  // STEP 1: Generate a unique UUID-based nonce
   const nonce = uuidv4();
+  // STEP 2: Construct a UserOp authenticate payload
   const payload: any = {};
   payload.authData = authData;
   payload.sessionData = {};
@@ -40,8 +42,6 @@ async function generateAuthPayload(
   payload.sessionData.maxPriorityFeePerGas = "0xBA43B7400"; // constant on okto chain
   payload.sessionData.maxFeePerGas = "0xBA43B7400"; // constant on okto chain
   payload.sessionData.paymaster = Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS; // okto testnet paymaster address
-  console.log("clientSWA", clientSWA);
-
   payload.sessionData.paymasterData = await generatePaymasterData(
     clientSWA,
     clientPriv,
@@ -50,6 +50,7 @@ async function generateAuthPayload(
     0
   );
 
+  // STEP 3: Create a message, sign it and add signatures to the user op. The message is signed using the client's private key and session private key to symbolize both the user and client signatures
   const message = {
     raw: toBytes(
       keccak256(
@@ -97,11 +98,11 @@ async function generateAuthPayload(
 }
 
 /**
-* This function explains how to construct the payload, excute Okto Authentication and 
+* This function explains how to construct the payload, execute Okto Authentication and 
 * create the Okto auth Token for further API usage
 */
 const OktoAuthTokenGenerator = async () => {
-  // Construct the data object with the googleIdToken and the provider.
+  // Construct the data object using the Google ID token and the provider.
   // For testing purposes, you can generate the id token from here
   // - https://docs.okto.tech/docs/openapi/authenticate/google-oauth/get-token-id
   const data = {
@@ -131,7 +132,7 @@ const OktoAuthTokenGenerator = async () => {
   );
 
   // invoke the JSON RPC Method for Authenticate
-  // NOTE: The google ID token has a very short expiry. Please generate a new token just before running this code. You can check the expiry at jwt.io
+  // NOTE: The Google ID token has a very short expiry. Please generate a new token just before running this code. You can check the expiry at jwt.io
   try {
     const response = await invokeJsonRpc(authPayload);
 
@@ -141,8 +142,8 @@ const OktoAuthTokenGenerator = async () => {
       // User SWA: 0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5
       // Authenticate is now successful. For further invocation of any of the other okto functions via API, an Okto Auth token must be generated and passed in the header.
       
-      // CONTRUCTION OF THE OKTO AUTH TOKEN
-      // Construct the session config object using the session key you created and the userSWA from the response
+      // CONSTRUCTION OF THE OKTO AUTH TOKEN
+      // STEP 1: Construct the session config object using the session key you created and the userSWA from the response
       const sessionConfig = {
         sessionPrivKey: session.privateKeyHexWith0x,
         sessionPubKey: session.uncompressedPublicKeyHexWith0x,
@@ -156,10 +157,10 @@ const OktoAuthTokenGenerator = async () => {
       //       userSWA: '0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5'
       // }
 
-      // Get the authorization token using the sessionConfig object
+      // STEP 2: Get the authorization token using the sessionConfig object
       const authToken = await getAuthorizationToken(sessionConfig);
       console.log("Okto session authToken: ", authToken);
-      // Using the above authToken (in the header as bearer token), you can now make requests to the all other Okto Endpoints
+      // Using the above authToken (in the header as bearer token), you can now make requests to all other Okto Endpoints
       // Sample Response:
       // Okto session authToken:  eyJ0eXBlIjoiZWNkc2FfdW5jb21wcmVzc2VkIiwiZGF0YSI6eyJleHBpcmVfYXQiOjE3NDEyNjk1NjYsInNlc3Npb25fcHViX2tleSI6IjB4MDQyMDM5ZjJmMGY5MTBjNDc0YWJmZWYyOWFkMmNlODBiZjg5YTU0ZjZlMjBiODI4MWI0NTQxMzZiNmJhODYyODUwNWY4ZTFmMDllNTFiOGU1NWYxMTNhNzZlZTc5NDY0M2Q4MjA3ZmNhY2E5MjZkMzJhMDBhMzZhY2M3YmVlYjY5ZiJ9LCJkYXRhX3NpZ25hdHVyZSI6IjB4ZmE4YWE5OTAyMzRkOTA0Y2Y3ZmNhN2QxMDlmOGIzZTM0N2MyZjM2ODBiN2IyNzYzYTY4MmY5NGQyNjAyZGRkMjJhZDg2ZjhjMTgxMzllMDBkZmNiNzk3Y2RhNWUxMTQ4YzQ1YjE2Njg2YmYxMDUzMjJjNjIwYTU2MDkzZTYyODIxYyJ9
     } else {
@@ -173,5 +174,5 @@ const OktoAuthTokenGenerator = async () => {
 };
 
 OktoAuthTokenGenerator();
-//you can now invoke any other Okto endpoint using the authToken generated above
+//You can now invoke any other Okto endpoint using the authToken generated above
 //refer to our docs at docs.okto.tech/docs/openapi for API references
