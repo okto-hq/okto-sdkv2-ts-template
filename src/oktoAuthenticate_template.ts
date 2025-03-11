@@ -139,7 +139,9 @@ const OktoAuthTokenGenerator = async () => {
       console.log("User SWA: ", response.data.result.userSWA);
       // Sample Response:
       // User SWA: 0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5
-
+      // Authenticate is now successful. For further invocation of any of the other okto functions via API, an Okto Auth token must be generated and passed in the header.
+      
+      // CONTRUCTION OF THE OKTO AUTH TOKEN
       // Construct the session config object using the session key you created and the userSWA from the response
       const sessionConfig = {
         sessionPrivKey: session.privateKeyHexWith0x,
