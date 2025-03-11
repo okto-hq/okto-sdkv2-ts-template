@@ -5,8 +5,7 @@ import { serializeJSON } from "../helper/serializeJson.js";
 /**
 * Invokes the Okto authenticate JSON-RPC method
 * 
-* This function sends an authentication request to the Okto RPC gateway using
-* the JSON-RPC 2.0 protocol.
+* This function sends an authentication request to the Okto RPC gateway.
 * 
 * @param authPayload - The authentication payload object containing session, clientSWA and clientPrivateKey
 * 

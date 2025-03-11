@@ -6,7 +6,6 @@ import axios from "axios";
  * This function makes an API call to Okto's sandbox API to fetch all supported networks that have been enabled for the client application.
  * 
  * @param OktoAuthToken - Authentication token
- * 
  * @returns Object containing details of all supported blockchain networks available
  *          to the client application. 
  * 

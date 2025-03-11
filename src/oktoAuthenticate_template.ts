@@ -96,13 +96,14 @@ async function generateAuthPayload(
   return payload;
 }
 
-/*
-* This function explains how to construct the payload, excute Okto Authentication and create the Okto auth Token for futhrer API usage
+/**
+* This function explains how to construct the payload, excute Okto Authentication and 
+* create the Okto auth Token for futhrer API usage
 */
 const OktoAuthTokenGenerator = async () => {
   // Construct the data object with the googleIdToken and the provider.
   // For testing purposes, you can generate the id token from here
-  // - https://docsv2-staging.okto.tech/docs/openapi/authenticate/google-oauth/get-token-id
+  // - https://docs.okto.tech/docs/openapi/authenticate/google-oauth/get-token-id
   const data = {
     idToken: googleIdToken,
     provider: "google",
