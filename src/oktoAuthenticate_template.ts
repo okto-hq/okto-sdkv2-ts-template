@@ -1,3 +1,7 @@
+/*
+* This script explains how to perform authentication on Okto and generate an okto auth token
+*/
+
 import { v4 as uuidv4 } from "uuid";
 import {
   encodeAbiParameters,
