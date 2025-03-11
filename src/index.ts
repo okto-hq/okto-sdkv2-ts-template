@@ -1,3 +1,7 @@
+/*
+* This script explains how to use teh Okto TS SDK
+*/
+
 import { OktoClient } from "@okto_web3/core-js-sdk";
 import type { Hash, Hex } from "@okto_web3/core-js-sdk/types";
 import { getAccount, getPortfolio, getChains, getTokens, getPortfolioActivity, getPortfolioNFT, getNftCollections, getOrdersHistory } from "@okto_web3/core-js-sdk/explorer";
