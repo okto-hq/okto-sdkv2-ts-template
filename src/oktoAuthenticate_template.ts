@@ -98,7 +98,7 @@ async function generateAuthPayload(
 
 /**
 * This function explains how to construct the payload, excute Okto Authentication and 
-* create the Okto auth Token for futhrer API usage
+* create the Okto auth Token for further API usage
 */
 const OktoAuthTokenGenerator = async () => {
   // Construct the data object with the googleIdToken and the provider.
