@@ -1,3 +1,7 @@
+/*
+* This script explains how to perform token transfer intent when the okto auth token is available
+*/
+
 import {
   encodeAbiParameters,
   encodeFunctionData,
