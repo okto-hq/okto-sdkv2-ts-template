@@ -64,7 +64,7 @@ export async function executeUserOp(userop: any, authToken: string) {
 
         const serializedPayload = serializeJSON(requestBody);
         const response = await axios.post(
-            "https://sandbox-okto-gateway.oktostage.com/rpc",
+            "https://sandbox-okto-gateway.oktostage.com/rpc", // RPC url for the OKTO Gateway
             serializedPayload,
             {
                 headers: {
