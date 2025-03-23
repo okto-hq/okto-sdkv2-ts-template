@@ -104,30 +104,31 @@ const main = async () => {
 
     // Use signMessage() for simple message signing (EIP-191)
     const data = "Hello Okto";
-    const signMessage = await oktoClient.signMessage(data);
-    console.log('Sign Message: ', signMessage);
+    const signedMessage_response = await oktoClient.signMessage(data);
+    console.log('Signed Message:', signedMessage_response);
 
     // Use signTypedData() for structured, secure signing (EIP-712)
     const typedData = `{
-        domain: {
-            name: "MyDApp",
-            version: "1",
-            chainId: 1,
-            verifyingContract: "0x123456789abcdef"
-        },
-        types: {
-            Message: [
-                { name: "sender", type: "address" },
-                { name: "amount", type: "uint256" }
+        "types": {
+            "EIP712Domain": [
+                { "name": "name", "type": "string" },
+                { "name": "chainId", "type": "uint256" }
+            ],
+            "Test": [
+                { "name": "message", "type": "string" }
             ]
         },
-        message: {
-            sender: "0xYourAddress",
-            amount: 1000,
+        "primaryType": "Test",
+        "domain": {
+            "name": "OktoTest",
+            "chainId": 1
+        },
+        "message": {
+            "message": "Test message"
         }
     }`;
-    const signTypedData = await oktoClient.signMessage(typedData);
-    console.log('Sign Typed Data: ', signTypedData);
+    const signedTypedData_response = await oktoClient.signTypedData(typedData);
+    console.log('Signed Typed Data:', signedTypedData_response);
 };
 
 main();
