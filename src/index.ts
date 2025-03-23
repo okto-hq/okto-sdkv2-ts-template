@@ -101,6 +101,33 @@ const main = async () => {
     //Get Order History
     const orderHistory = await getOrdersHistory(oktoClient)
     console.log('Order History: ', orderHistory);
+
+    // Use signMessage() for simple message signing (EIP-191)
+    const data = "Hello Okto";
+    const signMessage = await oktoClient.signMessage(data);
+    console.log('Sign Message: ', signMessage);
+
+    // Use signTypedData() for structured, secure signing (EIP-712)
+    const typedData = `{
+        domain: {
+            name: "MyDApp",
+            version: "1",
+            chainId: 1,
+            verifyingContract: "0x123456789abcdef"
+        },
+        types: {
+            Message: [
+                { name: "sender", type: "address" },
+                { name: "amount", type: "uint256" }
+            ]
+        },
+        message: {
+            sender: "0xYourAddress",
+            amount: 1000,
+        }
+    }`;
+    const signTypedData = await oktoClient.signMessage(typedData);
+    console.log('Sign Typed Data: ', signTypedData);
 };
 
 main();
