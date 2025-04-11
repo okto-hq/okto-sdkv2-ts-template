@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "@types/node": "^22.13.1",
+    "@types/node": "^22.14.0",
     "nodemon": "^3.1.9",
     "typescript": "^5.7.3"
   },
@@ -10,8 +10,9 @@
   "main": "index.js",
   "scripts": {
     "start:build": "tsc -w",
-    "start:run": "nodemon build/index.js",
-    "start": "concurrently npm:start:*"
+    "start:run": "nodemon dist/index.js",
+    "start": "concurrently npm:start:*",
+    "start:trade-service": "tsc -b && nodemon dist/trade-service/index.js"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
     "axios": "^1.8.1",
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
+    "ethers": "^6.13.5",
     "uuid": "^11.1.0",
     "viem": "^2.23.6"
   }
