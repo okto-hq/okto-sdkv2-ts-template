@@ -8,12 +8,18 @@ import { registerIntent } from './api/registerIntent.js';
 import { Wallet, JsonRpcProvider } from 'ethers';
 import type { GetQuoteResponseData, GetBestRouteRequest, GetBestRouteResponse, GetCallDataRequest, GetCallDataResponse, GetQuoteRequest, RegisterIntentRequest} from './utils/types.js';
 
-const wallet = new Wallet('0x3996037c38de9ce767477181b52ec3868811176d596bcc87f9b9e1b1e83e0dc8');
+const privateKey = process.env.WALLET_PRIVATE_KEY;
+const publicKey = process.env.WALLET_ADDRESS;
+if (!privateKey || !publicKey) {
+    console.error("Please set your wallet private key and address in the .env file.");
+    process.exit(1);
+}
+const wallet = new Wallet(privateKey);
 const provider = new JsonRpcProvider('https://mainnet.infura.io');
 const fromAmount = '10000000000000';                   // 0.00001 ETH in wei 
 const fromChain = 'eip155:1';
 const fromTokenAddress = '';                           // Send empty string for native token
-const walletAddress = '<wallet_address>';
+const walletAddress = publicKey;
 const toChain = 'eip155:1';
 const toTokenAddress = '';                             // Send empty string for native token
 
@@ -214,7 +220,8 @@ async function handleRegisterIntent(callDataResponse: GetCallDataResponse, fromC
     }
 
     const parsedData = JSON.parse(orderTypedData as string);
-    const signature = await wallet.signMessage(parsedData);    // TODO : convert to eth_signTypedData_v4
+    const { domain, types, message } = parsedData;
+    const signature = await wallet.signTypedData( domain, types, message );    // TODO : convert to eth_signTypedData_v4
 
     const crossChainOrderStep = callDataResponse.steps?.find(
         (s: any) =>
@@ -294,11 +301,12 @@ async function main() {
         // Sign the permit data
         console.log('Signing permit data...');
         const permitData = JSON.parse(routeResponse.permitDataToSign as string);
-        const signature = await wallet.signMessage(permitData);   // TODO : convert to eth_signTypedData_v4
+        const { domain , types, message } = permitData;
+        const permitSignature = await wallet.signTypedData(domain, types, message); // Check Types for better clarity 
         
         // Get call data with signature
         console.log('Getting call data with signature...');
-        const callDataResponse = await generateCallData(routeResponse, permitData, signature);
+        const callDataResponse = await generateCallData(routeResponse, permitData, permitSignature);
         
     } else if (isCrossChain) {
         // Cross-chain without permit data
