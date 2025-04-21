@@ -1,5 +1,10 @@
 import axios from "axios";
 import { generateClientSignature } from "./utils/generateClientSignature.js";
+import { type Hex } from "viem";
+import dotenv from "dotenv";
+dotenv.config();
+
+const client_swa = process.env.OKTO_CLIENT_SWA as Hex;
 
 async function postSignedRequest(endpoint: any, fullPayload: any) {
     const payloadWithTimestamp = {
@@ -24,11 +29,14 @@ async function postSignedRequest(endpoint: any, fullPayload: any) {
     return response.data;
 }
 
+/**
+ * This function sends an OTP to the user's WhatsApp number for authentication.
+ */
 export async function sendOtp() {
     const payload = {
         whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
         country_short_name: "IN", // Replace with the user's country short name
-        client_swa: "0xef508a2EF36f0696E3f3C4CF3727C615EEF991ce", // Replace with your client_swa
+        client_swa: client_swa, // Replace with your client_swa
     };
 
     try {
@@ -39,19 +47,22 @@ export async function sendOtp() {
         console.log("OTP Sent:", res);
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            console.error("Axios error (verifyOtp):", error.response?.data);
+            console.error("Axios error (sendOTP):", error.response?.data);
         } else {
             console.error("Unexpected error:", error);
         }
     }
 }
 
+/**
+ * This function resends the OTP to the user's WhatsApp number. It is optional and can be used in case the initial OTP was not received.
+ */
 export async function resendOtp(token: any) {
     const payload = {
         whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
         country_short_name: "IN", // Replace with the user's country short name
         token: token,
-        client_swa: "0xef508a2EF36f0696E3f3C4CF3727C615EEF991ce", // Replace with your client_swa
+        client_swa: client_swa, // Replace with your client_swa
     };
 
     try {
@@ -62,20 +73,24 @@ export async function resendOtp(token: any) {
         console.log("OTP Resent:", res);
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            console.error("Axios error (verifyOtp):", error.response?.data);
+            console.error("Axios error (resendOTP):", error.response?.data);
         } else {
             console.error("Unexpected error:", error);
         }
     }
 }
 
+/**
+ * This function verifies the OTP received via WhatsApp.
+ * It should be called with the token returned from the sendOtp() or resendOtp() call, along with the OTP received via WhatsApp.
+ */
 export async function verifyOtp(token: any, otp: any) {
     const payload = {
         whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
         country_short_name: "IN", // Replace with the user's country short name
         token: token,
         otp: otp,
-        client_swa: "0xef508a2EF36f0696E3f3C4CF3727C615EEF991ce",  // Replace with your client_swa
+        client_swa: client_swa,  // Replace with your client_swa
     };
 
     try {
@@ -86,7 +101,7 @@ export async function verifyOtp(token: any, otp: any) {
         console.log("OTP Verified:", res);
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            console.error("Axios error (verifyOtp):", error.response?.data);
+            console.error("Axios error (verifyOTP):", error.response?.data);
         } else {
             console.error("Unexpected error:", error);
         }
@@ -119,9 +134,8 @@ sendOtp();
 * Provide the same token returned from the sendOtp() call.
 */
 
-resendOtp("86fec014-4c1d-5a87-9297-787a7cf8565a");
+resendOtp("86fec014-4c1d-5a87-9297-787a7cf8565a"); // Replace with token from the sendOtp() response
 // Sample Response:
-// This response if for other token. that's why its is not same as one used for verifyOtp.
 // OTP Resent: {
 //   status: 'success',
 //   data: {
@@ -139,7 +153,7 @@ resendOtp("86fec014-4c1d-5a87-9297-787a7cf8565a");
 * Call this method using the token from Step 1 or 2, along with the OTP received via WhatsApp.
 */
 
-verifyOtp("eb0f8e36-1998-59de-b6b4-34366abe13bb", "332663");
+verifyOtp("eb0f8e36-1998-59de-b6b4-34366abe13bb", "332663"); // Replace with actual token and OTP
 // Sample Response:
 // OTP Verified: {
 //   status: 'success',
