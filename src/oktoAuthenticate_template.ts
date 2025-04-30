@@ -177,6 +177,6 @@ export const OktoAuthTokenGenerator = async (idToken: string, provider: string) 
   }
 };
 
-// OktoAuthTokenGenerator(googleIdToken, "google");
+OktoAuthTokenGenerator(googleIdToken, "google");
 // You can now invoke any other Okto endpoint using the authToken generated above
 // refer to our docs at docs.okto.tech/docs/openapi for API references
