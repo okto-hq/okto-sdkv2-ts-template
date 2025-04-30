@@ -106,7 +106,7 @@ export async function transferToken(data: Data, sessionConfig: SessionConfig) {
     parseAbiParameters("bytes4, address,uint256, bytes"),
     [
       "0x8dd7712f", //execute userop function selector
-      "0xE2BB608BF66b81d3EDc93e77ef1CdDEE4Fdc679e", //job manager address
+      "0xE2BB608BF66b81d3EDc93e77ef1CdDEE4Fdc679e", // This Job Manager is replaced by "TokenTransferBloc" address
       BigInt(0),
       encodeFunctionData({
         abi: INTENT_ABI,
