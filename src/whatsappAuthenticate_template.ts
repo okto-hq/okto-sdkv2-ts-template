@@ -35,7 +35,7 @@ async function postSignedRequest(endpoint: any, fullPayload: any) {
  */
 export async function sendOtp() {
     const payload = {
-        whatsapp_number: "8275738248", // Replace with the user's WhatsApp number
+        whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
         country_short_name: "IN", // Replace with the user's country short name
         client_swa: client_swa, // Replace with your client_swa
     };
@@ -60,7 +60,7 @@ export async function sendOtp() {
  */
 export async function resendOtp(token: any) {
     const payload = {
-        whatsapp_number: "8275738248", // Replace with the user's WhatsApp number
+        whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
         country_short_name: "IN", // Replace with the user's country short name
         token: token,
         client_swa: client_swa, // Replace with your client_swa
@@ -87,7 +87,7 @@ export async function resendOtp(token: any) {
  */
 export async function verifyOtp(token: any, otp: any) {
     const payload = {
-        whatsapp_number: "8275738248", // Replace with the user's WhatsApp number
+        whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
         country_short_name: "IN", // Replace with the user's country short name
         token: token,
         otp: otp,
