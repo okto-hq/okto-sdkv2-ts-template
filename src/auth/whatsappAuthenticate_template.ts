@@ -1,5 +1,5 @@
 import axios from "axios";
-import { generateClientSignature } from "./utils/generateClientSignature.js";
+import { generateClientSignature } from "../utils/generateClientSignature.js";
 import { type Hex } from "viem";
 import dotenv from "dotenv";
 import { OktoAuthTokenGenerator } from "./oktoAuthenticate_template.js";

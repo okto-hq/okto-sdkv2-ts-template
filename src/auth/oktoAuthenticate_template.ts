@@ -12,12 +12,12 @@ import {
   type Hex,
 } from "viem";
 import { signMessage } from "viem/accounts";
-import { generatePaymasterData } from "./utils/generatePaymasterData.js";
-import { SessionKey } from "./utils/sessionKey.js";
-import { Constants } from "./helper/constants.js";
-import { getAuthorizationToken } from "./utils/getAuthorizationToken.js";
+import { generatePaymasterData } from "../utils/generatePaymasterData.js";
+import { SessionKey } from "../utils/sessionKey.js";
+import { Constants } from "../helper/constants.js";
+import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
 import dotenv from "dotenv";
-import { invokeJsonRpc } from "./utils/invokeJsonRpc.js";
+import { invokeJsonRpc } from "../utils/invokeJsonRpc.js";
 
 dotenv.config();
 
