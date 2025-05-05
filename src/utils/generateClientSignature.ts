@@ -1,8 +1,13 @@
 import { ethers } from "ethers";
+import { config } from "dotenv";
+
+config();
+
+const client_private_key = process.env.OKTO_CLIENT_PRIVATE_KEY as string;
 
 // Replace with your actual private key (Client Private Key)
 // Remove '0x' prefix if it exists
-const privateKey = "1b830a418c486398827ee384e2525fd5adcd628aac2ab21ffa6e14772e938c41";
+const privateKey = client_private_key.startsWith("0x") ? client_private_key.slice(2) : client_private_key;
 const wallet = new ethers.Wallet(privateKey);
 
 /**
