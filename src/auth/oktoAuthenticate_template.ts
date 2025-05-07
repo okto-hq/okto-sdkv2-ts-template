@@ -12,12 +12,12 @@ import {
   type Hex,
 } from "viem";
 import { signMessage } from "viem/accounts";
-import { generatePaymasterData } from "./utils/generatePaymasterData.js";
-import { SessionKey } from "./utils/sessionKey.js";
-import { Constants } from "./helper/constants.js";
-import { getAuthorizationToken } from "./utils/getAuthorizationToken.js";
+import { generatePaymasterData } from "../utils/generatePaymasterData.js";
+import { SessionKey } from "../utils/sessionKey.js";
+import { Constants } from "../helper/constants.js";
+import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
 import dotenv from "dotenv";
-import { invokeJsonRpc } from "./utils/invokeJsonRpc.js";
+import { invokeJsonRpc } from "../utils/invokeJsonRpc.js";
 
 dotenv.config();
 
@@ -105,16 +105,16 @@ async function generateAuthPayload(
 }
 
 /**
- * This function explains how to construct the payload, execute Okto Authentication and
- * create the Okto auth Token for further API usage
- */
-const OktoAuthTokenGenerator = async () => {
+* This function explains how to construct the payload, execute Okto Authentication and 
+* create the Okto auth Token for further API usage
+*/
+export const OktoAuthTokenGenerator = async (idToken: string, provider: string) => {
   // Construct the data object using the Google ID token and the provider.
   // For testing purposes, you can generate the id token from here
   // - https://docs.okto.tech/docs/openapi/authenticate/google-oauth/get-token-id
   const data = {
-    idToken: verifyAuthToken,
-    provider: "okto",
+    idToken,
+    provider,
   };
 
   // Create a new session key using a random private key
@@ -180,6 +180,6 @@ const OktoAuthTokenGenerator = async () => {
   }
 };
 
-OktoAuthTokenGenerator();
-//You can now invoke any other Okto endpoint using the authToken generated above
-//refer to our docs at docs.okto.tech/docs/openapi for API references
+OktoAuthTokenGenerator(googleIdToken, "google");
+// You can now invoke any other Okto endpoint using the authToken generated above
+// refer to our docs at docs.okto.tech/docs/openapi for API references
