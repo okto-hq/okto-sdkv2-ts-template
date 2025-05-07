@@ -113,7 +113,7 @@ sendOtp();
  * Call this method using the token from Step 1, along with the OTP received via Email.
  */
 
-// verifyOtp("ba5677ed-8f8b-5b2f-b473-7eddcd407864", "369645"); // Replace with actual token and OTP
+verifyOtp("ba5677ed-8f8b-5b2f-b473-7eddcd407864", "369645"); // Replace with actual token from send/resend otp and OTP
 // Sample Response:
 // OTP Verified: {
 //   status: 'success',
