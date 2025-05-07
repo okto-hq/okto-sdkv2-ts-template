@@ -1,0 +1,170 @@
+import axios from "axios";
+import { generateClientSignature } from "./utils/generateClientSignature.js";
+import { type Hex } from "viem";
+import dotenv from "dotenv";
+import { ethers } from "ethers";
+dotenv.config();
+
+const client_swa = process.env.OKTO_CLIENT_SWA as Hex;
+
+async function postSignedRequest(endpoint: any, fullPayload: any) {
+  const payloadWithTimestamp = {
+    ...fullPayload,
+    timestamp: Date.now() - 1000, // Adding 5 minutes to the current timestamp
+  };
+
+  console.log("Payload with Timestamp:", payloadWithTimestamp);
+  const privateKey =
+    "eada00178b3c3b472b9e63dfebdd61d6b8c7ced224dd1279025e112a3f996ca7";
+  const wallet = new ethers.Wallet(privateKey);
+
+  const message = JSON.stringify(payloadWithTimestamp);
+  const signature = await wallet.signMessage(message);
+
+  const requestBody = {
+    data: payloadWithTimestamp,
+    client_signature: signature,
+    type: "ethsign",
+  };
+  console.log("Request Body:", requestBody);
+
+  const response = await axios.post(endpoint, requestBody, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return response.data;
+}
+
+/**
+ * This function sends an OTP to the user's emailId for authentication.
+ */
+export async function sendOtp() {
+  const payload = {
+    email: "abhiceles1234@gmail.com", // Replace with the user's email
+    client_swa: client_swa, // Replace with your client_swa
+  };
+
+  try {
+    const res = await postSignedRequest(
+      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/email",
+      payload
+    );
+    console.log("OTP Sent:", res);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error (sendOTP):", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+  }
+}
+
+/**
+ * This function resends the OTP to the user's emailId. It is optional and can be used in case the initial OTP was not received.
+ */
+export async function resendOtp(token: any) {
+  const payload = {
+    email: "testxxx@xxx", // Replace with the user's email
+    token: token,
+    client_swa: client_swa, // Replace with your client_swa
+  };
+
+  try {
+    const res = await postSignedRequest(
+      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/email",
+      payload
+    );
+    console.log("OTP Resent:", res);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error (resendOTP):", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+  }
+}
+
+/**
+ * This function verifies the OTP received via Email.
+ * It should be called with the token returned from the sendOtp() or resendOtp() call, along with the OTP received via Email.
+ */
+export async function verifyOtp(token: any, otp: any) {
+  const payload = {
+    email: "abhiceles1234@gmail.com", // Replace with the user's WhatsApp number
+    token: token,
+    otp: otp,
+    client_swa: client_swa, // Replace with your client_swa
+  };
+
+  try {
+    const res = await postSignedRequest(
+      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/email/verify",
+      payload
+    );
+    console.log("OTP Verified:", res);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error (verifyOTP):", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+  }
+}
+
+// Example usage:
+
+/*
+ * Step 1: Send OTP
+ * Call this method to send an OTP to the user's WhatsApp number.
+ */
+
+sendOtp();
+// Sample Response:
+// OTP Sent: {
+//   status: 'success',
+//   data: {
+//     status: 'success',
+//     message: 'email otp sent',
+//     code: 200,
+//     token: 'eb0f8e36-1998-59de-b6b4-34366abe13bb',
+//     trace_id: '1f1766f4bc4536e68f64bc4dacb55f2c'
+//   }
+// }
+
+/*
+ * Step 2 (Optional): Resend OTP
+ * This step is optional and can be used in case the initial OTP was not received.
+ * Provide the same token returned from the sendOtp() call.
+ */
+
+// resendOtp("86fec014-4c1d-5a87-9297-787a7cf8565a"); // Replace with token from the sendOtp() response
+// Sample Response:
+// OTP Resent: {
+//   status: 'success',
+//   data: {
+//     status: 'success',
+//     message: 'whatsapp otp sent',
+//     code: 200,
+//     token: '86fec014-4c1d-5a87-9297-787a7cf8565a',
+//     trace_id: '1d0fa3b18ddf23a175cb0c06fb7f705d'
+//   }
+// }
+
+/*
+ * Step 3: Verify OTP
+ * Call this method using the token from Step 1 or 2, along with the OTP received via WhatsApp.
+ */
+
+// verifyOtp("0b7661f3-0f3d-558c-a162-39bba0af4c29", "153230"); // Replace with actual token and OTP
+// Sample Response:
+// OTP Verified: {
+//   status: 'success',
+//   data: {
+//     auth_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2luZGN4X2lkIjoiNjA5OTMyMGYtMTMxNC00NmJkLWFkMWUtNmY5MWU3Mjg5MGY4IiwidXNlcl9pZCI6IjYwOTkzMjBmLTEzMTQtNDZiZC1hZDFlLTZmOTFlNzI4OTBmOCIsInNoYXJlZF9pZCI6bnVsbCwiZGN4X2NyZWF0ZWRfYXQiOm51bGwsInBvcnRmb2xpb0ZhY3RvciI6IjEiLCJhY2NUeXBlIjoid2ViMyIsImFjY291bnRfb3duZXJfaWQiOiJjNTcwMzA0Yi1hOTkwLTVkMGMtYTViZi1hYTI5ODk0ZjQ4MTciLCJzZXNzaW9uSWQiOiJlYWVlNDYyZC05N2U0LTQzNTAtODg4My00MzAwNjFjMjExMGQiLCJ1c2VyX2xvZ2luX3ZlbmRvcl9pZCI6ImJkNjMwYWMyLWRiZjgtNGZmMS04YTNhLThjOGMxYjY3MzIzNSIsInMiOiJ3ZWIiLCJ1c2VyQWdlbnQiOiJheGlvcy8xLjguMSIsInNpcCI6IjEwNi4yMTMuODEuMTI2Iiwic2NpdHkiOiJQdW5lIiwic2NvdW50cnkiOiJJTiIsInNyZWdpb24iOiJNSCIsImxvZ2luX21lZGl1bSI6IldIQVRTQVBQX09UUCIsImlhdCI6MTc0NTIwODg1NSwiZXhwIjoxNzQ2MDcyODU1fQ.Lm-QJhJA2xkvNfy6Apgp10P0dVxu7PMWTxVC52sidpI',
+//     message: 'success',
+//     refresh_auth_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2luZGN4X2lkIjoiNjA5OTMyMGYtMTMxNC00NmJkLWFkMWUtNmY5MWU3Mjg5MGY4IiwidXNlcl9pZCI6IjYwOTkzMjBmLTEzMTQtNDZiZC1hZDFlLTZmOTFlNzI4OTBmOCIsInNoYXJlZF9pZCI6bnVsbCwiZGN4X2NyZWF0ZWRfYXQiOm51bGwsInBvcnRmb2xpb0ZhY3RvciI6IjEiLCJhY2NUeXBlIjoid2ViMyIsImFjY291bnRfb3duZXJfaWQiOiJjNTcwMzA0Yi1hOTkwLTVkMGMtYTViZi1hYTI5ODk0ZjQ4MTciLCJzZXNzaW9uSWQiOiJlYWVlNDYyZC05N2U0LTQzNTAtODg4My00MzAwNjFjMjExMGQiLCJ1c2VyX2xvZ2luX3ZlbmRvcl9pZCI6ImJkNjMwYWMyLWRiZjgtNGZmMS04YTNhLThjOGMxYjY3MzIzNSIsInMiOiJ3ZWIiLCJ1c2VyQWdlbnQiOiJheGlvcy8xLjguMSIsInNpcCI6IjEwNi4yMTMuODEuMTI2Iiwic2NpdHkiOiJQdW5lIiwic2NvdW50cnkiOiJJTiIsInNyZWdpb24iOiJNSCIsImxvZ2luX21lZGl1bSI6IldIQVRTQVBQX09UUCIsInIiOiIxIiwiaWF0IjoxNzQ1MjA4ODU1LCJleHAiOjE3NDc4MDA4NTV9.JSMV_HHRcYFprqsnxEAr-169eMwGpBYFk4G2W1Lo6WE',
+//     device_token: '31910375fe7dec6658b3a7b55a2b16debb5be92473fad48f098d1bcf19f3e0a6'
+//   }
+// }

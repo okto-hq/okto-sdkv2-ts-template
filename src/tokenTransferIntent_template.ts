@@ -1,6 +1,6 @@
 /*
-* This script explains how to perform token transfer intent when the okto auth token is available
-*/
+ * This script explains how to perform token transfer intent when the okto auth token is available
+ */
 
 import {
   encodeAbiParameters,
@@ -15,7 +15,11 @@ import { INTENT_ABI } from "./helper/abi.js";
 import { Constants } from "./helper/constants.js";
 import { paymasterData } from "./utils/generatePaymasterData.js";
 import { nonceToBigInt } from "./helper/nonceToBigInt.js";
-import { signUserOp, executeUserOp, type SessionConfig } from "./utils/userOpExecutor.js";
+import {
+  signUserOp,
+  executeUserOp,
+  type SessionConfig,
+} from "./utils/userOpEstimateAndExecute.js";
 import { getChains } from "./utils/getChains.js";
 
 import dotenv from "dotenv";
@@ -43,7 +47,6 @@ interface Data {
  * @returns The job ID for the token transfer.
  */
 export async function transferToken(data: Data, sessionConfig: SessionConfig) {
-
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
@@ -96,7 +99,9 @@ export async function transferToken(data: Data, sessionConfig: SessionConfig) {
   //   }
   // ]
 
-  const currentChain = chains.find((chain: any) => chain.caip_id === data.caipId);
+  const currentChain = chains.find(
+    (chain: any) => chain.caip_id === data.caipId
+  );
   if (!currentChain) {
     throw new Error(`Chain Not Supported`);
   }

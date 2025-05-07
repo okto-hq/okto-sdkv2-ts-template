@@ -2,44 +2,32 @@
  * This script explains how to perform raw txn execute intent when the okto auth token is available
  */
 
-import {
-  encodeAbiParameters,
-  encodeFunctionData,
-  parseAbiParameters,
-  toHex,
-  stringToBytes,
-  type Hash,
-  type Hex,
-} from "viem";
+import { toHex, type Hash, type Hex } from "viem";
 import { v4 as uuidv4 } from "uuid";
-import { INTENT_ABI } from "./helper/abi.js";
-import { Constants } from "./helper/constants.js";
-import { paymasterData } from "./utils/generatePaymasterData.js";
-import { nonceToBigInt } from "./helper/nonceToBigInt.js";
+import { Constants } from "../helper/constants.js";
+import { paymasterData } from "../utils/generatePaymasterData.js";
 import {
   signUserOp,
   executeUserOp,
   type SessionConfig,
-} from "./utils/userOpEstimateAndExecute.js";
+} from "../utils/userOpEstimateAndExecute.js";
 import dotenv from "dotenv";
-import { getChains } from "./utils/getChains.js";
+import { getChains } from "../utils/getChains.js";
+import { estimateUserOp } from "../utils/userOpEstimateAndExecute.js";
 
 dotenv.config();
-
-const clientPrivateKey = process.env.OKTO_CLIENT_PRIVATE_KEY as Hash;
-const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
 
 interface EVMRawTransaction {
   from: string;
   to: string;
   data?: string;
-  value?: number | bigint;
+  value?: string;
 }
 
 interface Data {
   caip2Id: string;
-  transaction: EVMRawTransaction;
+  transactions: EVMRawTransaction[];
 }
 
 /**
@@ -51,15 +39,8 @@ interface Data {
  * @returns The jobid for the NFT transfer.
  */
 async function rawTransaction(data: Data, sessionConfig: SessionConfig) {
-  console.log("Data: ", data);
-  console.log("Session Config: ", sessionConfig);
-
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
-
-  // Get the Intent execute API info
-  const jobParametersAbiType = "(string caip2Id, bytes[] transactions)";
-  const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
 
   // get the Chain CAIP2ID required for payload construction
   // Note: Only the chains enabled on the Client's Developer Dashboard will be shown in the response
@@ -124,75 +105,62 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig) {
     throw new Error(`Chain Not Supported`);
   }
 
-  // create the UserOp Call data for raw txn execute intent
-  const calldata = encodeAbiParameters(
-    parseAbiParameters("bytes4, address,uint256, bytes"),
-    [
-      "0x8dd7712f", //execute userop function selector
-      "0xED3D17cae886e008D325Ad7c34F3bdE030B80c2E", //job manager address
-      BigInt(0),
-      encodeFunctionData({
-        abi: INTENT_ABI,
-        functionName: "initiateJob",
-        args: [
-          toHex(nonceToBigInt(nonce), { size: 32 }),
-          clientSWA,
-          sessionConfig.userSWA,
-          encodeAbiParameters(
-            parseAbiParameters("(bool gsnEnabled, bool sponsorshipEnabled)"),
-            [
-              {
-                gsnEnabled: currentChain.gsnEnabled ?? false,
-                sponsorshipEnabled: currentChain.sponsorshipEnabled ?? false,
-              },
-            ]
-          ),
-          encodeAbiParameters(parseAbiParameters(gsnDataAbiType), [
-            {
-              isRequired: false,
-              requiredNetworks: [],
-              tokens: [],
-            },
-          ]),
-          encodeAbiParameters(parseAbiParameters(jobParametersAbiType), [
-            {
-              caip2Id: data.caip2Id,
-              transactions: [
-                toHex(stringToBytes(JSON.stringify(data.transaction))),
-              ],
-            },
-          ]),
-          "RAW_TRANSACTION",
-        ],
+  // create the Estimate UserOp payload for token transfer intent
+  console.log("generating estimateUserOp Payload...");
+  const estimateUserOpPayload = {
+    type: "RAW_TRANSACTION",
+    jobId: "",
+    feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",   // Treasury Wallet's address
+    gasDetails: {
+      maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
+      maxPriorityFeePerGas: toHex(
+        Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
+      ),
+      paymasterData: await paymasterData({
+        nonce,
+        validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
       }),
-    ]
-  );
-  console.log("Calldata: ", calldata);
-  // Sample Response:
-  // calldata: 0x8dd7712f00000000000000000000000000000000000000000000000000000000000000000000000000000000ed3d17cae886e008d325ad7c34f3bde030b80c2e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000004248fa61ac000000000000000000000000000000000a43a640d34d94fd2b942a353d8b6c5e5000000000000000000000000ef508a2ef36f0696e3f3c4cf3727c615eef991ce00000000000000000000000061795557b50dc229199ce51c46935d7ec560c52f00000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000000000022000000000000000000000000000000000000000000000000000000000000003e000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000c6569703135353a383435333200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000897b2266726f6d223a22307832433645663834616344393564413134303737313266394165343639383937334436343434303862222c22746f223a22307839363762323663396537376632663565303735336263626362326262363234653562626666323463222c2264617461223a223078222c2276616c7565223a313030303030303030303030307d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f5241575f5452414e53414354494f4e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-
-  // Construct the UserOp with all the data fetched above, sign it and add the signature to the userOp
-  const userOp = {
-    sender: sessionConfig.userSWA,
-    nonce: toHex(nonceToBigInt(nonce), { size: 32 }),
-    paymaster: "0x0871051BfF8C7041c985dEddFA8eF63d23AD3Fa0", //paymaster address
-    callGasLimit: toHex(Constants.GAS_LIMITS.CALL_GAS_LIMIT),
-    verificationGasLimit: toHex(Constants.GAS_LIMITS.VERIFICATION_GAS_LIMIT),
-    preVerificationGas: toHex(Constants.GAS_LIMITS.PRE_VERIFICATION_GAS),
-    maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
-    maxPriorityFeePerGas: toHex(Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS),
-    paymasterPostOpGasLimit: toHex(
-      Constants.GAS_LIMITS.PAYMASTER_POST_OP_GAS_LIMIT
-    ),
-    paymasterVerificationGasLimit: toHex(
-      Constants.GAS_LIMITS.PAYMASTER_VERIFICATION_GAS_LIMIT
-    ),
-    callData: calldata,
-    paymasterData: await paymasterData({
-      nonce,
-      validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
-    }),
+    },
+    details: {
+      caip2Id: data.caip2Id,
+      transactions: [...data.transactions],
+    },
   };
+
+  console.log("Estimate UserOp payload", estimateUserOpPayload);
+  // Sample Payload: {
+  //     "type": "RAW_TRANSACTION",
+  //     "jobId": "18e9d5f5-03b9-48fa-8720-ec68f7e4257d",
+  //     "feePayerAddress": "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",
+  //     "gasDetails": {
+  //         "maxFeePerGas": "0xBA43B7400",
+  //         "maxPriorityFeePerGas": "0xBA43B7400"
+  //     },
+  //     "paymasterData": "0x0000000000000000000000006b6fad2600bc57075ee560a6fdf362ffefb9dc3c00000000000000000000000000000000000000000000000000000194e0c0336c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000041a7d59936eb44abe904522f6bfd87a8c5ff2e1acf768ad34695e2370950b7e9160e6924d788a22594bff085c185e4ed63ae0498d1628b2749979bb2b1fafb61f41b00000000000000000000000000000000000000000000000000000000000000",
+  //     "details": {
+  //         "caip2Id": "eip155:137",
+  //         "transactions": [
+  //             {
+  //                 "data": "0x0ce51f56000000000000000000000000d711a6da536f04f4394e259e1977f2ade3eb8dc3000000000000000000000000000000000000000000000000000010822dc491d700000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000045663937623937353235323939633936323639633962316233363235653662346630666139363964663733633532663661306235323338373430623032383865362e6a736f6e000000000000000000000000000000000000000000000000000000",
+  //                 "from": "0x0058277dfC89a0E546BDc0949A35d610c8a7d987",
+  //                 "to": "0xD6d06Cf01cb1316E813dCeFE0a7A2558a3FAEAc1",
+  //                 "value": "0x0"
+  //             }
+  //         ]
+  //     }
+  // }
+
+  // Call the estimateUserOp API to get the UserOp object
+  console.log("calling estimate userop..."); // to be removed
+  const estimateUserOpResponse = await estimateUserOp(
+    estimateUserOpPayload,
+    OktoAuthToken
+  );
+  // Sample Response:
+  // estimateUserOpResponse: {}                                 TODO : add sample response
+
+  // Get the UserOp from the estimate response fetched above, sign it and add the signature to the userOp
+  const userOp = estimateUserOpResponse.result.userOps;
   console.log("Unsigned UserOp: ", userOp);
   // Sample Response:
   // Unsigned UserOp: {
@@ -239,20 +207,22 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig) {
 // To get the caip2Id, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
 const data: Data = {
   caip2Id: "eip155:84532", // BASE_TESTNET
-  transaction: {
-    from: "0x2C6Ef84acD95dA1407712f9Ae4698973D644408b",
-    to: "0x967b26c9e77f2f5e0753bcbcb2bb624e5bbff24c",
-    data: "0x", // Default empty data
-    value: 1000000000000,
-  },
+  transactions: [
+    {
+      data: "0x", // Default empty data
+      from: "0x2C6Ef84acD95dA1407712f9Ae4698973D644408b",
+      to: "0x967b26c9e77f2f5e0753bcbcb2bb624e5bbff24c",
+      value: "0x0", // amount in Hex (0x0 = 0)
+    },
+  ],
 };
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0x096644bf3e32614bb33961d9762d9f2b2768b4ed2e968de2b59c8148875dcec0",
+    "0xa7a313f22193aa7a7a8721b23279fcc03f5cd8b54de291f94300128eb9d9962e",
   sessionPubkey:
-    "0x04f8e7094449d09d932f78ca4413fbff252fbe4f99445bcc4a4d5d16c31d898f4b8b080289a906334b2bfe6379547c97c6b624afdf0bcdfab5fdfcc28d0dbb98df",
-  userSWA: "0x61795557B50DC229199cE51c46935d7eC560c52F",
+    "0x044a9339fd9d1526ac66f2514479b1e862340e44a73937c6efe671fa5ec9f27a18f6d3b6ac2d6cc4c70b8dba423878e2fa27d8402da90065b971e0b972898e8d76",
+  userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
 };
 
 rawTransaction(data, sessionConfig);

@@ -2,31 +2,20 @@
  * This script explains how to perform NFT transfer intent when the okto auth token is available
  */
 
-import {
-  encodeAbiParameters,
-  encodeFunctionData,
-  parseAbiParameters,
-  toHex,
-  type Hash,
-  type Hex,
-} from "viem";
+import { toHex, type Hash, type Hex } from "viem";
 import { v4 as uuidv4 } from "uuid";
-import { INTENT_ABI } from "./helper/abi.js";
-import { Constants } from "./helper/constants.js";
-import { paymasterData } from "./utils/generatePaymasterData.js";
-import { nonceToBigInt } from "./helper/nonceToBigInt.js";
+import { Constants } from "../helper/constants.js";
+import { paymasterData } from "../utils/generatePaymasterData.js";
 import {
   signUserOp,
   executeUserOp,
   type SessionConfig,
-} from "./utils/userOpEstimateAndExecute.js";
+  estimateUserOp,
+} from "../utils/userOpEstimateAndExecute.js";
 import dotenv from "dotenv";
-import { getChains } from "./utils/getChains.js";
+import { getChains } from "../utils/getChains.js";
 
 dotenv.config();
-
-const clientPrivateKey = process.env.OKTO_CLIENT_PRIVATE_KEY as Hash;
-const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
 
 interface Data {
@@ -34,7 +23,7 @@ interface Data {
   collectionAddress: string;
   nftId: string;
   recipientWalletAddress: string;
-  amount: number | bigint;
+  amount: string;
   nftType: "ERC721" | "ERC1155" | string;
 }
 
@@ -49,11 +38,6 @@ interface Data {
 async function transferNft(data: Data, sessionConfig: SessionConfig) {
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
-
-  // Get the Intent execute API info
-  const jobParametersAbiType =
-    "(string caip2Id, string nftId, string recipientWalletAddress, string collectionAddress, string nftType, uint amount)";
-  const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
 
   // get the Chain CAIP2ID required for payload construction
   // Note: Only the chains enabled on the Client's Developer Dashboard will be shown in the response
@@ -118,77 +102,62 @@ async function transferNft(data: Data, sessionConfig: SessionConfig) {
     throw new Error(`Chain Not Supported`);
   }
 
-  // create the UserOp Call data for NFT transfer intent
-  const calldata = encodeAbiParameters(
-    parseAbiParameters("bytes4, address, uint256, bytes"),
-    [
-      "0x8dd7712f", // execute userOp function selector
-      "0xED3D17cae886e008D325Ad7c34F3bdE030B80c2E", // Job manager address
-      BigInt(0), // userop value
-      encodeFunctionData({
-        abi: INTENT_ABI,
-        functionName: "initiateJob",
-        args: [
-          toHex(nonceToBigInt(nonce), { size: 32 }),
-          clientSWA,
-          sessionConfig.userSWA,
-          encodeAbiParameters(
-            parseAbiParameters("(bool gsnEnabled, bool sponsorshipEnabled)"),
-            [
-              {
-                gsnEnabled: currentChain.gsnEnabled ?? false,
-                sponsorshipEnabled: currentChain.sponsorshipEnabled ?? false,
-              },
-            ]
-          ),
-          encodeAbiParameters(parseAbiParameters(gsnDataAbiType), [
-            {
-              isRequired: false,
-              requiredNetworks: [],
-              tokens: [],
-            },
-          ]),
-          encodeAbiParameters(parseAbiParameters(jobParametersAbiType), [
-            {
-              amount: BigInt(data.amount),
-              caip2Id: data.caipId,
-              recipientWalletAddress: data.recipientWalletAddress,
-              nftId: data.nftId,
-              collectionAddress: data.collectionAddress,
-              nftType: data.nftType,
-            },
-          ]),
-          "NFT_TRANSFER",
-        ],
-      }),
-    ]
-  );
-  console.log("Call Data: ", calldata);
-  // Sample Response:
-  // Call Data:  0x8dd7712f00000000000000000000000000000000000000000000000000000000000000000000000000000000ed3d17cae886e008d325ad7c34f3bde030b80c2e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000004e48fa61ac000000000000000000000000000000000a6a2ef483d6547bd8a0a9a0c4bf66dd4000000000000000000000000ef508a2ef36f0696e3f3c4cf3727c615eef991ce00000000000000000000000061795557b50dc229199ce51c46935d7ec560c52f00000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000000000022000000000000000000000000000000000000000000000000000000000000004a000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000260000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000001a000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c6569703135353a3830303032000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000013000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002a30783539374632466439453432623538644630343738343942623239453235333737373435664630646100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002a3078306235636131303135366131383432303164393336303966643764313630366331306435646132310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064552433732310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c4e46545f5452414e53464552000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-
-  // Construct the UserOp with all the data fetched above, sign it and add the signature to the userOp
-  const userOp = {
-    sender: sessionConfig.userSWA,
-    nonce: toHex(nonceToBigInt(nonce), { size: 32 }),
-    paymaster: "0x0871051BfF8C7041c985dEddFA8eF63d23AD3Fa0", //paymaster address
-    callGasLimit: toHex(Constants.GAS_LIMITS.CALL_GAS_LIMIT),
-    verificationGasLimit: toHex(Constants.GAS_LIMITS.VERIFICATION_GAS_LIMIT),
-    preVerificationGas: toHex(Constants.GAS_LIMITS.PRE_VERIFICATION_GAS),
-    maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
-    maxPriorityFeePerGas: toHex(Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS),
-    paymasterPostOpGasLimit: toHex(
-      Constants.GAS_LIMITS.PAYMASTER_POST_OP_GAS_LIMIT
-    ),
-    paymasterVerificationGasLimit: toHex(
-      Constants.GAS_LIMITS.PAYMASTER_VERIFICATION_GAS_LIMIT
-    ),
-    callData: calldata,
+  // create the Estimate UserOp payload for NFT transfer intent
+  console.log("generating estimateUserOp Payload...");
+  const estimateUserOpPayload = {
+    type: "NFT_TRANSFER",
+    jobId: "",
     paymasterData: await paymasterData({
       nonce,
       validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
     }),
+    gasDetails: {
+      maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
+      maxPriorityFeePerGas: toHex(
+        Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
+      ),
+    },
+    details: {
+      caip2Id: data.caipId,
+      nftId: data.nftId,
+      recipientWalletAddress: data.recipientWalletAddress,
+      collectionAddress: data.collectionAddress,
+      amount: data.amount,
+      nftType: data.nftType,
+    },
   };
+
+  console.log("Estimate UserOp payload", estimateUserOpPayload);
+  // Sample Payload: {
+  //     "type": "NFT_TRANSFER",
+  //     "jobId": "b9e16100-446f-4050-84ed-a846d2bae528",
+  //     "paymasterData": "0x0000000000000000000000006b6fad2600bc57075ee560a6fdf362ffefb9dc3c000000000000000000000000000000000000000000000000000000006d0db17b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004135a4864cbcbd0637eba6b680e81d5aa7065b6840f0d5a246662c6cc1717c2d9e36d5d8c49d06859f2966067222870d2c1b484962a5934b9c6f94e726f21dea7b1c00000000000000000000000000000000000000000000000000000000000000",
+  //     "gasDetails": {
+  //         "maxFeePerGas": "0xBA43B7400",
+  //         "maxPriorityFeePerGas": "0xBA43B7400"
+  //     },
+  //     "details": {
+  //         "caip2Id": "eip155:137",
+  //         "nftId": "b9e16100-446f-4050-84ed-a846d2bae528",
+  //         "recipientWalletAddress": "0x6ABcD0428e3129a6110CC5dCcb4C1BfdA1b4D3C4",
+  //         "collectionAddress": "0x68ee2dddcbb1c03df5fc4b6235d993b8b4d1d0e5",
+  //         "amount": "1",
+  //         "nftType": "ERC721"
+  //     }
+  // }
+
+  console.log("calling estimate userop..."); // TODO: to be removed
+
+  // Call the estimateUserOp API to get the UserOp object
+  const estimateUserOpResponse = await estimateUserOp(
+    estimateUserOpPayload,
+    OktoAuthToken
+  );
+  // Sample Response:
+  // estimateUserOpResponse: {}                                             TODO: add sample response
+
+  // Get the UserOp from the estimate response fetched above, sign it and add the signature to the userOp
+  const userOp = estimateUserOpResponse.result.userOps;
   console.log("Unsigned UserOp: ", userOp);
   // Sample Response:
   // Unsigned UserOp: {
@@ -238,16 +207,16 @@ const data: Data = {
   collectionAddress: "0x0b5ca10156a184201d93609fd7d1606c10d5da21",
   nftId: "0",
   recipientWalletAddress: "0x597F2Fd9E42b58dF047849Bb29E25377745fF0da",
-  amount: 1, // Should always be >0
+  amount: "1", // Should always be >0
   nftType: "ERC721",
 };
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0x9326598622a612694dc9a251c6f246fe22a43256ecb8633ef9aadfbf21926b65",
+    "0xa7a313f22193aa7a7a8721b23279fcc03f5cd8b54de291f94300128eb9d9962e",
   sessionPubkey:
-    "0x0491d65487ac1f4b734931f1e3df02c6f137b0064a6875e6e2b537d42c823576e9ccc1c91c49eff0c33f3e490e661ecb8a39bf1398d51200870f425cad0ef70fb6",
-  userSWA: "0x61795557B50DC229199cE51c46935d7eC560c52F",
+    "0x044a9339fd9d1526ac66f2514479b1e862340e44a73937c6efe671fa5ec9f27a18f6d3b6ac2d6cc4c70b8dba423878e2fa27d8402da90065b971e0b972898e8d76",
+  userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
 };
 
 transferNft(data, sessionConfig);
