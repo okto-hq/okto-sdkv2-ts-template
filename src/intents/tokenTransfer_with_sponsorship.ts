@@ -101,7 +101,7 @@ export async function transferToken(data: Data, sessionConfig: SessionConfig) {
   const estimateUserOpPayload = {
     type: "TOKEN_TRANSFER",
     jobId: "",
-    feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",  // Treasury Wallet's address
+    feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",  // Any Treasury Wallet's address; this wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
     paymasterData: await paymasterData({
       nonce,
       validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
