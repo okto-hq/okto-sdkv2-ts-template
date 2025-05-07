@@ -110,7 +110,7 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig) {
   const estimateUserOpPayload = {
     type: "RAW_TRANSACTION",
     jobId: "",
-    feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",   // Treasury Wallet's address
+    feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",  // Any Treasury Wallet's address; this wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
     gasDetails: {
       maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
       maxPriorityFeePerGas: toHex(
