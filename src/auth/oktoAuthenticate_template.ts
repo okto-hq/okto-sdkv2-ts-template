@@ -1,6 +1,6 @@
 /*
-* This script explains how to perform authentication on Okto and generate an okto auth token
-*/
+ * This script explains how to perform authentication on Okto and generate an okto auth token
+ */
 
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -24,10 +24,11 @@ dotenv.config();
 const clientPrivateKey = process.env.OKTO_CLIENT_PRIVATE_KEY as Hash;
 const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
 const googleIdToken = process.env.GOOGLE_ID_TOKEN as string;
+const verifyAuthToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2luZGN4X2lkIjoiNGQ1NDNhNzYtMThiZC00MzRhLTkyZDgtMjM5MWVjNzNjYTU5IiwidXNlcl9pZCI6IjRkNTQzYTc2LTE4YmQtNDM0YS05MmQ4LTIzOTFlYzczY2E1OSIsInNoYXJlZF9pZCI6bnVsbCwiZGN4X2NyZWF0ZWRfYXQiOm51bGwsInBvcnRmb2xpb0ZhY3RvciI6IjEiLCJhY2NUeXBlIjoid2ViMyIsImFjY291bnRfb3duZXJfaWQiOiJjNTcwMzA0Yi1hOTkwLTVkMGMtYTViZi1hYTI5ODk0ZjQ4MTciLCJzZXNzaW9uSWQiOiJmMDZhNjBkNS0wZmIzLTQyNzEtYTZhYy0yY2YxZTI0OGViNGEiLCJ1c2VyX2xvZ2luX3ZlbmRvcl9pZCI6ImJkNjMwYWMyLWRiZjgtNGZmMS04YTNhLThjOGMxYjY3MzIzNSIsInMiOiJ3ZWIiLCJ1c2VyQWdlbnQiOiJheGlvcy8xLjguMSIsInNpcCI6IjYxLjEuMTc1LjE2MyIsInNjaXR5IjoiSHlkZXJhYmFkIiwic2NvdW50cnkiOiJJTiIsInNyZWdpb24iOiJURyIsImxvZ2luX21lZGl1bSI6IkVNQUlMX09UUCIsImlhdCI6MTc0NjYwNjk2MiwiZXhwIjoxNzQ3NDcwOTYyfQ.8LeJEWGfI5EroTJ7_SwCrBMdsr1Xkz4AX11I8htePLs";
 
 /*
-* This function explains the construction of the okto auth UserOp payload
-*/
+ * This function explains the construction of the okto auth UserOp payload
+ */
 async function generateAuthPayload(
   authData: any,
   sessionKey: any,
@@ -45,7 +46,8 @@ async function generateAuthPayload(
   payload.sessionData.sessionPk = sessionKey.uncompressedPublicKeyHexWith0x;
   payload.sessionData.maxPriorityFeePerGas = "0xBA43B7400"; // constant on okto chain
   payload.sessionData.maxFeePerGas = "0xBA43B7400"; // constant on okto chain
-  payload.sessionData.paymaster = Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS; // okto testnet paymaster address
+  payload.sessionData.paymaster =
+    Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS; // okto testnet paymaster address
   payload.sessionData.paymasterData = await generatePaymasterData(
     clientSWA,
     clientPriv,
@@ -138,14 +140,16 @@ export const OktoAuthTokenGenerator = async (idToken: string, provider: string) 
   // invoke the JSON RPC Method for Authenticate
   // NOTE: The Google ID token has a very short expiry. Please generate a new token just before running this code. You can check the expiry at jwt.io
   try {
+    console.log("calling authenticate...");
     const response = await invokeJsonRpc(authPayload);
 
     if (response.status === 200) {
-      console.log("User SWA: ", response.data.result.userSWA);
+      console.log("response : ", response);
+      console.log("...............end................");
       // Sample Response:
       // User SWA: 0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5
       // Authenticate is now successful. For further invocation of any of the other okto functions via API, an Okto Auth token must be generated and passed in the header.
-      
+
       // CONSTRUCTION OF THE OKTO AUTH TOKEN
       // STEP 1: Construct the session config object using the session key you created and the userSWA from the response
       const sessionConfig = {
@@ -171,12 +175,10 @@ export const OktoAuthTokenGenerator = async (idToken: string, provider: string) 
       console.error("Failed to get Okto token");
     }
   } catch (err: any) {
-    console.error(
-      err.message || "An error occurred while fetching the Okto token"
-    );
+    console.error(err || "An error occurred while fetching the Okto token");
   }
 };
 
-OktoAuthTokenGenerator(googleIdToken, "google");
+OktoAuthTokenGenerator(verifyAuthToken, "okto");
 // You can now invoke any other Okto endpoint using the authToken generated above
 // refer to our docs at docs.okto.tech/docs/openapi for API references

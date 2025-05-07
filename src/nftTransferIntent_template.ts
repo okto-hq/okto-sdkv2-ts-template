@@ -1,6 +1,6 @@
 /*
-* This script explains how to perform NFT transfer intent when the okto auth token is available
-*/
+ * This script explains how to perform NFT transfer intent when the okto auth token is available
+ */
 
 import {
   encodeAbiParameters,
@@ -8,14 +8,18 @@ import {
   parseAbiParameters,
   toHex,
   type Hash,
-  type Hex
+  type Hex,
 } from "viem";
 import { v4 as uuidv4 } from "uuid";
 import { INTENT_ABI } from "./helper/abi.js";
 import { Constants } from "./helper/constants.js";
 import { paymasterData } from "./utils/generatePaymasterData.js";
 import { nonceToBigInt } from "./helper/nonceToBigInt.js";
-import { signUserOp, executeUserOp, type SessionConfig } from "./utils/userOpExecutor.js";
+import {
+  signUserOp,
+  executeUserOp,
+  type SessionConfig,
+} from "./utils/userOpEstimateAndExecute.js";
 import dotenv from "dotenv";
 import { getChains } from "./utils/getChains.js";
 
@@ -31,13 +35,13 @@ interface Data {
   nftId: string;
   recipientWalletAddress: string;
   amount: number | bigint;
-  nftType: 'ERC721' | 'ERC1155' | string;
+  nftType: "ERC721" | "ERC1155" | string;
 }
 
 /**
  * NFT Transfer Intent: this function executes the NFT transfer between addresses.
  * For more information, check https://docs.okto.tech/docs/openapi/nftTransfer
- * 
+ *
  * @param data - The parameters for transferring the NFT (caip2Id, nftId, recipientWalletAddress, collectionAddress, nftType, amount)
  * @param sessionConfig - The sessionConfig object containing user SWA and session keys.
  * @returns The jobid for the NFT transfer.
@@ -47,7 +51,8 @@ async function transferNft(data: Data, sessionConfig: SessionConfig) {
   const nonce = uuidv4();
 
   // Get the Intent execute API info
-  const jobParametersAbiType = "(string caip2Id, string nftId, string recipientWalletAddress, string collectionAddress, string nftType, uint amount)";
+  const jobParametersAbiType =
+    "(string caip2Id, string nftId, string recipientWalletAddress, string collectionAddress, string nftType, uint amount)";
   const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
 
   // get the Chain CAIP2ID required for payload construction
@@ -106,14 +111,16 @@ async function transferNft(data: Data, sessionConfig: SessionConfig) {
   //   }
   // ]
 
-  const currentChain = chains.find((chain: any) => chain.caip_id === data.caipId);
+  const currentChain = chains.find(
+    (chain: any) => chain.caip_id === data.caipId
+  );
   if (!currentChain) {
     throw new Error(`Chain Not Supported`);
   }
 
   // create the UserOp Call data for NFT transfer intent
   const calldata = encodeAbiParameters(
-    parseAbiParameters('bytes4, address, uint256, bytes'),
+    parseAbiParameters("bytes4, address, uint256, bytes"),
     [
       "0x8dd7712f", // execute userOp function selector
       "0x1E6ed8DD87803d3577280C3E3338010487241fC1", // Job manager Address is replaced by the "NFTTransferBloc" address
@@ -126,13 +133,13 @@ async function transferNft(data: Data, sessionConfig: SessionConfig) {
           clientSWA,
           sessionConfig.userSWA,
           encodeAbiParameters(
-            parseAbiParameters('(bool gsnEnabled, bool sponsorshipEnabled)'),
+            parseAbiParameters("(bool gsnEnabled, bool sponsorshipEnabled)"),
             [
               {
                 gsnEnabled: currentChain.gsnEnabled ?? false,
                 sponsorshipEnabled: currentChain.sponsorshipEnabled ?? false,
               },
-            ],
+            ]
           ),
           encodeAbiParameters(parseAbiParameters(gsnDataAbiType), [
             {
@@ -154,7 +161,7 @@ async function transferNft(data: Data, sessionConfig: SessionConfig) {
           "NFT_TRANSFER",
         ],
       }),
-    ],
+    ]
   );
   console.log("Call Data: ", calldata);
   // Sample Response:
@@ -179,8 +186,8 @@ async function transferNft(data: Data, sessionConfig: SessionConfig) {
     callData: calldata,
     paymasterData: await paymasterData({
       nonce,
-      validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS)
-    })
+      validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
+    }),
   };
   console.log("Unsigned UserOp: ", userOp);
   // Sample Response:
