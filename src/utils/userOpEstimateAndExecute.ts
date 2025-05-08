@@ -24,7 +24,6 @@ export interface SessionConfig {
  *
  */
 export async function estimateUserOp(payload: any, authToken: string) {
-  console.log("request reached estimateUserOp funtion in useropExecutor");
   const jobId = uuidv4();
   try {
     const requestBody = {
@@ -37,7 +36,7 @@ export async function estimateUserOp(payload: any, authToken: string) {
     payload.jobId = jobId;
 
     const serializedPayload = serializeJSON(requestBody);
-    console.log("finally sending the axios request ...........");
+    console.log("finally sending the axios request for estimate...........");
     const response = await axios.post(
       "https://sandbox-okto-gateway.oktostage.com/rpc", // RPC url for the OKTO Gateway
       serializedPayload,
@@ -49,8 +48,6 @@ export async function estimateUserOp(payload: any, authToken: string) {
       }
     );
 
-    console.log("response from userOpEstimateAndExecuteFile", response.data);
-
     return response.data;
   } catch (error) {
     console.error("Error executing user operation:", error);
@@ -59,7 +56,6 @@ export async function estimateUserOp(payload: any, authToken: string) {
 }
 
 export async function swapEstimateUserOp(requestBody: any, authToken: string) {
-  console.log("request reached estimateUserOp funtion in useropExecutor");
   const jobId = uuidv4();
   try {
     const swapPayload = requestBody;
@@ -76,8 +72,6 @@ export async function swapEstimateUserOp(requestBody: any, authToken: string) {
         },
       }
     );
-
-    console.log("response from userOpEstimateAndExecuteFile", response.data);
 
     return response.data;
   } catch (error) {

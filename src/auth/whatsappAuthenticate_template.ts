@@ -1,84 +1,88 @@
+/*
+ * This script explains how to perform authentication on Okto using Whatsapp and generate an okto auth token
+ */
+
 import axios from "axios";
 import { generateClientSignature } from "../utils/generateClientSignature.js";
 import { type Hex } from "viem";
 import dotenv from "dotenv";
-import { OktoAuthTokenGenerator } from "./oktoAuthenticate_template.js";
+import { OktoAuthTokenGenerator } from "../utils/generateOktoAuthToken.js";
 dotenv.config();
 
 const client_swa = process.env.OKTO_CLIENT_SWA as Hex;
 
 async function postSignedRequest(endpoint: any, fullPayload: any) {
-    const payloadWithTimestamp = {
-        ...fullPayload,
-        timestamp: Date.now(),
-    };
+  const payloadWithTimestamp = {
+    ...fullPayload,
+    timestamp: Date.now(),
+  };
 
-    const signature = await generateClientSignature(payloadWithTimestamp);
+  const signature = await generateClientSignature(payloadWithTimestamp);
 
-    const requestBody = {
-        data: payloadWithTimestamp,
-        client_signature: signature,
-        type: "ethsign",
-    };
+  const requestBody = {
+    data: payloadWithTimestamp,
+    client_signature: signature,
+    type: "ethsign",
+  };
 
-    const response = await axios.post(endpoint, requestBody, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
+  const response = await axios.post(endpoint, requestBody, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-    return response.data;
+  return response.data;
 }
 
 /**
  * This function sends an OTP to the user's WhatsApp number for authentication.
  */
 export async function sendOtp() {
-    const payload = {
-        whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
-        country_short_name: "IN", // Replace with the user's country short name
-        client_swa: client_swa, // Replace with your client_swa
-    };
+  const payload = {
+    whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
+    country_short_name: "IN", // Replace with the user's country short name
+    client_swa: client_swa, // Replace with your client_swa
+  };
 
-    try {
-        const res = await postSignedRequest(
-            "https://sandbox-api.okto.tech/api/oc/v1/authenticate/whatsapp",
-            payload
-        );
-        console.log("OTP Sent:", res);
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error("Axios error (sendOTP):", error.response?.data);
-        } else {
-            console.error("Unexpected error:", error);
-        }
+  try {
+    const res = await postSignedRequest(
+      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/whatsapp",
+      payload
+    );
+    console.log("OTP Sent:", res);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error (sendOTP):", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
     }
+  }
 }
 
 /**
  * This function resends the OTP to the user's WhatsApp number. It is optional and can be used in case the initial OTP was not received.
  */
 export async function resendOtp(token: any) {
-    const payload = {
-        whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
-        country_short_name: "IN", // Replace with the user's country short name
-        token: token,
-        client_swa: client_swa, // Replace with your client_swa
-    };
+  const payload = {
+    whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
+    country_short_name: "IN", // Replace with the user's country short name
+    token: token,
+    client_swa: client_swa, // Replace with your client_swa
+  };
 
-    try {
-        const res = await postSignedRequest(
-            "https://sandbox-api.okto.tech/api/oc/v1/authenticate/whatsapp",
-            payload
-        );
-        console.log("OTP Resent:", res);
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error("Axios error (resendOTP):", error.response?.data);
-        } else {
-            console.error("Unexpected error:", error);
-        }
+  try {
+    const res = await postSignedRequest(
+      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/whatsapp",
+      payload
+    );
+    console.log("OTP Resent:", res);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error (resendOTP):", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
     }
+  }
 }
 
 /**
@@ -86,41 +90,40 @@ export async function resendOtp(token: any) {
  * It should be called with the token returned from the sendOtp() or resendOtp() call, along with the OTP received via WhatsApp.
  */
 export async function verifyOtp(token: any, otp: any) {
-    const payload = {
-        whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
-        country_short_name: "IN", // Replace with the user's country short name
-        token: token,
-        otp: otp,
-        client_swa: client_swa,  // Replace with your client_swa
-    };
+  const payload = {
+    whatsapp_number: "82XXXXXXXX", // Replace with the user's WhatsApp number
+    country_short_name: "IN", // Replace with the user's country short name
+    token: token,
+    otp: otp,
+    client_swa: client_swa, // Replace with your client_swa
+  };
 
-    try {
-        const res = await postSignedRequest(
-            "https://sandbox-api.okto.tech/api/oc/v1/authenticate/whatsapp/verify",
-            payload
-        );
+  try {
+    const res = await postSignedRequest(
+      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/whatsapp/verify",
+      payload
+    );
 
-        console.log("OTP Verified:", res);
+    console.log("OTP Verified:", res);
 
-        const authToken = res.data.auth_token;
+    const authToken = res.data.auth_token;
 
-        return authToken;
-
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error("Axios error (verifyOTP):", error.response?.data);
-        } else {
-            console.error("Unexpected error:", error);
-        }
+    return authToken;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error (verifyOTP):", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
     }
+  }
 }
 
 // Example usage:
 
 /*
-* Step 1: Send OTP
-* Call this method to send an OTP to the user's WhatsApp number.
-*/
+ * Step 1: Send OTP
+ * Call this method to send an OTP to the user's WhatsApp number.
+ */
 
 sendOtp();
 // Sample Response:
@@ -136,10 +139,10 @@ sendOtp();
 // }
 
 /*
-* Step 2 (Optional): Resend OTP
-* This step is optional and can be used in case the initial OTP was not received.
-* Provide the same token returned from the sendOtp() call.
-*/
+ * Step 2 (Optional): Resend OTP
+ * This step is optional and can be used in case the initial OTP was not received.
+ * Provide the same token returned from the sendOtp() call.
+ */
 
 resendOtp("764f6757-9c54-5d9a-b34f-c4cf5e7b7763"); // Replace with token from the sendOtp() response
 // Sample Response:
@@ -154,11 +157,10 @@ resendOtp("764f6757-9c54-5d9a-b34f-c4cf5e7b7763"); // Replace with token from th
 //   }
 // }
 
-
 /*
-* Step 3: Verify OTP
-* Call this method using the token from Step 1 or 2, along with the OTP received via WhatsApp.
-*/
+ * Step 3: Verify OTP
+ * Call this method using the token from Step 1 or 2, along with the OTP received via WhatsApp.
+ */
 
 verifyOtp("764f6757-9c54-5d9a-b34f-c4cf5e7b7763", "110949"); // Replace with actual token and OTP
 // Sample Response:
@@ -173,11 +175,11 @@ verifyOtp("764f6757-9c54-5d9a-b34f-c4cf5e7b7763", "110949"); // Replace with act
 // }
 
 /*
-* Step 4: Generate Okto Auth Token
-* This step is needed in order to generate the Okto Auth token for further API usage.
-*/
+ * Step 4: Generate Okto Auth Token
+ * This step is needed in order to generate the Okto Auth token for further API usage.
+ */
 
-OktoAuthTokenGenerator("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "okto") // Replace with actual auth_token received from the verifyOtp() response
+OktoAuthTokenGenerator("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "okto"); // Replace with actual auth_token received from the verifyOtp() response
 // Sample Response
 // session:  SessionKey {
 //   priv: Uint8Array(32) [
