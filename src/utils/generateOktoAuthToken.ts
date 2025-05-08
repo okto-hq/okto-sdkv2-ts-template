@@ -1,7 +1,3 @@
-/*
- * This script explains how to perform authentication on Okto and generate an okto auth token
- */
-
 import { v4 as uuidv4 } from "uuid";
 import {
   encodeAbiParameters,
@@ -12,19 +8,17 @@ import {
   type Hex,
 } from "viem";
 import { signMessage } from "viem/accounts";
-import { generatePaymasterData } from "../utils/generatePaymasterData.js";
-import { SessionKey } from "../utils/sessionKey.js";
+import { generatePaymasterData } from "./generatePaymasterData.js";
+import { SessionKey } from "./sessionKey.js";
 import { Constants } from "../helper/constants.js";
-import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
+import { getAuthorizationToken } from "./getAuthorizationToken.js";
 import dotenv from "dotenv";
-import { invokeJsonRpc } from "../utils/invokeJsonRpc.js";
+import { invokeJsonRpc } from "./invokeJsonRpc.js";
 
 dotenv.config();
 
 const clientPrivateKey = process.env.OKTO_CLIENT_PRIVATE_KEY as Hash;
 const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
-const googleIdToken = process.env.GOOGLE_ID_TOKEN as string;
-const verifyAuthToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2luZGN4X2lkIjoiNGQ1NDNhNzYtMThiZC00MzRhLTkyZDgtMjM5MWVjNzNjYTU5IiwidXNlcl9pZCI6IjRkNTQzYTc2LTE4YmQtNDM0YS05MmQ4LTIzOTFlYzczY2E1OSIsInNoYXJlZF9pZCI6bnVsbCwiZGN4X2NyZWF0ZWRfYXQiOm51bGwsInBvcnRmb2xpb0ZhY3RvciI6IjEiLCJhY2NUeXBlIjoid2ViMyIsImFjY291bnRfb3duZXJfaWQiOiJjNTcwMzA0Yi1hOTkwLTVkMGMtYTViZi1hYTI5ODk0ZjQ4MTciLCJzZXNzaW9uSWQiOiJmMDZhNjBkNS0wZmIzLTQyNzEtYTZhYy0yY2YxZTI0OGViNGEiLCJ1c2VyX2xvZ2luX3ZlbmRvcl9pZCI6ImJkNjMwYWMyLWRiZjgtNGZmMS04YTNhLThjOGMxYjY3MzIzNSIsInMiOiJ3ZWIiLCJ1c2VyQWdlbnQiOiJheGlvcy8xLjguMSIsInNpcCI6IjYxLjEuMTc1LjE2MyIsInNjaXR5IjoiSHlkZXJhYmFkIiwic2NvdW50cnkiOiJJTiIsInNyZWdpb24iOiJURyIsImxvZ2luX21lZGl1bSI6IkVNQUlMX09UUCIsImlhdCI6MTc0NjYwNjk2MiwiZXhwIjoxNzQ3NDcwOTYyfQ.8LeJEWGfI5EroTJ7_SwCrBMdsr1Xkz4AX11I8htePLs";
 
 /*
  * This function explains the construction of the okto auth UserOp payload
@@ -104,10 +98,13 @@ async function generateAuthPayload(
 }
 
 /**
-* This function explains how to construct the payload, execute Okto Authentication and 
-* create the Okto auth Token for further API usage
-*/
-export const OktoAuthTokenGenerator = async (idToken: string, provider: string) => {
+ * This function explains how to construct the payload, execute Okto Authentication and
+ * create the Okto auth Token for further API usage
+ */
+export const OktoAuthTokenGenerator = async (
+  idToken: string,
+  provider: string
+) => {
   // Construct the data object using the Google ID token and the provider.
   // For testing purposes, you can generate the id token from here
   // - https://docs.okto.tech/docs/openapi/authenticate/google-oauth/get-token-id
@@ -144,10 +141,19 @@ export const OktoAuthTokenGenerator = async (idToken: string, provider: string) 
     const response = await invokeJsonRpc(authPayload);
 
     if (response.status === 200) {
-      console.log("response : ", response);
-      console.log("...............end................");
+      console.log("provider: ", provider);
+      console.log("response : ", response.data);
       // Sample Response:
-      // User SWA: 0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5
+      // response :  {
+      //   jsonrpc: '2.0',
+      //   id: '325f4f74-a124-4cf0-9852-e09642ffe4fa',
+      //   result: {
+      //     userSWA: '0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906',
+      //     nonce: '0x00000000000000000000000000000000f9d4db5746824690b2efeae9f9945858',
+      //     clientSWA: '0xe8201E368557508bF183D4e2DcE1b1A1E0bd20FA',
+      //     sessionExpiry: 1747481250
+      //   }
+      // }
       // Authenticate is now successful. For further invocation of any of the other okto functions via API, an Okto Auth token must be generated and passed in the header.
 
       // CONSTRUCTION OF THE OKTO AUTH TOKEN
@@ -161,13 +167,15 @@ export const OktoAuthTokenGenerator = async (idToken: string, provider: string) 
       // Sample Response: Store the sessionConfig safely for delegated access
       // Session Config: {
       //   sessionPrivKey: '0x096644bf3e32614bb33961d9762d9f2b2768b4ed2e968de2b59c8148875dcec0',
-      //     sessionPubKey: '0x04f8e7094449d09d932f78ca4413fbff252fbe4f99445bcc4a4d5d16c31d898f4b8b080289a906334b2bfe6379547c97c6b624afdf0bcdfab5fdfcc28d0dbb98df',
-      //       userSWA: '0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5'
+      //   sessionPubKey: '0x04f8e7094449d09d932f78ca4413fbff252fbe4f99445bcc4a4d5d16c31d898f4b8b080289a906334b2bfe6379547c97c6b624afdf0bcdfab5fdfcc28d0dbb98df',
+      //   userSWA: '0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5'
       // }
 
       // STEP 2: Get the authorization token using the sessionConfig object
       const authToken = await getAuthorizationToken(sessionConfig);
       console.log("Okto session authToken: ", authToken);
+
+      return authToken;
       // Using the above authToken (in the header as bearer token), you can now make requests to all other Okto Endpoints
       // Sample Response:
       // Okto session authToken:  eyJ0eXBlIjoiZWNkc2FfdW5jb21wcmVzc2VkIiwiZGF0YSI6eyJleHBpcmVfYXQiOjE3NDEyNjk1NjYsInNlc3Npb25fcHViX2tleSI6IjB4MDQyMDM5ZjJmMGY5MTBjNDc0YWJmZWYyOWFkMmNlODBiZjg5YTU0ZjZlMjBiODI4MWI0NTQxMzZiNmJhODYyODUwNWY4ZTFmMDllNTFiOGU1NWYxMTNhNzZlZTc5NDY0M2Q4MjA3ZmNhY2E5MjZkMzJhMDBhMzZhY2M3YmVlYjY5ZiJ9LCJkYXRhX3NpZ25hdHVyZSI6IjB4ZmE4YWE5OTAyMzRkOTA0Y2Y3ZmNhN2QxMDlmOGIzZTM0N2MyZjM2ODBiN2IyNzYzYTY4MmY5NGQyNjAyZGRkMjJhZDg2ZjhjMTgxMzllMDBkZmNiNzk3Y2RhNWUxMTQ4YzQ1YjE2Njg2YmYxMDUzMjJjNjIwYTU2MDkzZTYyODIxYyJ9
@@ -178,7 +186,3 @@ export const OktoAuthTokenGenerator = async (idToken: string, provider: string) 
     console.error(err || "An error occurred while fetching the Okto token");
   }
 };
-
-OktoAuthTokenGenerator(verifyAuthToken, "okto");
-// You can now invoke any other Okto endpoint using the authToken generated above
-// refer to our docs at docs.okto.tech/docs/openapi for API references

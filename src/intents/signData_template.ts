@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import axios from "axios";
-import { generateSignMessagePayload, generateUUID } from "./utils/generateSignMessagePayload.js";
-import { serializeJSON } from "./helper/serializeJson.js";
+import { generateSignMessagePayload, generateUUID } from "../utils/generateSignMessagePayload.js";
+import { serializeJSON } from "../helper/serializeJson.js";
 
 // Load environment variables
 dotenv.config();

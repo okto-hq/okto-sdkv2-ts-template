@@ -303,9 +303,9 @@ export async function swap(data: Data, sessionConfig: SessionConfig) {
 // To get the caipId, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
 const data: Data = {
   fromChainTokenAddress: "",
-  fromChainCaip2Id: "eip155:137",
-  toChainTokenAddress: "0x88c949b4eb85a90071f2c0bef861bddee1a7479d",
-  toChainCaip2Id: "eip155:137",
+  fromChainCaip2Id: "eip155:84532",
+  toChainTokenAddress: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2",
+  toChainCaip2Id: "eip155:84532",
   sameChainFee: "10",
   sameChainFeeCollector: "0x2c2505D0E21f32F38bCEBeca1C331ab4069bBCb9",
   crossChainFee: "10",
