@@ -38,7 +38,7 @@ interface Data {
  * @param sessionConfig - The sessionConfig object containing user SWA and session keys.
  * @returns The jobid for the NFT transfer.
  */
-async function rawTransaction(data: Data, sessionConfig: SessionConfig) {
+async function rawTransaction(data: Data, sessionConfig: SessionConfig, sponsorshipEnabled: boolean) {
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
@@ -107,10 +107,18 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig) {
 
   // create the Estimate UserOp payload for token transfer intent
   console.log("generating estimateUserOp Payload...");
-  const estimateUserOpPayload = {
+  let estimateUserOpPayload;
+
+  if (sponsorshipEnabled) {
+  estimateUserOpPayload = {
     type: "RAW_TRANSACTION",
     jobId: "",
-    feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",  // Any Treasury Wallet's address; this wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+    /* 
+     * FeePayerAddress is any Treasury Wallet's address; 
+     * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+     * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.    
+     */
+    feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",
     gasDetails: {
       maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
       maxPriorityFeePerGas: toHex(
@@ -126,7 +134,29 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig) {
       transactions: [...data.transactions],
     },
   };
-
+  } else {
+    estimateUserOpPayload = {
+      type: "RAW_TRANSACTION",
+      jobId: "",
+      /* 
+       * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.   
+       */
+      gasDetails: {
+        maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
+        maxPriorityFeePerGas: toHex(
+          Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
+        ),
+        paymasterData: await paymasterData({
+          nonce,
+          validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
+        }),
+      },
+      details: {
+        caip2Id: data.caip2Id,
+        transactions: [...data.transactions],
+      },
+    };
+  }
   console.log("Estimate UserOp payload", estimateUserOpPayload);
   // Sample Payload: {
   //     "type": "RAW_TRANSACTION",
@@ -225,4 +255,6 @@ const sessionConfig: SessionConfig = {
   userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
 };
 
-rawTransaction(data, sessionConfig);
+const sponsorshipEnabled = true; // Set to true if you want an intent with sponsorship
+
+rawTransaction(data, sessionConfig, sponsorshipEnabled);
