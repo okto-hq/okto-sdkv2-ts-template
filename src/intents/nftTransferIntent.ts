@@ -35,7 +35,11 @@ interface Data {
  * @param sessionConfig - The sessionConfig object containing user SWA and session keys.
  * @returns The jobid for the NFT transfer.
  */
-async function transferNft(data: Data, sessionConfig: SessionConfig) {
+async function transferNft(
+  data: Data,
+  sessionConfig: SessionConfig,
+  sponsorshipEnabled: boolean
+) {
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
@@ -104,29 +108,64 @@ async function transferNft(data: Data, sessionConfig: SessionConfig) {
 
   // create the Estimate UserOp payload for NFT transfer intent
   console.log("generating estimateUserOp Payload...");
-  const estimateUserOpPayload = {
-    type: "NFT_TRANSFER",
-    jobId: "",
-    feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",  // Any Treasury Wallet's address; this wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
-    paymasterData: await paymasterData({
-      nonce,
-      validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
-    }),
-    gasDetails: {
-      maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
-      maxPriorityFeePerGas: toHex(
-        Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
-      ),
-    },
-    details: {
-      caip2Id: data.caipId,
-      nftId: data.nftId,
-      recipientWalletAddress: data.recipientWalletAddress,
-      collectionAddress: data.collectionAddress,
-      amount: data.amount,
-      nftType: data.nftType,
-    },
-  };
+  let estimateUserOpPayload;
+
+  if (sponsorshipEnabled) {
+    estimateUserOpPayload = {
+      type: "NFT_TRANSFER",
+      jobId: "",
+      /*
+       * FeePayerAddress is any Treasury Wallet's address;
+       * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+       * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
+       */
+      feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",
+      paymasterData: await paymasterData({
+        nonce,
+        validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
+      }),
+      gasDetails: {
+        maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
+        maxPriorityFeePerGas: toHex(
+          Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
+        ),
+      },
+      details: {
+        caip2Id: data.caipId,
+        nftId: data.nftId,
+        recipientWalletAddress: data.recipientWalletAddress,
+        collectionAddress: data.collectionAddress,
+        amount: data.amount,
+        nftType: data.nftType,
+      },
+    };
+  } else {
+    estimateUserOpPayload = {
+      type: "NFT_TRANSFER",
+      jobId: "",
+      /*
+       * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
+       */
+      paymasterData: await paymasterData({
+        nonce,
+        validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
+      }),
+      gasDetails: {
+        maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
+        maxPriorityFeePerGas: toHex(
+          Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
+        ),
+      },
+      details: {
+        caip2Id: data.caipId,
+        nftId: data.nftId,
+        recipientWalletAddress: data.recipientWalletAddress,
+        collectionAddress: data.collectionAddress,
+        amount: data.amount,
+        nftType: data.nftType,
+      },
+    };
+  }
 
   console.log("Estimate UserOp payload", estimateUserOpPayload);
   // Sample Payload: {
@@ -221,4 +260,6 @@ const sessionConfig: SessionConfig = {
   userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
 };
 
-transferNft(data, sessionConfig);
+const sponsorshipEnabled = true; // Set to true if you want an intent with sponsorship
+
+transferNft(data, sessionConfig, sponsorshipEnabled);
