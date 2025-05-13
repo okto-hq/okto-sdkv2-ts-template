@@ -2,7 +2,7 @@
  * This script explains how to perform raw txn execute intent when the okto auth token is available
  */
 
-import { toHex, type Hash, type Hex } from "viem";
+import { toHex, type Hash, type Hex, numberToHex } from "viem";
 import { v4 as uuidv4 } from "uuid";
 import { Constants } from "../helper/constants.js";
 import { paymasterData } from "../utils/generatePaymasterData.js";
@@ -14,6 +14,7 @@ import {
 import dotenv from "dotenv";
 import { getChains } from "../utils/getChains.js";
 import { estimateUserOp } from "../utils/userOpEstimateAndExecute.js";
+import { getOrderHistory } from "../utils/getOrderHistory.js";
 
 dotenv.config();
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
@@ -22,7 +23,7 @@ interface EVMRawTransaction {
   from: string;
   to: string;
   data?: string;
-  value?: string;
+  value?: Hex | Hash | number;
 }
 
 interface Data {
@@ -232,6 +233,10 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig, sponsors
   console.log("JobId: ", jobId);
   // Sample Response:
   // JobId: 3ee33731-9e96-4ab9-892c-ea476b36295d
+
+  // Check the status of the jobId and get the transaction details
+  const txn_details = await getOrderHistory(OktoAuthToken, jobId, "RAW_TRANSACTION");
+  console.log("Order Details:", JSON.stringify(txn_details, null, 2));
 }
 
 // To get the caip2Id, please check: https://docsv2.okto.tech/docs/openapi/technical-reference

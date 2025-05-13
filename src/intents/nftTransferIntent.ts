@@ -14,6 +14,7 @@ import {
 } from "../utils/userOpEstimateAndExecute.js";
 import dotenv from "dotenv";
 import { getChains } from "../utils/getChains.js";
+import { getOrderHistory } from "../utils/getOrderHistory.js";
 
 dotenv.config();
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
@@ -43,7 +44,7 @@ async function transferNft(
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
-  // get the Chain CAIP2ID required for payload construction
+  // Get the Chain CAIP2ID required for payload construction
   // Note: Only the chains enabled on the Client's Developer Dashboard will be shown in the response
   const chains = await getChains(OktoAuthToken);
   console.log("Chains: ", chains);
@@ -240,6 +241,10 @@ async function transferNft(
   console.log("JobId: ", jobId);
   // Sample Response:
   // JobId: 14778af1-9d12-42ca-b664-1686f38f3633
+
+  // Check the status of the jobId and get the transaction details
+  const txn_details = await getOrderHistory(OktoAuthToken, jobId, "NFT_TRANSFER");
+  console.log("Order Details:", JSON.stringify(txn_details, null, 2));
 }
 
 // To get the caipId, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
