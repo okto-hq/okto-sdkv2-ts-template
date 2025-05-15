@@ -22,8 +22,6 @@ export const JwtAuthenticate = async () => {
     payload.idToken,
     payload.provider
   );
-
-  console.log("Okto session authToken: ", authToken);
   // Sample Response
   // session:  SessionKey {
   //   priv: Uint8Array(32) [
