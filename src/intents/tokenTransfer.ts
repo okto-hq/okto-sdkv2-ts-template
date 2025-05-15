@@ -113,12 +113,13 @@ export async function transferToken(
     throw new Error(`Chain Not Supported`);
   }
 
+  // if feePayerAddress is not provided, it will be set to the default value '0x0000000000000000000000000000000000000000
   if (!feePayerAddress) {
     feePayerAddress = Constants.FEE_PAYER_ADDRESS;
   }
 
-  console.log("feePayerAddress", feePayerAddress);
-  console.log("current", currentChain);
+  console.log("feePayerAddress:", feePayerAddress);
+  console.log("current chain:", currentChain);
 
   // create the UserOp Call data for token transfer intent
   const calldata = encodeAbiParameters(
@@ -192,7 +193,7 @@ export async function transferToken(
       validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
     }),
   };
-  console.log("UserOp: ", userOp);
+  console.log("Unsigned UserOp: ", userOp);
 
   // Sign the userOp
   const signedUserOp = await signUserOp(userOp, sessionConfig);
@@ -245,7 +246,15 @@ const sessionConfig: SessionConfig = {
   userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
 };
 
+/*
+  * FeePayerAddress is any Treasury Wallet's address;
+  * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+  * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
+*/
 const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
 
-// transferToken(data, sessionConfig);  // if sponsporship is not enabled
-transferToken(data, sessionConfig, feePayerAddress); // if sponsporship is enabled
+/* if sponsporship is not enabled */
+transferToken(data, sessionConfig);
+
+/* if sponsporship is enabled */
+transferToken(data, sessionConfig, feePayerAddress); 

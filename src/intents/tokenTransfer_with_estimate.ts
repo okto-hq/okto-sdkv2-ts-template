@@ -1,3 +1,4 @@
+// NOTE : This script is a work in progress and may not be fully functional.
 /*
  * This script explains how to perform token transfer intent when the okto auth token is available
  */
