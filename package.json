@@ -2,6 +2,7 @@
   "devDependencies": {
     "@types/node": "^22.14.0",
     "nodemon": "^3.1.9",
+    "tsx": "^4.19.4",
     "typescript": "^5.7.3"
   },
   "name": "okto-sdkv2-ts-template",

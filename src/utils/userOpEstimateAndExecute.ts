@@ -4,6 +4,7 @@ import { signMessage } from "viem/accounts";
 import { fromHex } from "viem";
 import { generatePackedUserOp, generateUserOpHash } from "./generateUserOp.js";
 import { serializeJSON } from "../helper/serializeJson.js";
+import type { UserOp } from "../helper/types.js";
 
 export interface SessionConfig {
   sessionPrivKey: string;
@@ -49,9 +50,13 @@ export async function estimateUserOp(payload: any, authToken: string) {
     );
 
     return response.data;
-  } catch (error) {
-    console.error("Error executing user operation:", error);
-    throw error;
+  } catch (err: any) {
+    const errorMessage =
+      err.response?.data?.error?.message ||
+      "An error occurred during estimateUserOp";
+
+    console.error("Error estimating user operation:", err.response?.data);
+    throw new Error(errorMessage);
   }
 }
 
@@ -63,7 +68,7 @@ export async function swapEstimateUserOp(requestBody: any, authToken: string) {
 
     console.log("finally sending the axios request ...........");
     const response = await axios.post(
-      "https://sandbox-api.okto.tech/api/oc/v1/estimate",  // Okto 3pBFF url 
+      "https://sandbox-api.okto.tech/api/oc/v1/estimate", // Okto 3pBFF url
       swapPayload,
       {
         headers: {
@@ -132,6 +137,7 @@ export async function executeUserOp(userop: any, authToken: string) {
     };
 
     const serializedPayload = serializeJSON(requestBody);
+    console.log("finally sending the axios request for execute...........");
     const response = await axios.post(
       "https://sandbox-okto-gateway.oktostage.com/rpc", // RPC url for the OKTO Gateway
       serializedPayload,
@@ -148,4 +154,28 @@ export async function executeUserOp(userop: any, authToken: string) {
     console.error("Error executing user operation:", error);
     throw error;
   }
+}
+
+export async function getUserOperationGasPrice(authToken: string) {
+  const requestBody = {
+    method: "getUserOperationGasPrice",
+    jsonrpc: "2.0",
+    id: uuidv4(),
+    params: [],
+  };
+
+  const serializedPayload = serializeJSON(requestBody);
+
+  const response = await axios.post(
+    "https://sandbox-okto-gateway.oktostage.com/rpc", // RPC url for the OKTO Gateway
+    serializedPayload,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    }
+  );
+
+  return response.data.result;
 }

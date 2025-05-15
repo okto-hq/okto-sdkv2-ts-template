@@ -1,7 +1,7 @@
 // This script shows how to create the okto auth token for delegated access to the Okto APIs given the session private key and UserSWA
 // This script is intended to be run in a Node.js environment
 
-import { transferToken } from "../intents/tokenTransfer.js";
+import { transferToken } from "../intents/tokenTransfer_with_estimate.js";
 import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
 import { SessionKey } from "../utils/sessionKey.js";
 import dotenv from "dotenv";

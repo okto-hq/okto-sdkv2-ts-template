@@ -28,45 +28,46 @@ const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
  * @returns A hex string containing the encoded paymaster data including signature
  */
 export async function generatePaymasterData(
-    address: any,
-    privateKey: any,
-    nonce: any,
-    validUntil: any,
-    validAfter: any
+    address: Hex,
+    privateKey: Hex,
+    nonce: string,
+    validUntil: Date | number | bigint,
+    validAfter: Date | number | bigint
 ) {
     if (validUntil instanceof Date) {
-        validUntil = Math.floor(validUntil.getTime() / 1e3);
+        validUntil = Math.floor(validUntil.getTime() / 1000);
     } else if (typeof validUntil === "bigint") {
         validUntil = parseInt(validUntil.toString());
     }
     if (validAfter instanceof Date) {
-        validAfter = Math.floor(validAfter.getTime() / 1e3);
+        validAfter = Math.floor(validAfter.getTime() / 1000);
     } else if (typeof validAfter === "bigint") {
         validAfter = parseInt(validAfter.toString());
     } else if (validAfter === void 0) {
         validAfter = 0;
     }
-    const paymasterDataHash = keccak256(
-        encodePacked(
-            ["bytes32", "address", "uint48", "uint48"],
-            [
-                toHex(nonceToBigInt(nonce), { size: 32 }),
-                address,
-                validUntil,
-                validAfter,
-            ]
-        )
-    );
-    const sig = await signMessage({
-        message: {
-            raw: fromHex(paymasterDataHash, "bytes"),
-        },
-        privateKey,
-    });
-    const paymasterData = encodeAbiParameters(
-        parseAbiParameters("address, uint48, uint48, bytes"),
-        [address, validUntil, validAfter, sig]
-    );
+     const paymasterDataHash = keccak256(
+    encodePacked(
+      ['bytes32', 'address', 'uint48', 'uint48'],
+      [
+        toHex(nonceToBigInt(nonce), { size: 32 }),
+        address,
+        validUntil,
+        validAfter,
+      ],
+    ),
+  );
+  const sig = await signMessage({
+    message: {
+      raw: fromHex(paymasterDataHash, 'bytes'),
+    },
+    privateKey: privateKey,
+  });
+
+  const paymasterData = encodeAbiParameters(
+    parseAbiParameters('address, uint48, uint48, bytes'),
+    [address, validUntil, validAfter, sig],
+  );
     return paymasterData;
 }
 
