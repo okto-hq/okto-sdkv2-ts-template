@@ -13,7 +13,7 @@ import {
   type SessionConfig,
   estimateUserOp,
 } from "../utils/userOpEstimateAndExecute.js";
-import { getChains } from "../utils/getChains.js";
+import { getChains } from "../explorer/getChains.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
 
 import dotenv from "dotenv";
@@ -105,8 +105,8 @@ export async function transferToken(
     estimateUserOpPayload = {
       type: "TOKEN_TRANSFER",
       jobId: "",
-      /* 
-       * FeePayerAddress is any Treasury Wallet's address; 
+      /*
+       * FeePayerAddress is any Treasury Wallet's address;
        * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
        * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
        */
@@ -132,7 +132,7 @@ export async function transferToken(
     estimateUserOpPayload = {
       type: "TOKEN_TRANSFER",
       jobId: "",
-      /* 
+      /*
        * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
        */
       paymasterData: await paymasterData({
@@ -270,7 +270,7 @@ export async function transferToken(
   //   paymasterPostOpGasLimit: '0x1',
   //   paymasterData: '0x00000000000000000000000085dc8f5108b634c5c9bbd86fb8cea5ba5704138900000000000000000000000000000000000000000000000000000000681b899f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000041f12bc30483be47129e9cf4e769cab891fb3cef4d73e94bb3b25442fd5062a4447a5b4bfe1694ca59083ed4b309c0e0a2da968f028f4ad75f819d71951cfc3f341c00000000000000000000000000000000000000000000000000000000000000'
   // }
-  
+
   const signedUserOp = await signUserOp(userOp, sessionConfig);
   console.log("Signed UserOp: ", signedUserOp);
   // Sample Response:
@@ -297,7 +297,11 @@ export async function transferToken(
   // jobId: a0a54427-11c8-4140-bfcc-e96af15ce9cf
 
   // Check the status of the jobId and get the transaction details
-  const txn_details = await getOrderHistory(OktoAuthToken, jobId, "TOKEN_TRANSFER");
+  const txn_details = await getOrderHistory(
+    OktoAuthToken,
+    jobId,
+    "TOKEN_TRANSFER"
+  );
   console.log("Order Details:", JSON.stringify(txn_details, null, 2));
 }
 

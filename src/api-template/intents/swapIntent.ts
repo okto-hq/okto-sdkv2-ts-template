@@ -12,7 +12,7 @@ import {
   type SessionConfig,
   swapEstimateUserOp,
 } from "../utils/userOpEstimateAndExecute.js";
-import { getChains } from "../utils/getChains.js";
+import { getChains } from "../explorer/getChains.js";
 
 import dotenv from "dotenv";
 

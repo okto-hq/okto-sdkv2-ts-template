@@ -21,7 +21,7 @@ import {
   type SessionConfig,
   getUserOperationGasPrice,
 } from "../utils/userOpEstimateAndExecute.js";
-import { getChains } from "../utils/getChains.js";
+import { getChains } from "../explorer/getChains.js";
 
 import dotenv from "dotenv";
 import type { Address } from "../helper/types.js";
@@ -136,14 +136,14 @@ export async function transferToken(
           clientSWA,
           sessionConfig.userSWA,
           feePayerAddress,
-         encodeAbiParameters(
-            parseAbiParameters('(bool gsnEnabled, bool sponsorshipEnabled)'),
+          encodeAbiParameters(
+            parseAbiParameters("(bool gsnEnabled, bool sponsorshipEnabled)"),
             [
               {
                 gsnEnabled: currentChain.gsn_enabled ?? false,
                 sponsorshipEnabled: currentChain.sponsorship_enabled ?? false,
               },
-            ],
+            ]
           ),
           encodeAbiParameters(parseAbiParameters(gsnDataAbiType), [
             {
@@ -231,30 +231,48 @@ export async function transferToken(
 }
 
 // To get the caipId, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
+
+// Sample data for APTOS_TESTNET
+// const data: Data = {
+//   caip2Id: "aptos:testnet", // APTOS_TESTNET
+//   recipient: "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc", // Sample recipient on APTOS_TESTNET
+//   token: '0x1::aptos_coin::AptosCoin', // Left empty because transferring native token
+//   amount: 1000000, // denomination in lowest decimal (8 for APT)
+// };
+
+// Sample data for BASE_TESTNET
+// const data: Data = {
+//   caip2Id: "eip155:84532", // BASE_TESTNET
+//   recipient: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2", // Sample recipient on BASE_TESTNET
+//   token: '', // Left empty because transferring native token
+//   amount: 100000000000, // denomination in lowest decimal (18 for WETH)
+// };
+
 const data: Data = {
-  caip2Id: "eip155:84532", // BASE_TESTNET
-  recipient: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2", // Sample recipient on BASE_TESTNET
-  token: '', // Left empty because transferring native token
-  amount: 100000000000, // denomination in lowest decimal (18 for WETH)
+  caip2Id: "aptos:testnet", 
+  recipient:
+    "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc", 
+  token: "0x1::aptos_coin::AptosCoin",
+  amount: 1000000, 
 };
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0x06204f94d71de8a897129ccfcf02de036548fdf0f0a4ab53abaabd44502f73cd",
+    "0xb1c24a41c991db5c5b588d25e201abffbacec53d6ab589e46048a7b7a7a34b71",
   sessionPubkey:
-    "0x043694587e616ac9370be0689af68601c30478a0d6c05035ded2046ac2a4f7b5eb3b31f2c3ea1300bcc808549ff7a2ded141f4d1935f0f003147c347d6f1e92bc1",
+    "0x040d3c53f4f9e10d11caf7ba899cbd12d7d3c2eb42c2aa34d05a2f16ee43a18ef153d347e4e96ec25e0bdb1d017beae5057a6b00686422cd8f164d8a8d06fabf76",
   userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
 };
 
 /*
-  * FeePayerAddress is any Treasury Wallet's address;
-  * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
-  * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
-*/
+ * FeePayerAddress is any Treasury Wallet's address;
+ * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+ * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
+ */
 const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
 
 /* if sponsporship is not enabled */
 transferToken(data, sessionConfig);
 
 /* if sponsporship is enabled */
-transferToken(data, sessionConfig, feePayerAddress); 
+// transferToken(data, sessionConfig, feePayerAddress);

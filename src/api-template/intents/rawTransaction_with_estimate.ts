@@ -13,7 +13,7 @@ import {
   type SessionConfig,
 } from "../utils/userOpEstimateAndExecute.js";
 import dotenv from "dotenv";
-import { getChains } from "../utils/getChains.js";
+import { getChains } from "../explorer/getChains.js";
 import { estimateUserOp } from "../utils/userOpEstimateAndExecute.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
 
@@ -40,7 +40,11 @@ interface Data {
  * @param sessionConfig - The sessionConfig object containing user SWA and session keys.
  * @returns The jobid for the NFT transfer.
  */
-async function rawTransaction(data: Data, sessionConfig: SessionConfig, sponsorshipEnabled: boolean) {
+async function rawTransaction(
+  data: Data,
+  sessionConfig: SessionConfig,
+  sponsorshipEnabled: boolean
+) {
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
@@ -112,36 +116,36 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig, sponsors
   let estimateUserOpPayload;
 
   if (sponsorshipEnabled) {
-  estimateUserOpPayload = {
-    type: "RAW_TRANSACTION",
-    jobId: "",
-    /* 
-     * FeePayerAddress is any Treasury Wallet's address; 
-     * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
-     * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.    
-     */
-    feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",
-    gasDetails: {
-      maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
-      maxPriorityFeePerGas: toHex(
-        Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
-      ),
-      paymasterData: await paymasterData({
-        nonce,
-        validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
-      }),
-    },
-    details: {
-      caip2Id: data.caip2Id,
-      transactions: [...data.transactions],
-    },
-  };
+    estimateUserOpPayload = {
+      type: "RAW_TRANSACTION",
+      jobId: "",
+      /*
+       * FeePayerAddress is any Treasury Wallet's address;
+       * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+       * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
+       */
+      feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",
+      gasDetails: {
+        maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
+        maxPriorityFeePerGas: toHex(
+          Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
+        ),
+        paymasterData: await paymasterData({
+          nonce,
+          validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
+        }),
+      },
+      details: {
+        caip2Id: data.caip2Id,
+        transactions: [...data.transactions],
+      },
+    };
   } else {
     estimateUserOpPayload = {
       type: "RAW_TRANSACTION",
       jobId: "",
-      /* 
-       * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.   
+      /*
+       * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
        */
       gasDetails: {
         maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
@@ -236,7 +240,11 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig, sponsors
   // JobId: 3ee33731-9e96-4ab9-892c-ea476b36295d
 
   // Check the status of the jobId and get the transaction details
-  const txn_details = await getOrderHistory(OktoAuthToken, jobId, "RAW_TRANSACTION");
+  const txn_details = await getOrderHistory(
+    OktoAuthToken,
+    jobId,
+    "RAW_TRANSACTION"
+  );
   console.log("Order Details:", JSON.stringify(txn_details, null, 2));
 }
 

@@ -14,7 +14,7 @@ import {
   estimateUserOp,
 } from "../utils/userOpEstimateAndExecute.js";
 import dotenv from "dotenv";
-import { getChains } from "../utils/getChains.js";
+import { getChains } from "../explorer/getChains.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
 
 dotenv.config();
@@ -244,7 +244,11 @@ async function transferNft(
   // JobId: 14778af1-9d12-42ca-b664-1686f38f3633
 
   // Check the status of the jobId and get the transaction details
-  const txn_details = await getOrderHistory(OktoAuthToken, jobId, "NFT_TRANSFER");
+  const txn_details = await getOrderHistory(
+    OktoAuthToken,
+    jobId,
+    "NFT_TRANSFER"
+  );
   console.log("Order Details:", JSON.stringify(txn_details, null, 2));
 }
 
