@@ -4,7 +4,6 @@ import { signMessage } from "viem/accounts";
 import { fromHex } from "viem";
 import { generatePackedUserOp, generateUserOpHash } from "./generateUserOp.js";
 import { serializeJSON } from "../helper/serializeJson.js";
-import type { UserOp } from "../helper/types.js";
 
 export interface SessionConfig {
   sessionPrivKey: string;
