@@ -23,7 +23,7 @@ import {
   getUserOperationGasPrice,
 } from "../utils/userOpEstimateAndExecute.js";
 import dotenv from "dotenv";
-import { getChains } from "../utils/getChains.js";
+import { getChains } from "../explorer/getChains.js";
 import type { Address } from "../helper/types.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
 
@@ -51,7 +51,11 @@ interface Data {
  * @param sessionConfig - The sessionConfig object containing user SWA and session keys.
  * @returns The jobid for the NFT transfer.
  */
-async function rawTransaction(data: Data, sessionConfig: SessionConfig, feePayerAddress?: Address) {
+async function rawTransaction(
+  data: Data,
+  sessionConfig: SessionConfig,
+  feePayerAddress?: Address
+) {
   console.log("Data: ", data);
   console.log("Session Config: ", sessionConfig);
 
@@ -59,7 +63,7 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig, feePayer
   const nonce = uuidv4();
 
   // Get the Intent execute API info
-  const jobParametersAbiType = '(string caip2Id, bytes[] transactions)';
+  const jobParametersAbiType = "(string caip2Id, bytes[] transactions)";
   const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
 
   // get the Chain CAIP2ID required for payload construction
@@ -136,46 +140,48 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig, feePayer
 
   // create the UserOp Call data for raw txn execute intent
   const calldata = encodeAbiParameters(
-      parseAbiParameters("bytes4, address,uint256, bytes"),
-      [
-        Constants.EXECUTE_USEROP_FUNCTION_SELECTOR, //execute userop function selector
-        Constants.ENV_CONFIG.SANDBOX.JOB_MANAGER_ADDRESS, //The Job Manager address is now replaced with "RawTransactionBloc" address
-        Constants.USEROP_VALUE,
-        encodeFunctionData({
-          abi: INTENT_ABI,
-          functionName: Constants.FUNCTION_NAME,
-          args: [
-            toHex(nonceToBigInt(nonce), { size: 32 }),
-            clientSWA,
-            sessionConfig.userSWA,
-            feePayerAddress,
-            encodeAbiParameters(
-              parseAbiParameters("(bool gsnEnabled, bool sponsorshipEnabled)"),
-              [
-                {
-                  gsnEnabled: currentChain.gsn_enabled ?? false,
-                  sponsorshipEnabled: currentChain.sponsorship_enabled ?? false,
-                },
-              ]
-            ),
-            encodeAbiParameters(parseAbiParameters(gsnDataAbiType), [
+    parseAbiParameters("bytes4, address,uint256, bytes"),
+    [
+      Constants.EXECUTE_USEROP_FUNCTION_SELECTOR, //execute userop function selector
+      Constants.ENV_CONFIG.SANDBOX.JOB_MANAGER_ADDRESS, //The Job Manager address is now replaced with "RawTransactionBloc" address
+      Constants.USEROP_VALUE,
+      encodeFunctionData({
+        abi: INTENT_ABI,
+        functionName: Constants.FUNCTION_NAME,
+        args: [
+          toHex(nonceToBigInt(nonce), { size: 32 }),
+          clientSWA,
+          sessionConfig.userSWA,
+          feePayerAddress,
+          encodeAbiParameters(
+            parseAbiParameters("(bool gsnEnabled, bool sponsorshipEnabled)"),
+            [
               {
-                isRequired: false,
-                requiredNetworks: [],
-                tokens: [],
+                gsnEnabled: currentChain.gsn_enabled ?? false,
+                sponsorshipEnabled: currentChain.sponsorship_enabled ?? false,
               },
-            ]),
-            encodeAbiParameters(parseAbiParameters(jobParametersAbiType), [
-              {
-                caip2Id: data.caip2Id,
-                transactions: [toHex(stringToBytes(JSON.stringify(data.transaction)))],
-              },
-            ]),
-            Constants.INTENT_TYPE.RAW_TRANSACTION,
-          ],
-        }),
-      ]
-    );
+            ]
+          ),
+          encodeAbiParameters(parseAbiParameters(gsnDataAbiType), [
+            {
+              isRequired: false,
+              requiredNetworks: [],
+              tokens: [],
+            },
+          ]),
+          encodeAbiParameters(parseAbiParameters(jobParametersAbiType), [
+            {
+              caip2Id: data.caip2Id,
+              transactions: [
+                toHex(stringToBytes(JSON.stringify(data.transaction))),
+              ],
+            },
+          ]),
+          Constants.INTENT_TYPE.RAW_TRANSACTION,
+        ],
+      }),
+    ]
+  );
   console.log("Calldata: ", calldata);
   // Sample Response:
   // Calldata:  0x8dd7712f0000000000000000000000000000000000000000000000000000000000000000000000000000000039104019a157566d065c3eac7d75f9c0e3df80300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000004248fa61ac000000000000000000000000000000000a9e8bc062b4940b7a19638b8b17051f1000000000000000000000000e8201e368557508bf183d4e2dce1b1a1e0bd20fa000000000000000000000000fbb05b5bf0192458e0ca5946d7b82a61eba9802500000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000000000022000000000000000000000000000000000000000000000000000000000000003e000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000c6569703135353a383435333200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000897b2266726f6d223a22307836614664343246393764373963373936374635323845354333323032333046303731614337463161222c22746f223a22307838616166314635413136384545373844316239366466333435654361663030393836303742384636222c2264617461223a223078222c2276616c7565223a313030303030303030303030307d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f5241575f5452414e53414354494f4e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -184,26 +190,26 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig, feePayer
 
   // Construct the UserOp with all the data fetched above, sign it and add the signature to the userOp
   const userOp = {
-      sender: sessionConfig.userSWA,
-      nonce: toHex(nonceToBigInt(nonce), { size: 32 }),
-      paymaster: Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS, //paymaster address
-      callGasLimit: toHex(Constants.GAS_LIMITS.CALL_GAS_LIMIT),
-      verificationGasLimit: toHex(Constants.GAS_LIMITS.VERIFICATION_GAS_LIMIT),
-      preVerificationGas: toHex(Constants.GAS_LIMITS.PRE_VERIFICATION_GAS),
-      maxFeePerGas: gasPrice.maxFeePerGas,
-      maxPriorityFeePerGas: gasPrice.maxPriorityFeePerGas,
-      paymasterPostOpGasLimit: toHex(
-        Constants.GAS_LIMITS.PAYMASTER_POST_OP_GAS_LIMIT
-      ),
-      paymasterVerificationGasLimit: toHex(
-        Constants.GAS_LIMITS.PAYMASTER_VERIFICATION_GAS_LIMIT
-      ),
-      callData: calldata,
-      paymasterData: await paymasterData({
-        nonce,
-        validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
-      }),
-    };
+    sender: sessionConfig.userSWA,
+    nonce: toHex(nonceToBigInt(nonce), { size: 32 }),
+    paymaster: Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS, //paymaster address
+    callGasLimit: toHex(Constants.GAS_LIMITS.CALL_GAS_LIMIT),
+    verificationGasLimit: toHex(Constants.GAS_LIMITS.VERIFICATION_GAS_LIMIT),
+    preVerificationGas: toHex(Constants.GAS_LIMITS.PRE_VERIFICATION_GAS),
+    maxFeePerGas: gasPrice.maxFeePerGas,
+    maxPriorityFeePerGas: gasPrice.maxPriorityFeePerGas,
+    paymasterPostOpGasLimit: toHex(
+      Constants.GAS_LIMITS.PAYMASTER_POST_OP_GAS_LIMIT
+    ),
+    paymasterVerificationGasLimit: toHex(
+      Constants.GAS_LIMITS.PAYMASTER_VERIFICATION_GAS_LIMIT
+    ),
+    callData: calldata,
+    paymasterData: await paymasterData({
+      nonce,
+      validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
+    }),
+  };
   console.log("Unsigned UserOp: ", userOp);
   // Sample Response:
   // Unsigned UserOp:  {
@@ -247,7 +253,11 @@ async function rawTransaction(data: Data, sessionConfig: SessionConfig, feePayer
   // JobId: 3ee33731-9e96-4ab9-892c-ea476b36295d
 
   // Check the status of the jobId and get the transaction details
-  const txn_details = await getOrderHistory(OktoAuthToken, jobId, "RAW_TRANSACTION");
+  const txn_details = await getOrderHistory(
+    OktoAuthToken,
+    jobId,
+    "RAW_TRANSACTION"
+  );
   console.log("Order Details:", JSON.stringify(txn_details, null, 2));
 }
 
@@ -263,16 +273,18 @@ const data: Data = {
 };
 
 const sessionConfig: SessionConfig = {
-  sessionPrivKey: '0xc97084e71ca098605aec020b440bd820eefc4d3b0335169e7a46aa9918d8b7f8',
-  sessionPubkey: '0x045db42bd7cb2800fe76237c550ce8893257032e34c5500d3bd4e65f2fed6a25588246f06a1ec7fc700d76948d4190769d48058422207d6d7c14e4120d09cfd25b',
-  userSWA: '0xfBb05b5Bf0192458E0Ca5946d7B82a61Eba98025'
-}
+  sessionPrivKey:
+    "0xc97084e71ca098605aec020b440bd820eefc4d3b0335169e7a46aa9918d8b7f8",
+  sessionPubkey:
+    "0x045db42bd7cb2800fe76237c550ce8893257032e34c5500d3bd4e65f2fed6a25588246f06a1ec7fc700d76948d4190769d48058422207d6d7c14e4120d09cfd25b",
+  userSWA: "0xfBb05b5Bf0192458E0Ca5946d7B82a61Eba98025",
+};
 
 /*
-  * FeePayerAddress is any Treasury Wallet's address;
-  * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
-  * Do not provide a field named feePayerAddress if sponsorship is not enabled.
-*/
+ * FeePayerAddress is any Treasury Wallet's address;
+ * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+ * Do not provide a field named feePayerAddress if sponsorship is not enabled.
+ */
 const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
 
 /* if sponsporship is not enabled */

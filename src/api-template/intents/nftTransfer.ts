@@ -22,7 +22,7 @@ import {
   getUserOperationGasPrice,
 } from "../utils/userOpEstimateAndExecute.js";
 import dotenv from "dotenv";
-import { getChains } from "../utils/getChains.js";
+import { getChains } from "../explorer/getChains.js";
 import type { Address } from "../helper/types.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
 
@@ -47,13 +47,17 @@ interface Data {
  * @param sessionConfig - The sessionConfig object containing user SWA and session keys.
  * @returns The jobid for the NFT transfer.
  */
-async function transferNft(data: Data, sessionConfig: SessionConfig, feePayerAddress?: Address) {
+async function transferNft(
+  data: Data,
+  sessionConfig: SessionConfig,
+  feePayerAddress?: Address
+) {
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
   // Get the Intent execute API info
   const jobParametersAbiType =
-    '(string caip2Id, string nftId, string recipientWalletAddress, string collectionAddress, string nftType, uint amount)';
+    "(string caip2Id, string nftId, string recipientWalletAddress, string collectionAddress, string nftType, uint amount)";
   const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
 
   // get the Chain CAIP2ID required for payload construction
@@ -184,7 +188,7 @@ async function transferNft(data: Data, sessionConfig: SessionConfig, feePayerAdd
   const userOp = {
     sender: sessionConfig.userSWA,
     nonce: toHex(nonceToBigInt(nonce), { size: 32 }),
-    paymaster: Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS,    //paymaster address
+    paymaster: Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS, //paymaster address
     callGasLimit: toHex(Constants.GAS_LIMITS.CALL_GAS_LIMIT),
     verificationGasLimit: toHex(Constants.GAS_LIMITS.VERIFICATION_GAS_LIMIT),
     preVerificationGas: toHex(Constants.GAS_LIMITS.PRE_VERIFICATION_GAS),
@@ -245,31 +249,37 @@ async function transferNft(data: Data, sessionConfig: SessionConfig, feePayerAdd
   // JobId: 14778af1-9d12-42ca-b664-1686f38f3633
 
   // Check the status of the jobId and get the transaction details
-  const txn_details = await getOrderHistory(OktoAuthToken, jobId, "NFT_TRANSFER");
+  const txn_details = await getOrderHistory(
+    OktoAuthToken,
+    jobId,
+    "NFT_TRANSFER"
+  );
   console.log("Order Details:", JSON.stringify(txn_details, null, 2));
 }
 
 // To get the caipId, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
 const data: Data = {
-  caip2Id: 'eip155:84532', // BASE_TESTNET
-  collectionAddress: '0x0425e3ea77Cf478E7660A956C4127F0898e5a8Ea',
-  nftId: '0',
-  recipientWalletAddress: '0x8aaf1F5A168EE78D1b96df345eCaf0098607B8F6',
+  caip2Id: "eip155:84532", // BASE_TESTNET
+  collectionAddress: "0x0425e3ea77Cf478E7660A956C4127F0898e5a8Ea",
+  nftId: "0",
+  recipientWalletAddress: "0x8aaf1F5A168EE78D1b96df345eCaf0098607B8F6",
   amount: 1, // Should always be >0
-  nftType: 'ERC721' // ERC721
-}
+  nftType: "ERC721", // ERC721
+};
 
 const sessionConfig: SessionConfig = {
-  sessionPrivKey: '0xc97084e71ca098605aec020b440bd820eefc4d3b0335169e7a46aa9918d8b7f8',
-  sessionPubkey: '0x045db42bd7cb2800fe76237c550ce8893257032e34c5500d3bd4e65f2fed6a25588246f06a1ec7fc700d76948d4190769d48058422207d6d7c14e4120d09cfd25b',
-  userSWA: '0xfBb05b5Bf0192458E0Ca5946d7B82a61Eba98025'
-}
+  sessionPrivKey:
+    "0xc97084e71ca098605aec020b440bd820eefc4d3b0335169e7a46aa9918d8b7f8",
+  sessionPubkey:
+    "0x045db42bd7cb2800fe76237c550ce8893257032e34c5500d3bd4e65f2fed6a25588246f06a1ec7fc700d76948d4190769d48058422207d6d7c14e4120d09cfd25b",
+  userSWA: "0xfBb05b5Bf0192458E0Ca5946d7B82a61Eba98025",
+};
 
 /*
-  * FeePayerAddress is any Treasury Wallet's address;
-  * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
-  * Do not provide a field named feePayerAddress if sponsorship is not enabled.
-*/
+ * FeePayerAddress is any Treasury Wallet's address;
+ * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+ * Do not provide a field named feePayerAddress if sponsorship is not enabled.
+ */
 const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
 
 /* if sponsporship is not enabled */

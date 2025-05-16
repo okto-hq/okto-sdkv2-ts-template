@@ -1,4 +1,8 @@
 import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
+const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 
 /**
  * Retrieves all the enabled networks from the Okto Client Dashboard
@@ -27,3 +31,6 @@ export async function getChains(OktoAuthToken: string) {
         throw new Error("Failed to fetch supported networks");
     }
 }
+
+// Sample usage 
+// const chains = await getChains(OktoAuthToken);
