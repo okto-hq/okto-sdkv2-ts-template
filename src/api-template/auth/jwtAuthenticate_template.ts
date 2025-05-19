@@ -2,7 +2,7 @@
  * This script explains how to perform authentication on Okto using JWT and generate an okto auth token for the User
  */
 
-import { OktoAuthTokenGenerator } from "../utils/generateOktoAuthToken.js";
+import { loginUsingOAuth } from "../utils/generateOktoAuthToken.js";
 
 export const JwtAuthenticate = async () => {
   const payload = {
@@ -18,7 +18,7 @@ export const JwtAuthenticate = async () => {
    
     NOTE: The above endpoint is for testing purposes only and always returns 'success:true' for any JWT token provided.
   */
-  const authToken = await OktoAuthTokenGenerator(
+  const authToken = await loginUsingOAuth(
     payload.idToken,
     payload.provider
   );

@@ -101,7 +101,7 @@ async function generateAuthPayload(
  * This function explains how to construct the payload, execute Okto Authentication and
  * create the Okto auth Token for further API usage
  */
-export const OktoAuthTokenGenerator = async (
+export const loginUsingOAuth = async (
   idToken: string,
   provider: string
 ) => {

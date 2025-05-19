@@ -12,13 +12,13 @@ var sessionConfig;
 const OktoAuthTokenGenerator = async () => {
   // assumed to be stored by the client. Example values entered here
   const treasuryWalletSWA = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
-  const priv = [
+  const sessionPrivateKey = [
     156, 150, 227, 117, 91, 218, 80, 251, 105, 128, 46, 209, 189, 220, 200, 124,
     162, 40, 156, 154, 123, 217, 85, 57, 167, 84, 209, 1, 177, 69, 166, 29,
   ];
 
   // Convert the numeric array to a hex string
-  const privKeyHex = "0x" + Buffer.from(priv).toString("hex");
+  const privKeyHex = "0x" + Buffer.from(sessionPrivateKey).toString("hex");
 
   // Construct the session object using the session private key above
   const session = SessionKey.fromPrivateKey(privKeyHex);
