@@ -3,7 +3,7 @@
  */
 
 import dotenv from "dotenv";
-import { OktoAuthTokenGenerator } from "../utils/generateOktoAuthToken.js";
+import { loginUsingOAuth } from "../utils/generateOktoAuthToken.js";
 
 dotenv.config();
 const googleIdToken = process.env.GOOGLE_ID_TOKEN as string;
@@ -14,7 +14,7 @@ export const GoogleAuthenticate = async () => {
     provider: "google",
   };
 
-  const authToken = await OktoAuthTokenGenerator(
+  const authToken = await loginUsingOAuth(
     payload.idToken,
     payload.provider
   );

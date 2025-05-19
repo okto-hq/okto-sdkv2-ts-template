@@ -6,7 +6,7 @@ import axios from "axios";
 import { generateClientSignature } from "../utils/generateClientSignature.js";
 import { type Hex } from "viem";
 import dotenv from "dotenv";
-import { OktoAuthTokenGenerator } from "../utils/generateOktoAuthToken.js";
+import { loginUsingOAuth } from "../utils/generateOktoAuthToken.js";
 dotenv.config();
 
 const client_swa = process.env.OKTO_CLIENT_SWA as Hex;
@@ -179,7 +179,7 @@ verifyOtp("764f6757-9c54-5d9a-b34f-c4cf5e7b7763", "110949"); // Replace with act
  * This step is needed in order to generate the Okto Auth token for further API usage.
  */
 
-OktoAuthTokenGenerator("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "okto"); // Replace with actual auth_token received from the verifyOtp() response
+loginUsingOAuth("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "okto"); // Replace with actual auth_token received from the verifyOtp() response
 // Sample Response
 // session:  SessionKey {
 //   priv: Uint8Array(32) [
