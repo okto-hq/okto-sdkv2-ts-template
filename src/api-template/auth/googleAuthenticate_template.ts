@@ -14,12 +14,10 @@ export const GoogleAuthenticate = async () => {
     provider: "google",
   };
 
-  const authToken = await loginUsingOAuth(
+  await loginUsingOAuth(
     payload.idToken,
     payload.provider
   );
-
-  console.log("Okto session authToken: ", authToken);
   // Sample Response
   // session:  SessionKey {
   //   priv: Uint8Array(32) [

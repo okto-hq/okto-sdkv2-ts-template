@@ -18,7 +18,7 @@ export const JwtAuthenticate = async () => {
    
     NOTE: The above endpoint is for testing purposes only and always returns 'success:true' for any JWT token provided.
   */
-  const authToken = await loginUsingOAuth(
+  await loginUsingOAuth(
     payload.idToken,
     payload.provider
   );
