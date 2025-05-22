@@ -6,10 +6,11 @@ import { OktoClient } from "@okto_web3/core-js-sdk";
 import type { Hash, Hex } from "@okto_web3/core-js-sdk/types";
 import { getAccount, getPortfolio, getChains, getTokens, getPortfolioActivity, getPortfolioNFT, getNftCollections, getOrdersHistory } from "@okto_web3/core-js-sdk/explorer";
 import { tokenTransfer, nftTransfer } from "@okto_web3/core-js-sdk/userop";
-
+import readlineSync from 'readline-sync';
 
 import dotenv from 'dotenv';
 dotenv.config();
+
 
 const main = async () => {
     // Initialize OktoClient
@@ -24,12 +25,46 @@ const main = async () => {
         clientSWA: process.env.OKTO_CLIENT_SWA as Hex,
     });
 
-    // Log in using Google OAuth and Okto Client
-    const user = await oktoClient.loginUsingOAuth({
-        idToken: googleIdToken,
-        provider: 'google',
-    })
-    console.log('User: ', user);
+    const method = readlineSync.question('Enter authentication method (social/email/whatsapp/jwt): ').toLowerCase();
+
+    switch (method) {
+        case 'social': {
+            // Log in using Google OAuth and Okto Client
+            const user = await oktoClient.loginUsingOAuth({
+                idToken: googleIdToken,
+                provider: 'google',
+            })
+            console.log('User: ', user);
+            break;
+        }
+        case 'email': {
+            // Log in using Email
+            const email = readlineSync.question('Enter your email: ');
+            const send_email_otp_res = await oktoClient.sendOTP(email, 'email');
+            console.log('Send Email OTP Response: ', send_email_otp_res);
+            const otp = readlineSync.question('Enter the OTP received on email: ');
+            const user = await oktoClient.loginUsingEmail(email, otp, send_email_otp_res.token);
+            console.log('Verify Email OTP Response: ', user);
+            break;
+        }
+        case 'whatsapp': {
+            // Log in using WhatsApp
+            const whatsapp = readlineSync.question('Enter your WhatsApp number: ');
+            const send_whatsapp_otp_res = await oktoClient.sendOTP(whatsapp, 'whatsapp');
+            console.log('Send WhatsApp OTP Response: ', send_whatsapp_otp_res);
+            const otp = readlineSync.question('Enter the OTP received on WhatsApp: ');
+            const user = await oktoClient.loginUsingWhatsApp(whatsapp, otp, send_whatsapp_otp_res.token);
+            console.log('Verify WhatsApp OTP Response: ', user);
+            break;
+        }
+        case 'jwt': {
+            // Log in using JWT
+            const jwt = readlineSync.question('Enter your JWT: ');
+            const user = await oktoClient.loginUsingJWTAuthentication(jwt);
+            console.log('JWT Login Response: ', user);
+            break;
+        }
+    }
 
     // Verify login
     const isLoggedIn = await oktoClient.verifyLogin()

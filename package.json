@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "@types/readline-sync": "^1.4.8",
     "nodemon": "^3.1.9",
     "tsx": "^4.19.4",
     "typescript": "^5.7.3"
@@ -22,11 +23,12 @@
   "dependencies": {
     "@noble/curves": "^1.8.1",
     "@noble/hashes": "^1.7.1",
-    "@okto_web3/core-js-sdk": "^0.6.2",
+    "@okto_web3/core-js-sdk": "0.6.3-dev.15",
     "axios": "^1.8.1",
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "ethers": "^6.13.5",
+    "readline-sync": "^1.4.10",
     "uuid": "^11.1.0",
     "viem": "^2.23.6"
   }
