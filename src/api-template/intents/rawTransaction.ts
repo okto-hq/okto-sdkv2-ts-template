@@ -35,7 +35,7 @@ interface EVMRawTransaction {
   from: string;
   to: string;
   data?: string;
-  value?: number | bigint;
+  value?: string;
 }
 
 interface Data {
@@ -262,22 +262,39 @@ async function rawTransaction(
 }
 
 // To get the caip2Id, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
+
+// Sample data for BASE_TESTNET
+// const data: Data = {
+//   caip2Id: "eip155:84532", // BASE_TESTNET
+//   transaction: {
+//     from: "0xA8c1021b6322e5fF8e059295fa027A1380789037",
+//     to: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2",
+//     data: "0x", // Default empty data
+//     value: "100000000000",
+//   },
+// };
+
+// Sample data for APTOS_TESTNET
+
+
+
+// Sample Usage
 const data: Data = {
   caip2Id: "eip155:84532", // BASE_TESTNET
   transaction: {
-    from: "0x6aFd42F97d79c7967F528E5C320230F071aC7F1a",
-    to: "0x8aaf1F5A168EE78D1b96df345eCaf0098607B8F6",
+    from: "0xA8c1021b6322e5fF8e059295fa027A1380789037",
+    to: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2",
     data: "0x", // Default empty data
-    value: 1000000000000,
+    value: "100000000000",
   },
 };
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0xc97084e71ca098605aec020b440bd820eefc4d3b0335169e7a46aa9918d8b7f8",
+    "0x56a4aae62eb5df6c8790eff062f2b0ec9650d591daa6088d3335719ce661c4fd",
   sessionPubkey:
-    "0x045db42bd7cb2800fe76237c550ce8893257032e34c5500d3bd4e65f2fed6a25588246f06a1ec7fc700d76948d4190769d48058422207d6d7c14e4120d09cfd25b",
-  userSWA: "0xfBb05b5Bf0192458E0Ca5946d7B82a61Eba98025",
+    "0x04250d238f5332c5a8928c0d2e32383c82dcdb7cc07d537d1f1be95a366005968008f948b03ab02feab7abccb74d5ab9f44eb1bb160b6ac39f8664acf477c6fc5c",
+  userSWA: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
 };
 
 /*
