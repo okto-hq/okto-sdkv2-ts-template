@@ -237,7 +237,7 @@ export async function transferToken(
 //   caip2Id: "aptos:testnet", // APTOS_TESTNET
 //   recipient: "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc", // Sample recipient on APTOS_TESTNET
 //   token: '0x1::aptos_coin::AptosCoin', // Left empty because transferring native token
-//   amount: 1000000, // denomination in lowest decimal (8 for APT)
+//   amount: 100000, // denomination in lowest decimal (8 for APT)
 // };
 
 // Sample data for BASE_TESTNET
@@ -248,6 +248,8 @@ export async function transferToken(
 //   amount: 100000000000, // denomination in lowest decimal (18 for WETH)
 // };
 
+
+// Sample Usage
 const data: Data = {
   caip2Id: "eip155:84532", // BASE_TESTNET
   recipient: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2", // Sample recipient on BASE_TESTNET
@@ -257,10 +259,10 @@ const data: Data = {
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0x96cd1cc2cbddcaf87e324c427012ccf69c1204bad9b806a8af71e6754851ec2f",
+    "0x56a4aae62eb5df6c8790eff062f2b0ec9650d591daa6088d3335719ce661c4fd",
   sessionPubkey:
-    "0x04ec92b78584d1ba3d1c3a294340828f0564198a6030923019074e2ee00dd69b2be825cecf5eb58397779b5514cf7ee15906640960cba76a5c185fc4584fa72a79",
-  userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
+    "0x04250d238f5332c5a8928c0d2e32383c82dcdb7cc07d537d1f1be95a366005968008f948b03ab02feab7abccb74d5ab9f44eb1bb160b6ac39f8664acf477c6fc5c",
+  userSWA: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
 };
 
 /*
