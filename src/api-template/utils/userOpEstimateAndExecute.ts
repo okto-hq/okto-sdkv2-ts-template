@@ -38,7 +38,7 @@ export async function estimateUserOp(payload: any, authToken: string) {
     const serializedPayload = serializeJSON(requestBody);
     console.log("finally sending the axios request for estimate...........");
     const response = await axios.post(
-      "https://sandbox-okto-gateway.oktostage.com/rpc", // RPC url for the OKTO Gateway
+      "https://apigw.oktostage.com/api/oc/v1/estimate", // RPC url for the OKTO Gateway
       serializedPayload,
       {
         headers: {
@@ -60,10 +60,8 @@ export async function estimateUserOp(payload: any, authToken: string) {
 }
 
 export async function swapEstimateUserOp(requestBody: any, authToken: string) {
-  const jobId = uuidv4();
   try {
     const swapPayload = requestBody;
-    swapPayload.jobId = jobId;
 
     console.log("finally sending the axios request ...........");
     const response = await axios.post(
