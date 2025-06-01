@@ -41,7 +41,7 @@ async function postSignedRequest(endpoint: string, fullPayload: any) {
  */
 export async function sendOtp() {
   const payload = {
-    email: "testingabhi1234@gmail.com", // Replace with the user's Email ID
+    email: "devrel@coindcx.com", // Replace with the user's Email ID
     client_swa: client_swa, // Replace with your client_swa
   };
 
@@ -67,7 +67,7 @@ export async function sendOtp() {
  */
 export async function verifyOtp(token: any, otp: any) {
   const payload = {
-    email: "testingabhi1234@gmail.com", // Replace with the user's Email ID
+    email: "devrel@coindcx.com", // Replace with the user's Email ID
     token: token,
     otp: otp,
     client_swa: client_swa, // Replace with your client_swa
@@ -100,7 +100,7 @@ export async function verifyOtp(token: any, otp: any) {
  * Call this method to send an OTP to the user's WhatsApp number.
  */
 
-// sendOtp();
+sendOtp();
 // Sample Response:
 // OTP Sent: {
 //   status: 'success',
@@ -118,7 +118,7 @@ export async function verifyOtp(token: any, otp: any) {
  * Call this method using the token from Step 1, along with the OTP received via Email.
  */
 
-// verifyOtp("99009c41-f055-5638-86f8-a03e2cdf4f0e", "915911"); // Replace with actual token from send/resend otp and OTP
+verifyOtp("99009c41-f055-5638-86f8-a03e2cdf4f0e", "915911"); // Replace with actual token from send/resend otp and OTP
 // Sample Response:
 // OTP Verified: {
 //   status: 'success',
