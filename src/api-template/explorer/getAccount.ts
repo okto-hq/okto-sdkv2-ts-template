@@ -26,11 +26,12 @@ export async function getAccount(OktoAuthToken: string) {
             }
         );
         return response.data;
-    } catch (error) {
-        console.error("Error fetching account:", error);
+    } catch (error: any) {
+        console.error("Error fetching account:", error.response?.data || error);
         throw new Error("Failed to fetch account");
     }
 }
 
 // Sample usage 
 // const account = await getAccount(OktoAuthToken);
+// console.log("Wallets :", account);

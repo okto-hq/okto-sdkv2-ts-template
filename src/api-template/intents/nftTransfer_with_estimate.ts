@@ -11,11 +11,12 @@ import {
   signUserOp,
   executeUserOp,
   type SessionConfig,
-  estimateUserOp,
-} from "../utils/userOpEstimateAndExecute.js";
+} from "../utils/invokeExecuteUserOp.js";
+import { estimateUserOp } from "../utils/invokeEstimateUserOp.js";
 import dotenv from "dotenv";
 import { getChains } from "../explorer/getChains.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
+import type { Address } from "../helper/types.js";
 
 dotenv.config();
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
@@ -40,7 +41,7 @@ interface Data {
 async function transferNft(
   data: Data,
   sessionConfig: SessionConfig,
-  sponsorshipEnabled: boolean
+  feePayerAddress?: Address
 ) {
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
@@ -112,16 +113,14 @@ async function transferNft(
   console.log("generating estimateUserOp Payload...");
   let estimateUserOpPayload;
 
-  if (sponsorshipEnabled) {
+  if (feePayerAddress) {
     estimateUserOpPayload = {
       type: "NFT_TRANSFER",
-      jobId: "",
+      jobId: nonce,
       /*
-       * FeePayerAddress is any Treasury Wallet's address;
-       * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
-       * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
+       * Provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is enabled.
        */
-      feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",
+      feePayerAddress: feePayerAddress,
       paymasterData: await paymasterData({
         nonce,
         validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
@@ -144,7 +143,7 @@ async function transferNft(
   } else {
     estimateUserOpPayload = {
       type: "NFT_TRANSFER",
-      jobId: "",
+      jobId: nonce,
       /*
        * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
        */
@@ -169,7 +168,6 @@ async function transferNft(
     };
   }
 
-  console.log("Estimate UserOp payload", estimateUserOpPayload);
   // Sample Payload: {
   //     "type": "NFT_TRANSFER",
   //     "jobId": "b9e16100-446f-4050-84ed-a846d2bae528",
@@ -189,15 +187,16 @@ async function transferNft(
   //     }
   // }
 
-  console.log("calling estimate userop..."); // TODO: to be removed
-
   // Call the estimateUserOp API to get the UserOp object
+  console.log("calling estimate userop...");
   const estimateUserOpResponse = await estimateUserOp(
     estimateUserOpPayload,
     OktoAuthToken
   );
+  console.log("estimateUserOpResponse:", estimateUserOpResponse);
+
   // Sample Response:
-  // estimateUserOpResponse: {}                                             TODO: add sample response
+  // estimateUserOpResponse: {}
 
   // Get the UserOp from the estimate response fetched above, sign it and add the signature to the userOp
   const userOp = estimateUserOpResponse.result.userOps;
@@ -270,6 +269,15 @@ const sessionConfig: SessionConfig = {
   userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
 };
 
-const sponsorshipEnabled = true; // Set to true if you want an intent with sponsorship
+/*
+ * FeePayerAddress is any Treasury Wallet's address;
+ * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+ * Do not provide a field named feePayerAddress if sponsorship is not enabled.
+ */
+const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
 
-transferNft(data, sessionConfig, sponsorshipEnabled);
+/* if sponsporship is not enabled */
+transferNft(data, sessionConfig);
+
+/* if sponsporship is enabled */
+transferNft(data, sessionConfig, feePayerAddress);

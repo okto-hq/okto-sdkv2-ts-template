@@ -26,28 +26,12 @@ export async function getChains(OktoAuthToken: string) {
             }
         );
         return response.data.data.network;
-    } catch (error) {
-        console.error("Error fetching supported networks:", error);
+    } catch (error: any) {
+        console.error("Error fetching supported networks:", error.response?.data || error);
         throw new Error("Failed to fetch supported networks");
     }
 }
 
 // Sample usage 
 // const chains = await getChains(OktoAuthToken);
-
-export async function getWallets(OktoAuthToken: string) {
-    try {
-        const response = await axios.get(
-            "https://sandbox-api.okto.tech/api/oc/v1/wallets",
-            {
-                headers: {
-                    Authorization: `Bearer ${OktoAuthToken}`,
-                },
-            }
-        );
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching wallets:", error);
-        throw new Error("Failed to fetch Wallets");
-    }
-}
+// console.log("Supported Chains:", chains);

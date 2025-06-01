@@ -1,9 +1,18 @@
 import crypto from "crypto";
 import { canonicalize } from "json-canonicalize";
 import { signMessage as signMessage3 } from "viem/accounts";
+import { sha256 } from '@noble/hashes/sha256';
 import { v4 as uuidv4 } from "uuid";
 
-type UserKeys = { ecdsaKeyId: string };
+type GetUserKeysResult = {
+  userId: string;
+  userSWA: string;
+  ecdsaPublicKey: string;
+  eddsaPublicKey: string;
+  ecdsaKeyId: string;
+  eddsaKeyId: string;
+};
+
 type Session = {
     sessionPrivKey: `0x${string}`; // Viem expects a hex private key  
     sessionPubKey: `0x${string}`;
@@ -28,58 +37,66 @@ export function generateUUID() {
 * @param signType - Signature standard to use ("EIP191" or "EIP712")
 * @returns Payload for the Okto signing service
 */
-export async function generateSignMessagePayload(userKeys: UserKeys, session: Session, message: message, signType: SignType) {
-  const raw_message_to_sign = {
-    message,
-    requestType: signType
+export async function generateSignMessagePayload(userKeys: GetUserKeysResult, session: Session, message: message, signType: SignType) {
+ 
+    const raw_message_to_sign = {
+    requestType: signType,
+    signingMessage: message,
   };
-  const transaction_id = generateUUID();
+
+ const transaction_id = generateUUID();
+
   const base64_message_to_sign = {
-    [transaction_id]: canonicalize(raw_message_to_sign)
+    [transaction_id]: raw_message_to_sign,
   };
-  const base64_message = Buffer.from(
-    canonicalize(base64_message_to_sign)
-  ).toString("base64");
+
+  const base64_message = canonicalize(base64_message_to_sign);
+
   const setup_options = {
-    t: 3,
-    // Threshold; 3,5 MPC
+    t: 3, // Threshold; 3,5 MPC
     key_id: userKeys.ecdsaKeyId,
     message: base64_message,
-    signAlg: "secp256k1"
+    // TODO: Add support for other signing algorithms (e.g. ed25519)
+    signAlg: 'secp256k1',
   };
+
   const canonicalize_setup_options = canonicalize(setup_options);
-  const sha_1 = crypto.createHash("sha256").update(canonicalize_setup_options, "utf8").digest();
-  const sha_2 = crypto.createHash("sha256").update(sha_1).digest();
-  const challenge = sha_2.toString("hex");
+
+  const sha_1 = sha256(canonicalize_setup_options);
+  const sha_2 = sha256(sha_1);
+  const challenge = Buffer.from(sha_2).toString('hex');
+
   const enc = new TextEncoder();
-  const paylaod = enc.encode(
+  const rawMessagePayload = enc.encode(
     canonicalize({
-      challenge,
-      setup: setup_options
+      setup: setup_options,
+      challenge
     })
   );
+
   const sig = await signMessage3({
     message: {
-      raw: paylaod
+      raw: rawMessagePayload,
     },
-    privateKey: session.sessionPrivKey
+    privateKey: session.sessionPrivKey,
   });
+
   const payload = {
     data: {
       userData: {
         userSWA: session.userSWA,
-            jobId: generateUUID(),
-        sessionPk: session.sessionPubKey
+        jobId: generateUUID(),
+        sessionPk: session.sessionPubKey,
       },
       transactions: [
         {
           transactionId: transaction_id,
           method: signType,
           signingMessage: message,
-          userSessionSignature: sig
-        }
-      ]
-    }
+          userSessionSignature: sig,
+        },
+      ],
+    },
   };
   return payload;
 }

@@ -22,6 +22,12 @@
     "emitDeclarationOnly": false,
     "composite": false
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*",
+    "src/api-template/utils/invokeAuthenticate.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

@@ -28,12 +28,13 @@ export async function getPortfolio(OktoAuthToken: string) {
         console.log("Aggregated Portfolio Response:", response.data);
         console.log("Aggregated Portfolio tokens:", response.data.data.group_tokens);
         return response.data;
-    } catch (error) {
-        console.error("Error fetching supported networks:", error);
+    } catch (error: any) {
+        console.error("Error fetching supported networks:", error.response?.data || error);
         throw new Error("Failed to fetch supported networks");
     }
 }
 
 // Sample usage
 // const portfolio = await getPortfolio(OktoAuthToken);
+// console.log("Aggregated Portfolio:", portfolio);
 
