@@ -10,9 +10,10 @@ import {
   signUserOp,
   executeUserOp,
   type SessionConfig,
-  swapEstimateUserOp,
-} from "../utils/userOpEstimateAndExecute.js";
-import { getChains, getWallets } from "../explorer/getChains.js";
+} from "../utils/invokeExecuteUserOp.js";
+import { swapEstimateUserOp } from "../utils/invokeEstimateUserOp.js";
+import { getChains } from "../explorer/getChains.js";
+import { getAccount } from "../explorer/getAccount.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
 
 import dotenv from "dotenv";
@@ -48,9 +49,9 @@ interface Data {
 export async function swap(data: Data, sessionConfig: SessionConfig) {
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
-  console.log("NONCE:")
+  console.log("NONCE:");
 
-  const wallets = await getWallets(OktoAuthToken);
+  const wallets = await getAccount(OktoAuthToken);
   console.log("Wallets: ", JSON.stringify(wallets, null, 2));
 
   // get the Chain CAIP2ID required for payload construction
@@ -304,23 +305,20 @@ export async function swap(data: Data, sessionConfig: SessionConfig) {
     //   jobId: a0a54427-11c8-4140-bfcc-e96af15ce9cf
 
     // Check the status of the jobId and get the transaction details
-    const txn_details = await getOrderHistory(
-      OktoAuthToken,
-      jobId,
-      "SWAP"
-    );
+    const txn_details = await getOrderHistory(OktoAuthToken, jobId, "SWAP");
     console.log("Order Details:", JSON.stringify(txn_details, null, 2));
-
   } catch (err: any) {
-    console.error("Failed to estimate or execute user operation:", err.response?.data || err.message);
+    console.error(
+      "Failed to estimate or execute user operation:",
+      err.response?.data || err.message
+    );
   }
-
 }
 
 // To get the caipId, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
 const data: Data = {
   fromChainCaip2Id: "eip155:8453",
-  fromChainTokenAmount: "100000000", 
+  fromChainTokenAmount: "100000000",
   toChainCaip2Id: "eip155:137",
   fromChainTokenAddress: "",
   toChainTokenAddress: "",
@@ -330,7 +328,7 @@ const data: Data = {
   crossChainFee: "0",
   crossChainFeeCollector: "0x8aaf1F5A168EE78D1b96df345eCaf0098607B8F6",
   toTokenAmountMinimum: null,
-  advancedSettings: null
+  advancedSettings: null,
 };
 
 const sessionConfig: SessionConfig = {

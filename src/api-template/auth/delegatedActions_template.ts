@@ -2,7 +2,6 @@
 // This script is intended to be run in a Node.js environment
 
 import { getChains } from "../explorer/getChains.js";
-import { transferToken } from "../intents/tokenTransfer.js";
 import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
 import { SessionKey } from "../utils/sessionKey.js";
 import dotenv from "dotenv";

@@ -7,7 +7,6 @@ import {
   encodeFunctionData,
   parseAbiParameters,
   toHex,
-  type Hash,
   type Hex,
 } from "viem";
 import { v4 as uuidv4 } from "uuid";
@@ -20,7 +19,7 @@ import {
   executeUserOp,
   type SessionConfig,
   getUserOperationGasPrice,
-} from "../utils/userOpEstimateAndExecute.js";
+} from "../utils/invokeExecuteUserOp.js";
 import { getChains } from "../explorer/getChains.js";
 
 import dotenv from "dotenv";
@@ -248,13 +247,12 @@ export async function transferToken(
 //   amount: 100000000000, // denomination in lowest decimal (18 for WETH)
 // };
 
-
 // Sample Usage
 const data: Data = {
   caip2Id: "eip155:84532", // BASE_TESTNET
   recipient: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2", // Sample recipient on BASE_TESTNET
-  token: '', // Left empty because transferring native token
-  amount: 100000000000, // denomination in lowest decimal (18 for WETH)
+  token: "", // Left empty because transferring native token
+  amount: 1000000000000, // denomination in lowest decimal (18 for WETH)
 };
 
 const sessionConfig: SessionConfig = {

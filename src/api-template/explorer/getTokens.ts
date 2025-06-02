@@ -26,11 +26,12 @@ export async function getTokens(OktoAuthToken: string) {
             }
         );
         return response.data.data.tokens;
-    } catch (error) {
-        console.error("Error fetching tokens:", error);
+    } catch (error: any) {
+        console.error("Error fetching tokens:", error.response?.data || error);
         throw new Error("Failed to fetch tokens");
     }
 }
 
 // Sample usage 
 // const tokens = await getTokens(OktoAuthToken);
+// console.log("Supported Tokens:", tokens);

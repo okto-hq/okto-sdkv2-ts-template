@@ -18,8 +18,8 @@ export async function readContractData(payload: any, authToken: string) {
     );
 
     return response.data;
-  } catch (error) {
-    console.error("Error reading contract data :", error);
+  } catch (error: any) {
+    console.error("Error reading contract data :", error.response?.data || error);
     throw error;
   }
 }

@@ -3,7 +3,7 @@
  * This script explains how to perform raw txn execute intent when the okto auth token is available
  */
 
-import { toHex, type Hash, type Hex, numberToHex } from "viem";
+import { toHex, type Hash, type Hex } from "viem";
 import { v4 as uuidv4 } from "uuid";
 import { Constants } from "../helper/constants.js";
 import { paymasterData } from "../utils/generatePaymasterData.js";
@@ -11,11 +11,12 @@ import {
   signUserOp,
   executeUserOp,
   type SessionConfig,
-} from "../utils/userOpEstimateAndExecute.js";
+} from "../utils/invokeExecuteUserOp.js";
 import dotenv from "dotenv";
+import { estimateUserOp } from "../utils/invokeEstimateUserOp.js";
 import { getChains } from "../explorer/getChains.js";
-import { estimateUserOp } from "../utils/userOpEstimateAndExecute.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
+import type { Address } from "../helper/types.js";
 
 dotenv.config();
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
@@ -43,7 +44,7 @@ interface Data {
 async function rawTransaction(
   data: Data,
   sessionConfig: SessionConfig,
-  sponsorshipEnabled: boolean
+  feePayerAddress?: Address
 ) {
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
@@ -115,25 +116,21 @@ async function rawTransaction(
   console.log("generating estimateUserOp Payload...");
   let estimateUserOpPayload;
 
-  if (sponsorshipEnabled) {
+  if (feePayerAddress) {
     estimateUserOpPayload = {
       type: "RAW_TRANSACTION",
-      jobId: "",
+      jobId: nonce,
       /*
-       * FeePayerAddress is any Treasury Wallet's address;
-       * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
-       * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
+       * Provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is enabled.
        */
-      feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",
+      feePayerAddress: feePayerAddress,
       gasDetails: {
         maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
         maxPriorityFeePerGas: toHex(
           Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
         ),
-        paymasterData: await paymasterData({
-          nonce,
-          validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
-        }),
+        paymasterData:
+          "0x0000000000000000000000006b6fad2600bc57075ee560a6fdf362ffefb9dc3c000000000000000000000000000000000000000000000000000000006d0db17b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004135a4864cbcbd0637eba6b680e81d5aa7065b6840f0d5a246662c6cc1717c2d9e36d5d8c49d06859f2966067222870d2c1b484962a5934b9c6f94e726f21dea7b1c00000000000000000000000000000000000000000000000000000000000000",
       },
       details: {
         caip2Id: data.caip2Id,
@@ -143,7 +140,7 @@ async function rawTransaction(
   } else {
     estimateUserOpPayload = {
       type: "RAW_TRANSACTION",
-      jobId: "",
+      jobId: nonce,
       /*
        * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
        */
@@ -163,7 +160,7 @@ async function rawTransaction(
       },
     };
   }
-  console.log("Estimate UserOp payload", estimateUserOpPayload);
+
   // Sample Payload: {
   //     "type": "RAW_TRANSACTION",
   //     "jobId": "18e9d5f5-03b9-48fa-8720-ec68f7e4257d",
@@ -187,16 +184,18 @@ async function rawTransaction(
   // }
 
   // Call the estimateUserOp API to get the UserOp object
-  console.log("calling estimate userop..."); // to be removed
+  console.log("calling estimate userop...");
   const estimateUserOpResponse = await estimateUserOp(
     estimateUserOpPayload,
     OktoAuthToken
   );
+  console.log("estimateUserOpResponse:", estimateUserOpResponse);
+
   // Sample Response:
-  // estimateUserOpResponse: {}                                 TODO : add sample response
+  // estimateUserOpResponse: {}
 
   // Get the UserOp from the estimate response fetched above, sign it and add the signature to the userOp
-  const userOp = estimateUserOpResponse.result.userOps;
+  const userOp = estimateUserOpResponse.data?.userOps;
   console.log("Unsigned UserOp: ", userOp);
   // Sample Response:
   // Unsigned UserOp: {
@@ -254,8 +253,8 @@ const data: Data = {
   transactions: [
     {
       data: "0x", // Default empty data
-      from: "0x2C6Ef84acD95dA1407712f9Ae4698973D644408b",
-      to: "0x967b26c9e77f2f5e0753bcbcb2bb624e5bbff24c",
+      from: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
+      to: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2",
       value: "0x0", // amount in Hex (0x0 = 0)
     },
   ],
@@ -263,12 +262,21 @@ const data: Data = {
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0xa7a313f22193aa7a7a8721b23279fcc03f5cd8b54de291f94300128eb9d9962e",
+    "0x84e1bcce5b7bb136f8da460b6725738bd940b2ac698ca7ebed6ca80d9a3fa8e7",
   sessionPubkey:
-    "0x044a9339fd9d1526ac66f2514479b1e862340e44a73937c6efe671fa5ec9f27a18f6d3b6ac2d6cc4c70b8dba423878e2fa27d8402da90065b971e0b972898e8d76",
-  userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
+    "0x0435a193cf1715d4b3c9e37fba9e1bf7a637fadf6fb25a0c148fa83895a3151c3bbc6874fe0de65fa7a8fdfa185d76568d68534ca864743150cb7caedaf9ee06cb",
+  userSWA: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
 };
 
-const sponsorshipEnabled = true; // Set to true if you want an intent with sponsorship
+/*
+ * FeePayerAddress is any Treasury Wallet's address;
+ * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+ * Do not provide a field named feePayerAddress if sponsorship is not enabled.
+ */
+const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
 
-rawTransaction(data, sessionConfig, sponsorshipEnabled);
+/* if sponsporship is not enabled */
+rawTransaction(data, sessionConfig);
+
+/* if sponsporship is enabled */
+rawTransaction(data, sessionConfig, feePayerAddress);

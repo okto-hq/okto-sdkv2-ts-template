@@ -13,23 +13,15 @@ import { serializeJSON } from "../helper/serializeJson.js";
  *
  * @throws Error if authentication fails, with details about the failure.
  */
-export async function invokeJsonRpc(authPayload: any) {
+export async function invokeAuthenticate(authPayload: any) {
   // Construct the request body for the authenticate JSON RPC Method
-  const requestBody = {
-    method: "authenticate",
-    jsonrpc: "2.0",
-    id: uuidv4(),
-    params: [authPayload],
-  };
 
-  console.log("Request Body:", requestBody);
-  const serializedPayload = serializeJSON(requestBody, null);
-  console.log("Serialized Payload:", serializedPayload);
+  console.log("Request Body:", authPayload);
 
   try {
     const response = await axios.post(
-      "https://sandbox-okto-gateway.oktostage.com/rpc",
-      serializedPayload,
+      "https://sandbox-api.okto.tech/api/oc/v1/authenticate",
+      authPayload,
       {
         headers: {
           "Content-Type": "application/json",

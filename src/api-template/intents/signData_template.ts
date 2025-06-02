@@ -14,7 +14,15 @@ const OKTO_AUTH_TOKEN = process.env.OKTO_AUTH_TOKEN;
 if (!OKTO_AUTH_TOKEN) throw new Error("Missing OKTO_AUTH_TOKEN in .env");
 
 // Types
-type UserKeys = { ecdsaKeyId: string };
+type GetUserKeysResult = {
+  userId: string;
+  userSWA: string;
+  ecdsaPublicKey: string;
+  eddsaPublicKey: string;
+  ecdsaKeyId: string;
+  eddsaKeyId: string;
+};
+
 type Session = {
   sessionPrivKey: `0x${string}`;
   sessionPubKey: `0x${string}`;
@@ -22,7 +30,7 @@ type Session = {
 };
 
 type Client = {
-  _userKeys: UserKeys;
+  _userKeys: GetUserKeysResult;
   _sessionConfig: Session;
 };
 
@@ -46,22 +54,18 @@ async function GetUserKeys() {
       },
     }
   );
+
+  console.log("getUserKeys response: ", response.data);
   return response.data.result;
 }
 
 // Sign Message via JSON RPC
 async function SignMessage(signPayload: unknown) {
-  const payload = {
-    method: "signMessage",
-    jsonrpc: "2.0",
-    id: generateUUID(),
-    params: [signPayload],
-  };
 
-  const serializedPayload = serializeJSON(payload);
+  console.log("signMessage request payload: " , signPayload);
   const response = await axios.post(
-    "https://sandbox-okto-gateway.oktostage.com/rpc",
-    serializedPayload,
+    "https://sandbox-api.okto.tech/api/oc/v1/signMessage",
+    signPayload,
     {
       headers: {
         "Content-Type": "application/json",
@@ -69,7 +73,7 @@ async function SignMessage(signPayload: unknown) {
       },
     }
   );
-  return response.data.result;
+  return response.data?.data;
 }
 
 /**
@@ -94,7 +98,8 @@ export async function signMessage(client: Client, message: Message) {
   try {
     const res = await SignMessage(signPayload);
     return `0x${res[0]?.signature}`;
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Error signing message:", error.response?.data || error);
     throw new Error(`Signing failed: ${(error as Error).message}`);
   }
 }
@@ -129,10 +134,10 @@ export async function signTypedData(client: Client, data: Message) {
 // Session configuration that doesn't change frequently
 const sessionConfig: Session = {
   sessionPrivKey:
-    "0xf2da616fbb3dbbcba238f943134af742849c132e3caceb10f9d5f857225c00d5",
+    "0x84e1bcce5b7bb136f8da460b6725738bd940b2ac698ca7ebed6ca80d9a3fa8e7",
   sessionPubKey:
-    "0x049ef7e64c18d94381d64f13b848b4ff95eef276c9eb9ecf0655b42dee81c1c45dab0194bc71a801ae33716ba631a8cdce70e9695647484b589da01e5b387a856a",
-  userSWA: "0x61795557B50DC229199cE51c46935d7eC560c52F",
+    "0x0435a193cf1715d4b3c9e37fba9e1bf7a637fadf6fb25a0c148fa83895a3151c3bbc6874fe0de65fa7a8fdfa185d76568d68534ca864743150cb7caedaf9ee06cb",
+  userSWA: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
 };
 
 const message: Message = "hello okto";

@@ -1,9 +1,8 @@
-// NOTE : This script is a work in progress and may not be fully functional.
 /*
  * This script explains how to perform token transfer intent when the okto auth token is available
  */
 
-import { toHex, type Hash, type Hex } from "viem";
+import { toHex } from "viem";
 import { v4 as uuidv4 } from "uuid";
 import { Constants } from "../helper/constants.js";
 import { paymasterData } from "../utils/generatePaymasterData.js";
@@ -11,12 +10,13 @@ import {
   signUserOp,
   executeUserOp,
   type SessionConfig,
-  estimateUserOp,
-} from "../utils/userOpEstimateAndExecute.js";
+} from "../utils/invokeExecuteUserOp.js";
+import { estimateUserOp } from "../utils/invokeEstimateUserOp.js";
 import { getChains } from "../explorer/getChains.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
 
 import dotenv from "dotenv";
+import type { Address } from "../helper/types.js";
 
 dotenv.config();
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
@@ -41,7 +41,7 @@ interface Data {
 export async function transferToken(
   data: Data,
   sessionConfig: SessionConfig,
-  sponsorshipEnabled: boolean
+  feePayerAddress?: Address
 ) {
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
@@ -101,16 +101,14 @@ export async function transferToken(
   console.log("generating estimateUserOp Payload...");
   let estimateUserOpPayload;
 
-  if (sponsorshipEnabled) {
+  if (feePayerAddress) {
     estimateUserOpPayload = {
       type: "TOKEN_TRANSFER",
-      jobId: "",
+      jobId: nonce,
       /*
-       * FeePayerAddress is any Treasury Wallet's address;
-       * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
-       * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
+       * Provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is enabled.
        */
-      feePayerAddress: "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76",
+      feePayerAddress: feePayerAddress,
       paymasterData: await paymasterData({
         nonce,
         validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
@@ -131,7 +129,7 @@ export async function transferToken(
   } else {
     estimateUserOpPayload = {
       type: "TOKEN_TRANSFER",
-      jobId: "",
+      jobId: nonce,
       /*
        * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
        */
@@ -154,7 +152,6 @@ export async function transferToken(
     };
   }
 
-  console.log("Estimate UserOp payload", estimateUserOpPayload);
   // Sample Payload: {
   //     "type": "TOKEN_TRANSFER",
   //     "jobId": "92ba01db-4476-4e4d-9289-270429478121",
@@ -172,13 +169,14 @@ export async function transferToken(
   //     }
   // }
 
-  console.log("calling estimate userop..."); // to be removed
-
   // Call the estimateUserOp API to get the UserOp object
+  console.log("calling estimate userop...");
   const estimateUserOpResponse = await estimateUserOp(
     estimateUserOpPayload,
     OktoAuthToken
   );
+  console.log("estimateUserOpResponse:", estimateUserOpResponse);
+
   // Sample Response:
   //   estimateUserOpResponse:  {
   //     "jsonrpc": "2.0",
@@ -253,7 +251,7 @@ export async function transferToken(
   // }
 
   // Get the UserOp from the estimate response fetched above, sign it and add the signature to the userOp
-  const userOp = estimateUserOpResponse.result.userOps;
+  const userOp = estimateUserOpResponse.data?.userOps;
   console.log("UserOp: ", userOp);
   // Sample Response:
   //   UserOp:  {
@@ -315,12 +313,21 @@ const data: Data = {
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0xe23e5fedeba548080c431be87e452154e71a661bf06ee1c1cfdf7665e09c1b84",
+    "0x85ffef45e363f107476800f052102a940fcfa1167023ee462a859d3cada0cc76",
   sessionPubkey:
-    "0x04b60fd521586fe5f5733867a98457e23a6a11783e32bd45d9dd5fe22671299b3de9e79ed75c08aed9516aaaa7c586dd9a330d5f64d4eb62da767ede6576c9ba9d",
-  userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
+    "0x04869dbfba722c6d3bdcb56ac2475f37c85b21907b3c1f748271a80bca12d60ea45612dfdf7dfbdea0035ee8633d8c6717cea87ee451830bf0ecb35c6b37825e4c",
+  userSWA: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
 };
 
-const sponsorshipEnabled = false; // Set to true if you want an intent with sponsorship
+/*
+ * FeePayerAddress is any Treasury Wallet's address;
+ * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+ * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
+ */
+const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
 
-transferToken(data, sessionConfig, sponsorshipEnabled);
+/* if sponsporship is not enabled */
+transferToken(data, sessionConfig);
+
+/* if sponsporship is enabled */
+transferToken(data, sessionConfig, feePayerAddress);

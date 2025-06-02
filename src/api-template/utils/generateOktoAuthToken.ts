@@ -13,7 +13,7 @@ import { SessionKey } from "./sessionKey.js";
 import { Constants } from "../helper/constants.js";
 import { getAuthorizationToken } from "./getAuthorizationToken.js";
 import dotenv from "dotenv";
-import { invokeJsonRpc } from "./invokeJsonRpc.js";
+import { invokeAuthenticate } from "./invokeAuthenticate.js";
 
 dotenv.config();
 
@@ -101,10 +101,7 @@ async function generateAuthPayload(
  * This function explains how to construct the payload, execute Okto Authentication and
  * create the Okto auth Token for further API usage
  */
-export const loginUsingOAuth = async (
-  idToken: string,
-  provider: string
-) => {
+export const loginUsingOAuth = async (idToken: string, provider: string) => {
   // Construct the data object using the Google ID token and the provider.
   // For testing purposes, you can generate the id token from here
   // - https://docs.okto.tech/docs/openapi/authenticate/google-oauth/get-token-id
@@ -138,7 +135,7 @@ export const loginUsingOAuth = async (
   // NOTE: The Google ID token has a very short expiry. Please generate a new token just before running this code. You can check the expiry at jwt.io
   try {
     console.log("calling authenticate...");
-    const response = await invokeJsonRpc(authPayload);
+    const response = await invokeAuthenticate(authPayload);
 
     if (response.status === 200) {
       console.log("provider: ", provider);
@@ -161,7 +158,7 @@ export const loginUsingOAuth = async (
       const sessionConfig = {
         sessionPrivKey: session.privateKeyHexWith0x,
         sessionPubKey: session.uncompressedPublicKeyHexWith0x,
-        userSWA: response.data.result.userSWA,
+        userSWA: response.data.data.userSWA,
       };
       console.log("Session Config: ", sessionConfig);
       // Sample Response: Store the sessionConfig safely for delegated access

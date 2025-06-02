@@ -28,12 +28,13 @@ export async function getPortfolioActivity(OktoAuthToken: string) {
         console.log("Aggregated Portfolio Response:", response.data);
         console.log("Aggregated Portfolio tokens:", response.data.data.group_tokens);
         return response.data.data.activity;
-    } catch (error) {
-        console.error("Error fetching portfolio activity:", error);
+    } catch (error: any) {
+        console.error("Error fetching portfolio activity:", error.response?.data || error);
         throw new Error("Failed to fetch portfolio activity");
     }
 }
 
 // Sample usage
 // const portfolioActivity = await getPortfolioActivity(OktoAuthToken);
+// console.log("Portfolio Activity:", portfolioActivity);
 
