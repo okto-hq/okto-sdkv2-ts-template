@@ -6,7 +6,7 @@ import { loginUsingOAuth } from "../utils/generateOktoAuthToken.js";
 
 export const JwtAuthenticate = async () => {
   const payload = {
-    idToken: "Bearer test123", // Replace with JWT token assigned by Client to the User
+    idToken: "<jwt-token>", // Replace with JWT token assigned by Client to the User
     provider: "client_jwt",
   };
 

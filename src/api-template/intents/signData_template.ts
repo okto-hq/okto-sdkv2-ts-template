@@ -37,32 +37,22 @@ type Client = {
 type Message = string;
 
 async function GetUserKeys() {
-  const payload = {
-    method: "getUserKeys",
-    jsonrpc: "2.0",
-    id: generateUUID(),
-    params: [],
-  };
-  const serializedPayload = serializeJSON(payload);
-  const response = await axios.post(
-    "https://sandbox-okto-gateway.oktostage.com/rpc",
-    serializedPayload,
+  const response = await axios.get(
+    "https://sandbox-api.okto.tech/api/oc/v1/user-keys",
     {
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${OKTO_AUTH_TOKEN}`,
       },
     }
   );
 
   console.log("getUserKeys response: ", response.data);
-  return response.data.result;
+  return response.data.data;
 }
 
 // Sign Message via JSON RPC
 async function SignMessage(signPayload: unknown) {
-
-  console.log("signMessage request payload: " , signPayload);
+  console.log("signMessage request payload: ", signPayload);
   const response = await axios.post(
     "https://sandbox-api.okto.tech/api/oc/v1/signMessage",
     signPayload,
@@ -134,10 +124,10 @@ export async function signTypedData(client: Client, data: Message) {
 // Session configuration that doesn't change frequently
 const sessionConfig: Session = {
   sessionPrivKey:
-    "0x84e1bcce5b7bb136f8da460b6725738bd940b2ac698ca7ebed6ca80d9a3fa8e7",
+    "0x66aa53e1a76063c5ab0bac70c660bc227f1e4d5434051b049f74e2df99516875",
   sessionPubKey:
-    "0x0435a193cf1715d4b3c9e37fba9e1bf7a637fadf6fb25a0c148fa83895a3151c3bbc6874fe0de65fa7a8fdfa185d76568d68534ca864743150cb7caedaf9ee06cb",
-  userSWA: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
+    "0x043d389621778ecac37ba11c085db06fb29219b09c130ef84026cf221464a3907c0e3e6a5943a6e0617ca75c32537a531f61201c4241ef44645bb154d6cec0393c",
+  userSWA: "0x2FAb7Eb7475F6fF9a0258F1fb4383a6aA30A18e0",
 };
 
 const message: Message = "hello okto";
@@ -165,6 +155,7 @@ async function main() {
   try {
     // Get user keys dynamically
     const userKeys = await GetUserKeys();
+    console.log("User Keys: ", userKeys);
 
     // Create client with the fetched keys
     const client: Client = {
@@ -184,7 +175,7 @@ async function main() {
     // Sample Response:
     // Signed Typed Data: 0x4d0a8249fc83052c17078d3c600cd4364963f0b9a866c49cbf2cda683d9552b745c53746b97f6ebe79c18f5839450ac86511ed73849fbc2d58d1319346c50e451b
   } catch (error: any) {
-    console.error("Error:", error.message);
+    console.error("Error:", error);
   }
 }
 
