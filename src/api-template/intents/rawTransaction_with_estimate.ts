@@ -124,13 +124,15 @@ async function rawTransaction(
        * Provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is enabled.
        */
       feePayerAddress: feePayerAddress,
+      paymasterData: await paymasterData({
+        nonce,
+        validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
+      }),
       gasDetails: {
         maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
         maxPriorityFeePerGas: toHex(
           Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
         ),
-        paymasterData:
-          "0x0000000000000000000000006b6fad2600bc57075ee560a6fdf362ffefb9dc3c000000000000000000000000000000000000000000000000000000006d0db17b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004135a4864cbcbd0637eba6b680e81d5aa7065b6840f0d5a246662c6cc1717c2d9e36d5d8c49d06859f2966067222870d2c1b484962a5934b9c6f94e726f21dea7b1c00000000000000000000000000000000000000000000000000000000000000",
       },
       details: {
         caip2Id: data.caip2Id,
@@ -144,15 +146,15 @@ async function rawTransaction(
       /*
        * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
        */
+      paymasterData: await paymasterData({
+        nonce,
+        validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
+      }),
       gasDetails: {
         maxFeePerGas: toHex(Constants.GAS_LIMITS.MAX_FEE_PER_GAS),
         maxPriorityFeePerGas: toHex(
           Constants.GAS_LIMITS.MAX_PRIORITY_FEE_PER_GAS
         ),
-        paymasterData: await paymasterData({
-          nonce,
-          validUntil: new Date(Date.now() + 6 * Constants.HOURS_IN_MS),
-        }),
       },
       details: {
         caip2Id: data.caip2Id,
@@ -253,19 +255,19 @@ const data: Data = {
   transactions: [
     {
       data: "0x", // Default empty data
-      from: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
+      from: "0x2FAb7Eb7475F6fF9a0258F1fb4383a6aA30A18e0",
       to: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2",
-      value: "0x0", // amount in Hex (0x0 = 0)
+      value: toHex(10000000000000), // amount in Hex (0x0 = 0)
     },
   ],
 };
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0x84e1bcce5b7bb136f8da460b6725738bd940b2ac698ca7ebed6ca80d9a3fa8e7",
+    "0x66aa53e1a76063c5ab0bac70c660bc227f1e4d5434051b049f74e2df99516875",
   sessionPubkey:
-    "0x0435a193cf1715d4b3c9e37fba9e1bf7a637fadf6fb25a0c148fa83895a3151c3bbc6874fe0de65fa7a8fdfa185d76568d68534ca864743150cb7caedaf9ee06cb",
-  userSWA: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
+    "0x043d389621778ecac37ba11c085db06fb29219b09c130ef84026cf221464a3907c0e3e6a5943a6e0617ca75c32537a531f61201c4241ef44645bb154d6cec0393c",
+  userSWA: "0x2FAb7Eb7475F6fF9a0258F1fb4383a6aA30A18e0",
 };
 
 /*
@@ -279,4 +281,4 @@ const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
 rawTransaction(data, sessionConfig);
 
 /* if sponsporship is enabled */
-rawTransaction(data, sessionConfig, feePayerAddress);
+// rawTransaction(data, sessionConfig, feePayerAddress);

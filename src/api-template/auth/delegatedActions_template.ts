@@ -10,18 +10,13 @@ dotenv.config();
 var sessionConfig;
 // This function explains how to construct the payload, excute Okto Authentication and create the Okto auth Token for futhrer API usage
 const OktoAuthTokenGenerator = async () => {
-  // assumed to be stored by the client. Example values entered here
-  const userSWA = "0x61795557B50DC229199cE51c46935d7eC560c52F";
-  const sessionPrivateKey = [
-    156, 150, 227, 117, 91, 218, 80, 251, 105, 128, 46, 209, 189, 220, 200, 124,
-    162, 40, 156, 154, 123, 217, 85, 57, 167, 84, 209, 1, 177, 69, 166, 29,
-  ];
-
-  // Convert the numeric array to a hex string
-  const privKeyHex = "0x" + Buffer.from(sessionPrivateKey).toString("hex");
+  // The below values i.e. userSWA and sessionPrivateKey are assumed to be stored by the client when the user logs in.
+  // Example values entered below are for demonstration purposes only.
+  const userSWA = "0x2FAb7Eb7475F6fF9a0258F1fb4383a6aA30A18e0"; // replace with the userSWA
+  const sessionPrivateKey = "0x66aa53e1a76063c5ab0bac70c660bc227f1e4d5434051b049f74e2df99516875"; // replace with the session private key captured when the user logs in to Okto
 
   // Construct the session object using the session private key above
-  const session = SessionKey.fromPrivateKey(privKeyHex);
+  const session = SessionKey.fromPrivateKey(sessionPrivateKey);
 
   //construct session config using the session object and userSWA
   sessionConfig = {
