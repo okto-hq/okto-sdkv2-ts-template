@@ -14,11 +14,13 @@ import axios from "axios";
  *
  */
 export async function estimateUserOp(payload: any, authToken: string) {
-  const jobId = uuidv4();
-  try {
 
-    console.log("estimate request payload: ", payload);
+  try {
+    console.log("estimate request payload: ");
+    console.dir(payload, { depth: null });
+    
     console.log("finally sending the axios request for estimate...........");
+    
     const response = await axios.post(
       "https://sandbox-api.okto.tech/api/oc/v1/estimate",
       payload,

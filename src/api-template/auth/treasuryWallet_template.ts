@@ -2,26 +2,46 @@
 // This script is intended to be run in a Node.js environment
 
 import { getChains } from "../explorer/getChains.js";
-import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
 import { SessionKey } from "../utils/sessionKey.js";
+import { signMessage } from "viem/accounts";
 import dotenv from "dotenv";
 
 dotenv.config();
 var sessionConfig;
+
+// This function creates the Okto Auth Token 
+export async function getTreasuryWalletAuthorizationToken(sessionConfig: any) {
+    const sessionPriv = sessionConfig?.sessionPrivKey;
+    const sessionPub = sessionConfig?.sessionPubKey;
+    if (sessionPriv === void 0 || sessionPub === void 0) {
+        throw new Error("Session keys are not set");
+    }
+    const data = {
+        expire_at: Math.round(Date.now() / 1e3) + 60 * 90,
+        session_pub_key: sessionPub,
+        user_swa: sessionConfig.treasuryWalletSWA, 
+        acc_type: "CDA"
+    };
+
+    // Okto auth token is nothing but the session public key encrypted with the session private key
+    const payload = {
+        type: "ecdsa_uncompressed",
+        data,
+        data_signature: await signMessage({
+            message: JSON.stringify(data),
+            privateKey: sessionPriv,
+        }),
+    };
+    return btoa(JSON.stringify(payload));
+}
+
 // This function explains how to construct the payload, excute Okto Authentication and create the Okto auth Token for futhrer API usage
 const OktoAuthTokenGenerator = async () => {
-  // assumed to be stored by the client. Example values entered here
-  const treasuryWalletSWA = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
-  const sessionPrivateKey = [
-    156, 150, 227, 117, 91, 218, 80, 251, 105, 128, 46, 209, 189, 220, 200, 124,
-    162, 40, 156, 154, 123, 217, 85, 57, 167, 84, 209, 1, 177, 69, 166, 29,
-  ];
+  const treasuryWalletSWA = "0x7CE82F08d432362b16E5263eF54e665541aC8A87"; // Your treasuryWalletSWA from Okto dashboard
+  const treasuryAPIkey = process.env.OKTO_TREASURY_API_KEY; // Your Treasury API Key from Okto Dashboard
 
-  // Convert the numeric array to a hex string
-  const privKeyHex = "0x" + Buffer.from(sessionPrivateKey).toString("hex");
-
-  // Construct the session object using the session private key above
-  const session = SessionKey.fromPrivateKey(privKeyHex);
+  // Construct the session object using the private key above
+  const session = SessionKey.fromPrivateKey(treasuryAPIkey);
 
   //construct session config using the session object and userSWA
   sessionConfig = {
@@ -31,7 +51,7 @@ const OktoAuthTokenGenerator = async () => {
   };
 
   // Get the authorization token using the sessionConfig object
-  const authToken = await getAuthorizationToken(sessionConfig);
+  const authToken = await getTreasuryWalletAuthorizationToken(sessionConfig);
   console.log("Okto session authToken: ", authToken);
   // Using the above authToken (in the header as bearer token), you can now make requests to all other Okto Endpoints
   // Sample Response:
