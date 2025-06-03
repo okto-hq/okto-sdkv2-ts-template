@@ -2,38 +2,12 @@
 // This script is intended to be run in a Node.js environment
 
 import { getChains } from "../explorer/getChains.js";
+import { getTreasuryWalletAuthorizationToken } from "../utils/getTreasuryWalletAuthorizationToken.js";
 import { SessionKey } from "../utils/sessionKey.js";
-import { signMessage } from "viem/accounts";
 import dotenv from "dotenv";
 
 dotenv.config();
 var sessionConfig;
-
-// This function creates the Okto Auth Token 
-export async function getTreasuryWalletAuthorizationToken(sessionConfig: any) {
-    const sessionPriv = sessionConfig?.sessionPrivKey;
-    const sessionPub = sessionConfig?.sessionPubKey;
-    if (sessionPriv === void 0 || sessionPub === void 0) {
-        throw new Error("Session keys are not set");
-    }
-    const data = {
-        expire_at: Math.round(Date.now() / 1e3) + 60 * 90,
-        session_pub_key: sessionPub,
-        user_swa: sessionConfig.treasuryWalletSWA, 
-        acc_type: "CDA"
-    };
-
-    // Okto auth token is nothing but the session public key encrypted with the session private key
-    const payload = {
-        type: "ecdsa_uncompressed",
-        data,
-        data_signature: await signMessage({
-            message: JSON.stringify(data),
-            privateKey: sessionPriv,
-        }),
-    };
-    return btoa(JSON.stringify(payload));
-}
 
 // This function explains how to construct the payload, excute Okto Authentication and create the Okto auth Token for futhrer API usage
 const OktoAuthTokenGenerator = async () => {
