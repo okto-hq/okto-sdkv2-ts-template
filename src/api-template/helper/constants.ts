@@ -1,4 +1,4 @@
-// PLEASE DO NOT CHANGE ANy VALUES IN THIS FILE
+// PLEASE DO NOT CHANGE ANY OF THE VALUES IN THIS FILE
 
 import type { Hex } from "./types.js";
 
