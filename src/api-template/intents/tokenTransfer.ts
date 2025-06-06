@@ -264,14 +264,14 @@ const sessionConfig: SessionConfig = {
 };
 
 /*
- * FeePayerAddress is any Treasury Wallet's address;
- * This wallet should have some native token, but the gas fee will be deducted from the sponsor wallet; sponsor wallet must be enabled and funded.
+ * FeePayerAddress is the PaymasterSWA, which can be retrieved from the okto Developer dashboard - dashboard.okto.tech;
+ * The gas fee will be deducted from the sponsor wallet; the sponsor wallet must be enabled and funded on the source chain on the txn you are performing.
  * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
  */
 const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
 
-/* if sponsporship is not enabled */
+/* if sponsorship is not enabled */
 transferToken(data, sessionConfig);
 
-/* if sponsporship is enabled */
+/* if sponsorship is enabled */
 transferToken(data, sessionConfig, feePayerAddress);
