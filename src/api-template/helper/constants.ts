@@ -1,3 +1,5 @@
+// PLEASE DO NOT CHANGE ANy VALUES IN THIS FILE
+
 import type { Hex } from "./types.js";
 
 export class Constants {
@@ -28,6 +30,9 @@ export class Constants {
     NFT_COLLECTION_CREATION: 'NFT_COLLECTION_CREATION',
     RAW_TRANSACTION: 'RAW_TRANSACTION',
   };
+
+
+// DO NOT CHANGE THESE VALUES IN YOUR CODE
 
   static readonly ENV_CONFIG = {
     STAGING: {
