@@ -17,7 +17,7 @@ const client_swa = process.env.OKTO_CLIENT_SWA as Hex;
 async function postSignedRequest(endpoint: string, fullPayload: any) {
   const payloadWithTimestamp = {
     ...fullPayload,
-    timestamp: Date.now() - 1000, // Adjust timestamp to avoid clock skew issues
+    timestamp: Date.now(), // Adjust timestamp to avoid clock skew issues
   };
 
   const signature = await generateClientSignature(payloadWithTimestamp);
