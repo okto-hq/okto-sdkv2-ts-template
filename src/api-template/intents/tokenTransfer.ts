@@ -264,6 +264,11 @@ const data: Data = {
   amount: 100000, // denomination in lowest decimal (8 for APT)
 };
 
+ /*
+ * A Session Config is created at the time of okto authentication and should be saved securely on the client side for each user.
+ * A user is uniquely identified in Okto by their UserSWA.
+ * Before any intent or explorer function calls, the okto auth token (used as the bearer token in the header) must be regenerated for that user on the client side using their session config
+ */
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
     "0xeda300b9343c197a8d07c22110807cde6ea81ceb390143a4424180a140f7308f",
