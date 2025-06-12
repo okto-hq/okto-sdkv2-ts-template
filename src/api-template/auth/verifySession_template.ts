@@ -1,5 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import { Constants } from "../helper/constants.js";
 
 dotenv.config();
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
@@ -29,7 +30,7 @@ const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 export async function verifySession(OktoAuthToken: string) {
     try {
         const response = await axios.get(
-            "https://sandbox-api.okto.tech/api/oc/v1/verify-session",
+            `${Constants.getBaseUrl()}/api/oc/v1/verify-session`,
             {
                 headers: {
                     Authorization: `Bearer ${OktoAuthToken}`,

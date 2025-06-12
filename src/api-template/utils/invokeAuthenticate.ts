@@ -2,6 +2,7 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { serializeJSON } from "../helper/serializeJson.js";
 import type { AuthenticateResponse } from "../helper/types.js";
+import { Constants } from "../helper/constants.js";
 
 /**
  * Invokes the Okto authenticate JSON-RPC method
@@ -21,7 +22,7 @@ export async function invokeAuthenticate(authPayload: any): Promise<Authenticate
 
   try {
     const response = await axios.post(
-      "https://sandbox-api.okto.tech/api/oc/v1/authenticate",
+      `${Constants.getBaseUrl()}/api/oc/v1/authenticate`,
       authPayload,
       {
         headers: {

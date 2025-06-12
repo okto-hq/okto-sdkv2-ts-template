@@ -1,6 +1,7 @@
 import axios from "axios";
 import dotenv from "dotenv";
 import type { GetChainsResponse } from "../helper/types.js";
+import { Constants } from "../helper/constants.js";
 
 dotenv.config();
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
@@ -19,7 +20,7 @@ const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 export async function getChains(OktoAuthToken: string): Promise<GetChainsResponse> {
     try {
         const response = await axios.get(
-            "https://sandbox-api.okto.tech/api/oc/v1/supported/networks",
+            `${Constants.getBaseUrl()}/api/oc/v1/supported/networks`,
             {
                 headers: {
                     Authorization: `Bearer ${OktoAuthToken}`,

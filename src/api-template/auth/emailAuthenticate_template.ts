@@ -8,6 +8,7 @@ import type { Hex } from "viem";
 import dotenv from "dotenv";
 import { loginUsingOAuth } from "../utils/generateOktoAuthToken.js";
 import type { SendOTPResponse, VerifyOTPResponse } from "../helper/types.js";
+import { Constants } from "../helper/constants.js";
 
 dotenv.config();
 
@@ -49,7 +50,7 @@ export async function sendOtp() {
   try {
     console.log("Calling sendOtp with payload");
     const res: SendOTPResponse = await postSignedRequest(
-      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/email",
+      `${Constants.getBaseUrl()}/api/oc/v1/authenticate/email`,
       payload
     );
     console.log("OTP Sent:", res);
@@ -76,7 +77,7 @@ export async function verifyOtp(token: any, otp: any) {
 
   try {
     const res: VerifyOTPResponse = await postSignedRequest(
-      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/email/verify",
+      `${Constants.getBaseUrl()}/api/oc/v1/authenticate/email/verify`,
       payload
     );
 

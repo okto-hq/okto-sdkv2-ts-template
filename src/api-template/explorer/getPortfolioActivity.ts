@@ -1,6 +1,7 @@
 import axios from "axios";
 import dotenv from "dotenv";
 import type { GetPortfolioActivityResponse } from "../helper/types.js";
+import { Constants } from "../helper/constants.js";
 
 dotenv.config();
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
@@ -18,7 +19,7 @@ const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 export async function getPortfolioActivity(OktoAuthToken: string): Promise<GetPortfolioActivityResponse> {
     try {
         const response = await axios.get(
-            "https://sandbox-api.okto.tech/api/oc/v1/portfolio/activity",
+            `${Constants.getBaseUrl()}/api/oc/v1/portfolio/activity`,
             {
                 headers: {
                     Authorization: `Bearer ${OktoAuthToken}`,

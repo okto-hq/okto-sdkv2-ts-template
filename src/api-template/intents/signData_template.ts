@@ -5,6 +5,7 @@ import {
   generateUUID,
 } from "../utils/generateSignMessagePayload.js";
 import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
+import { Constants } from "../helper/constants.js";
 
 // Load environment variables
 dotenv.config();
@@ -34,7 +35,7 @@ type Message = string;
 
 async function GetUserKeys(oktoAuthToken: string) {
   const response = await axios.get(
-    "https://sandbox-api.okto.tech/api/oc/v1/user-keys",
+    `${Constants.getBaseUrl()}/api/oc/v1/user-keys`,
     {
       headers: {
         Authorization: `Bearer ${oktoAuthToken}`,
@@ -50,7 +51,7 @@ async function GetUserKeys(oktoAuthToken: string) {
 async function SignMessage(signPayload: unknown, oktoAuthToken: string) {
   console.log("signMessage request payload: ", signPayload);
   const response = await axios.post(
-    "https://sandbox-api.okto.tech/api/oc/v1/signMessage",
+    `${Constants.getBaseUrl()}/api/oc/v1/signMessage`,
     signPayload,
     {
       headers: {
