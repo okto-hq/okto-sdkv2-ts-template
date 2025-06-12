@@ -26,7 +26,7 @@ const OktoAuthTokenGenerator = async () => {
   };
 
   // Get the authorization token using the sessionConfig object
-  const authToken = await getAuthorizationToken(sessionConfig);
+  const authToken: string = await getAuthorizationToken(sessionConfig);
   console.log("Okto session authToken: ", authToken);
   // Using the above authToken (in the header as bearer token), you can now make requests to all other Okto Endpoints
   // Sample Response:
@@ -34,7 +34,7 @@ const OktoAuthTokenGenerator = async () => {
   return authToken;
 };
 
-const authToken = await OktoAuthTokenGenerator();
+const authToken: string = await OktoAuthTokenGenerator();
 //you can now invoke any other Okto endpoint using the authToken generated above
 //refer to our docs at docs.okto.tech/docs/openapi for API references
 

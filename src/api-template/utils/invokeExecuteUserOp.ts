@@ -2,10 +2,11 @@ import axios from "axios";
 import { signMessage } from "viem/accounts";
 import { fromHex } from "viem";
 import { generatePackedUserOp, generateUserOpHash } from "./generateUserOp.js";
+import type { ExecuteUserOpResponse } from "../helper/types.js";
 
 export interface SessionConfig {
   sessionPrivKey: string;
-  sessionPubkey: string;
+  sessionPubKey: string;
   userSWA: string;
 }
 
@@ -51,9 +52,8 @@ export async function signUserOp(userop: any, sessionConfig: SessionConfig) {
  * @returns The job ID that can be used to track the transaction's status
  *
  */
-export async function executeUserOp(userop: any, authToken: string) {
+export async function executeUserOp(userop: any, authToken: string): Promise<ExecuteUserOpResponse> {
   try {
-    
     console.log("execute request payload: ", userop);
     console.log("finally sending the axios request for execute...........");
     const response = await axios.post(
@@ -67,9 +67,9 @@ export async function executeUserOp(userop: any, authToken: string) {
       }
     );
 
-    return response.data.data.jobId;
-  } catch (error) {
-    console.error("Error executing user operation:", error);
+    return response.data as ExecuteUserOpResponse;
+  } catch (error: any) {
+    console.error("Error executing user operation:", error.response?.data );
     throw error;
   }
 }

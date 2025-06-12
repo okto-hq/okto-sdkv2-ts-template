@@ -4,14 +4,10 @@ import {
   generateSignMessagePayload,
   generateUUID,
 } from "../utils/generateSignMessagePayload.js";
-import { serializeJSON } from "../helper/serializeJson.js";
+import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
 
 // Load environment variables
 dotenv.config();
-
-// Ensure required env variables are available
-const OKTO_AUTH_TOKEN = process.env.OKTO_AUTH_TOKEN;
-if (!OKTO_AUTH_TOKEN) throw new Error("Missing OKTO_AUTH_TOKEN in .env");
 
 // Types
 type GetUserKeysResult = {
@@ -36,12 +32,12 @@ type Client = {
 
 type Message = string;
 
-async function GetUserKeys() {
+async function GetUserKeys(oktoAuthToken: string) {
   const response = await axios.get(
     "https://sandbox-api.okto.tech/api/oc/v1/user-keys",
     {
       headers: {
-        Authorization: `Bearer ${OKTO_AUTH_TOKEN}`,
+        Authorization: `Bearer ${oktoAuthToken}`,
       },
     }
   );
@@ -51,7 +47,7 @@ async function GetUserKeys() {
 }
 
 // Sign Message via JSON RPC
-async function SignMessage(signPayload: unknown) {
+async function SignMessage(signPayload: unknown, oktoAuthToken: string) {
   console.log("signMessage request payload: ", signPayload);
   const response = await axios.post(
     "https://sandbox-api.okto.tech/api/oc/v1/signMessage",
@@ -59,7 +55,7 @@ async function SignMessage(signPayload: unknown) {
     {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OKTO_AUTH_TOKEN}`,
+        Authorization: `Bearer ${oktoAuthToken}`,
       },
     }
   );
@@ -76,7 +72,11 @@ async function SignMessage(signPayload: unknown) {
  * @returns A signed message (hexadecimal string starting with "0x")
  * @throws Error if the signing process fails
  */
-export async function signMessage(client: Client, message: Message) {
+export async function signMessage(
+  client: Client,
+  message: Message,
+  oktoAuthToken: string
+) {
   // Create Payload for signing a message
   const signPayload = await generateSignMessagePayload(
     client._userKeys,
@@ -86,7 +86,7 @@ export async function signMessage(client: Client, message: Message) {
   );
 
   try {
-    const res = await SignMessage(signPayload);
+    const res = await SignMessage(signPayload, oktoAuthToken);
     return `0x${res[0]?.signature}`;
   } catch (error: any) {
     console.error("Error signing message:", error.response?.data || error);
@@ -104,7 +104,11 @@ export async function signMessage(client: Client, message: Message) {
  * @returns A signed message (hexadecimal string starting with "0x")
  * @throws Error if the signing process fails or if the data is not properly formatted
  */
-export async function signTypedData(client: Client, data: Message) {
+export async function signTypedData(
+  client: Client,
+  data: Message,
+  oktoAuthToken: string
+) {
   // Create Payload for signing data
   const signPayload = await generateSignMessagePayload(
     client._userKeys,
@@ -114,7 +118,7 @@ export async function signTypedData(client: Client, data: Message) {
   );
 
   try {
-    const res = await SignMessage(signPayload);
+    const res = await SignMessage(signPayload, oktoAuthToken);
     return `0x${res[0]?.signature}`;
   } catch (error) {
     throw new Error(`Signing failed: ${(error as Error).message}`);
@@ -153,8 +157,11 @@ const data: Message = `{
 
 async function main() {
   try {
+    // Generate OktoAuthToken using session data
+    const OktoAuthToken = await getAuthorizationToken(sessionConfig);
+
     // Get user keys dynamically
-    const userKeys = await GetUserKeys();
+    const userKeys = await GetUserKeys(OktoAuthToken);
     console.log("User Keys: ", userKeys);
 
     // Create client with the fetched keys
@@ -164,13 +171,13 @@ async function main() {
     };
 
     // Sign message and log the result
-    const signedMessage = await signMessage(client, message);
+    const signedMessage = await signMessage(client, message, OktoAuthToken);
     console.log("Signed Message: ", signedMessage);
     // Sample Response:
     // Signed Message: 0x83c701514dd434454495f514bf560904b76dec9f476cf847a2aa782546aead3b024e1f3fe69d47529384bae2d3f206d74777943f08b84dd3612dbcdd731c99f41c
 
     // Sign typed data and log the result
-    const signedTypedData = await signTypedData(client, data);
+    const signedTypedData = await signTypedData(client, data, OktoAuthToken);
     console.log("Signed Typed Data: ", signedTypedData);
     // Sample Response:
     // Signed Typed Data: 0x4d0a8249fc83052c17078d3c600cd4364963f0b9a866c49cbf2cda683d9552b745c53746b97f6ebe79c18f5839450ac86511ed73849fbc2d58d1319346c50e451b

@@ -101,7 +101,10 @@ async function generateAuthPayload(
  * This function explains how to construct the payload, execute Okto Authentication and
  * create the Okto auth Token for further API usage
  */
-export const loginUsingOAuth = async (idToken: string, provider: string) => {
+export const loginUsingOAuth = async (
+  idToken: string,
+  provider: string
+): Promise<string> => {
   // Construct the data object using the Google ID token and the provider.
   // For testing purposes, you can generate the id token from here
   // - https://docs.okto.tech/docs/openapi/authenticate/google-oauth/get-token-id
@@ -137,49 +140,45 @@ export const loginUsingOAuth = async (idToken: string, provider: string) => {
     console.log("calling authenticate...");
     const response = await invokeAuthenticate(authPayload);
 
-    if (response.status === 200) {
-      console.log("provider: ", provider);
-      console.log("response : ", response.data);
-      // Sample Response:
-      // response :  {
-      //   jsonrpc: '2.0',
-      //   id: '325f4f74-a124-4cf0-9852-e09642ffe4fa',
-      //   result: {
-      //     userSWA: '0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906',
-      //     nonce: '0x00000000000000000000000000000000f9d4db5746824690b2efeae9f9945858',
-      //     clientSWA: '0xe8201E368557508bF183D4e2DcE1b1A1E0bd20FA',
-      //     sessionExpiry: 1747481250
-      //   }
-      // }
-      // Authenticate is now successful. For further invocation of any of the other okto functions via API, an Okto Auth token must be generated and passed in the header.
+    console.log("provider: ", provider);
+    console.log("response : ", response);
+    // Sample Response:
+    // response : {
+    //   "status": "success",
+    //   "data": {
+    //     "userSWA": "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
+    //     "nonce": "0x00000000000000000000000000000000f9d4db5746824690b2efeae9f9945858",
+    //     "clientSWA": "0xe8201E368557508bF183D4e2DcE1b1A1E0bd20FA",
+    //     "sessionExpiry": 1747481250
+    //   }
+    // }
+    // Authenticate is now successful. For further invocation of any of the other okto functions via API, an Okto Auth token must be generated and passed in the header.
 
-      // CONSTRUCTION OF THE OKTO AUTH TOKEN
-      // STEP 1: Construct the session config object using the session key you created and the userSWA from the response
-      const sessionConfig = {
-        sessionPrivKey: session.privateKeyHexWith0x,
-        sessionPubKey: session.uncompressedPublicKeyHexWith0x,
-        userSWA: response.data.data.userSWA,
-      };
-      console.log("Session Config: ", sessionConfig);
-      // Sample Response: Store the sessionConfig safely for delegated access
-      // Session Config: {
-      //   sessionPrivKey: '0x096644bf3e32614bb33961d9762d9f2b2768b4ed2e968de2b59c8148875dcec0',
-      //   sessionPubKey: '0x04f8e7094449d09d932f78ca4413fbff252fbe4f99445bcc4a4d5d16c31d898f4b8b080289a906334b2bfe6379547c97c6b624afdf0bcdfab5fdfcc28d0dbb98df',
-      //   userSWA: '0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5'
-      // }
+    // CONSTRUCTION OF THE OKTO AUTH TOKEN
+    // STEP 1: Construct the session config object using the session key you created and the userSWA from the response
+    const sessionConfig = {
+      sessionPrivKey: session.privateKeyHexWith0x,
+      sessionPubKey: session.uncompressedPublicKeyHexWith0x,
+      userSWA: response.data.userSWA,
+    };
+    console.log("Session Config: ", sessionConfig);
+    // Sample Response: Store the sessionConfig safely for delegated access
+    // Session Config: {
+    //   sessionPrivKey: '0x096644bf3e32614bb33961d9762d9f2b2768b4ed2e968de2b59c8148875dcec0',
+    //   sessionPubKey: '0x04f8e7094449d09d932f78ca4413fbff252fbe4f99445bcc4a4d5d16c31d898f4b8b080289a906334b2bfe6379547c97c6b624afdf0bcdfab5fdfcc28d0dbb98df',
+    //   userSWA: '0xb8Db5F3B00997339f1FE4aD62c7a6f7467d3a8f5'
+    // }
 
-      // STEP 2: Get the authorization token using the sessionConfig object
-      const authToken = await getAuthorizationToken(sessionConfig);
-      console.log("Okto session authToken: ", authToken);
+    // STEP 2: Get the authorization token using the sessionConfig object
+    const authToken = await getAuthorizationToken(sessionConfig);
+    console.log("Okto session authToken: ", authToken);
 
-      return authToken;
-      // Using the above authToken (in the header as bearer token), you can now make requests to all other Okto Endpoints
-      // Sample Response:
-      // Okto session authToken:  eyJ0eXBlIjoiZWNkc2FfdW5jb21wcmVzc2VkIiwiZGF0YSI6eyJleHBpcmVfYXQiOjE3NDEyNjk1NjYsInNlc3Npb25fcHViX2tleSI6IjB4MDQyMDM5ZjJmMGY5MTBjNDc0YWJmZWYyOWFkMmNlODBiZjg5YTU0ZjZlMjBiODI4MWI0NTQxMzZiNmJhODYyODUwNWY4ZTFmMDllNTFiOGU1NWYxMTNhNzZlZTc5NDY0M2Q4MjA3ZmNhY2E5MjZkMzJhMDBhMzZhY2M3YmVlYjY5ZiJ9LCJkYXRhX3NpZ25hdHVyZSI6IjB4ZmE4YWE5OTAyMzRkOTA0Y2Y3ZmNhN2QxMDlmOGIzZTM0N2MyZjM2ODBiN2IyNzYzYTY4MmY5NGQyNjAyZGRkMjJhZDg2ZjhjMTgxMzllMDBkZmNiNzk3Y2RhNWUxMTQ4YzQ1YjE2Njg2YmYxMDUzMjJjNjIwYTU2MDkzZTYyODIxYyJ9
-    } else {
-      console.error("Failed to get Okto token");
-    }
+    return authToken;
+    // Using the above authToken (in the header as bearer token), you can now make requests to all other Okto Endpoints
+    // Sample Response:
+    // Okto session authToken:  eyJ0eXBlIjoiZWNkc2FfdW5jb21wcmVzc2VkIiwiZGF0YSI6eyJleHBpcmVfYXQiOjE3NDEyNjk1NjYsInNlc3Npb25fcHViX2tleSI6IjB4MDQyMDM5ZjJmMGY5MTBjNDc0YWJmZWYyOWFkMmNlODBiZjg5YTU0ZjZlMjBiODI4MWI0NTQxMzZiNmJhODYyODUwNWY4ZTFmMDllNTFiOGU1NWYxMTNhNzZlZTc5NDY0M2Q4MjA3ZmNhY2E5MjZkMzJhMDBhMzZhY2M3YmVlYjY5ZiJ9LCJkYXRhX3NpZ25hdHVyZSI6IjB4ZmE4YWE5OTAyMzRkOTA0Y2Y3ZmNhN2QxMDlmOGIzZTM0N2MyZjM2ODBiN2IyNzYzYTY4MmY5NGQyNjAyZGRkMjJhZDg2ZjhjMTgxMzllMDBkZmNiNzk3Y2RhNWUxMTQ4YzQ1YjE2Njg2YmYxMDUzMjJjNjIwYTU2MDkzZTYyODIxYyJ9
   } catch (err: any) {
     console.error(err || "An error occurred while fetching the Okto token");
+    throw new Error(err || "An error occurred while fetching the Okto token");
   }
 };

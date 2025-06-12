@@ -16,21 +16,18 @@ import dotenv from "dotenv";
 import { estimateUserOp } from "../utils/invokeEstimateUserOp.js";
 import { getChains } from "../explorer/getChains.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
-import type { Address } from "../helper/types.js";
+import type {
+  Address,
+  EstimateUserOpResponse,
+  ExecuteUserOpResponse,
+} from "../helper/types.js";
+import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
 
 dotenv.config();
-const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
-
-interface EVMRawTransaction {
-  from: string;
-  to: string;
-  data?: string;
-  value?: Hex | Hash | number;
-}
 
 interface Data {
   caip2Id: string;
-  transactions: EVMRawTransaction[];
+  transactions: object[];
 }
 
 /**
@@ -46,12 +43,16 @@ async function rawTransaction(
   sessionConfig: SessionConfig,
   feePayerAddress?: Address
 ) {
+  // Generate OktoAuthToken using session data
+  const OktoAuthToken = await getAuthorizationToken(sessionConfig);
+
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
   // get the Chain CAIP2ID required for payload construction
   // Note: Only the chains enabled on the Client's Developer Dashboard will be shown in the response
-  const chains = await getChains(OktoAuthToken);
+  const chainsResponse = await getChains(OktoAuthToken);
+  const chains = chainsResponse.data.network;
   console.log("Chains: ", chains);
   // Sample Response:
   // Chains: [
@@ -187,7 +188,7 @@ async function rawTransaction(
 
   // Call the estimateUserOp API to get the UserOp object
   console.log("calling estimate userop...");
-  const estimateUserOpResponse = await estimateUserOp(
+  const estimateUserOpResponse: EstimateUserOpResponse = await estimateUserOp(
     estimateUserOpPayload,
     OktoAuthToken
   );
@@ -235,7 +236,11 @@ async function rawTransaction(
   // }
 
   // Execute the userOp
-  const jobId = await executeUserOp(signedUserOp, OktoAuthToken);
+  const executeResponse: ExecuteUserOpResponse = await executeUserOp(
+    signedUserOp,
+    OktoAuthToken
+  );
+  const jobId = executeResponse.data.jobId;
   console.log("JobId: ", jobId);
   // Sample Response:
   // JobId: 3ee33731-9e96-4ab9-892c-ea476b36295d
@@ -247,9 +252,72 @@ async function rawTransaction(
     "RAW_TRANSACTION"
   );
   console.log("Order Details:", JSON.stringify(txn_details, null, 2));
+  
 }
 
 // To get the caip2Id, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
+
+// Sample data for BASE_TESTNET
+// 1. Simulating Token transfer
+// const data: Data = {
+//   caip2Id: "eip155:8453", // BASE_TESTNET
+//   transactions: [
+//     {
+//       data: "0x", // Default empty data
+//       from: "0xA8c1021b6322e5fF8e059295fa027A1380789037",  // User's wallet address on BASE_TESTNET. Get it by using the getAccount() endpoint.
+//       to: "0xbBd103fC30b1f301243A6845c5500A0133C56C1a",
+//       value: toHex(1000000000000), // amount in Hex (0x0 = 0)
+//     },
+//   ],
+// };
+//
+// 2. Simulating Contract Interaction
+// const data: Data = {
+//   caip2Id: "eip155:8453", // BASE_TESTNET
+//   transactions: [
+//     {
+//       data: "0x6057361d0000000000000000000000000000000000000000000000000000000000000005", // Encoded transaction data. Can be generated using viem/ethers.js or Okto's ABI encoder tool (https://docs.okto.tech/tools).
+//       from: "0xA8c1021b6322e5fF8e059295fa027A1380789037",  // User's wallet address on BASE_TESTNET. Get it by using the getAccount() endpoint.
+//       to: "0x363653DE3f920Ec8710b1Fc01e24Df96Bf7fb15E", // Contract address
+//       value: toHex(0), // No Ether sent
+//     },
+//   ],
+// };
+
+// Sample data for APTOS_TESTNET
+// 1. Simulating Token transfer
+// const data: Data = {
+//   caip2Id: "aptos:testnet",
+//   transactions: [
+//     {
+//       function: "0x1::aptos_account::transfer",
+//       typeArguments: [],
+//       functionArguments: [
+//         "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc",
+//         "10000",
+//       ],
+//     },
+//   ],
+// };
+//
+// 2. Simulating Contract Interaction
+// const data: Data = {
+//   caip2Id: "aptos:testnet",
+//   transactions: [
+//     {
+//       function: "0x1::aptos_account::batch_transfer",
+//       typeArguments: [],
+//       functionArguments: [
+//         [
+//           "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc",
+//           "0x2053680713a672fc41dbf71862efcbd14e01ba99bcb3913e933f5335a9f6e2b1",
+//         ],
+//         ["10", "10"],
+//       ],
+//     },
+//   ],
+// };
+
 const data: Data = {
   caip2Id: "eip155:84532", // BASE_TESTNET
   transactions: [
@@ -264,9 +332,9 @@ const data: Data = {
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0x66aa53e1a76063c5ab0bac70c660bc227f1e4d5434051b049f74e2df99516875",
-  sessionPubkey:
-    "0x043d389621778ecac37ba11c085db06fb29219b09c130ef84026cf221464a3907c0e3e6a5943a6e0617ca75c32537a531f61201c4241ef44645bb154d6cec0393c",
+    "0x8b960c4449d80717ca5e417d22b29fda5083b8f15f574ad0162cf271dc2f68ea",
+  sessionPubKey:
+    "0x045e557aa164763505736c06c1d96c80215bfb4823b5951e6133493d3ec67c5007fc6d6375998432605d7556b47d31e39fb2ba7ba0df33d5ea7a83d3eb19ca12ea",
   userSWA: "0x2FAb7Eb7475F6fF9a0258F1fb4383a6aA30A18e0",
 };
 
@@ -275,10 +343,10 @@ const sessionConfig: SessionConfig = {
  * The gas fee will be deducted from the sponsor wallet; the sponsor wallet must be enabled and funded on the source chain on the txn you are performing.
  * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
  */
-const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
+const feePayerAddress: Address = "0x16AE632061A09B43239a20C83eE311245d5e03BA";
 
 /* if sponsorship is not enabled */
 rawTransaction(data, sessionConfig);
 
 /* if sponsorship is enabled */
-// rawTransaction(data, sessionConfig, feePayerAddress);
+rawTransaction(data, sessionConfig, feePayerAddress);

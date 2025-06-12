@@ -7,6 +7,7 @@ import { generateClientSignature } from "../utils/generateClientSignature.js";
 import type { Hex } from "viem";
 import dotenv from "dotenv";
 import { loginUsingOAuth } from "../utils/generateOktoAuthToken.js";
+import type { SendOTPResponse, VerifyOTPResponse } from "../helper/types.js";
 
 dotenv.config();
 
@@ -47,7 +48,7 @@ export async function sendOtp() {
 
   try {
     console.log("Calling sendOtp with payload");
-    const res = await postSignedRequest(
+    const res: SendOTPResponse = await postSignedRequest(
       "https://sandbox-api.okto.tech/api/oc/v1/authenticate/email",
       payload
     );
@@ -74,7 +75,7 @@ export async function verifyOtp(token: any, otp: any) {
   };
 
   try {
-    const res = await postSignedRequest(
+    const res: VerifyOTPResponse = await postSignedRequest(
       "https://sandbox-api.okto.tech/api/oc/v1/authenticate/email/verify",
       payload
     );
@@ -135,7 +136,7 @@ verifyOtp("99009c41-f055-5638-86f8-a03e2cdf4f0e", "915911"); // Replace with act
  * This step is needed in order to generate the Okto Auth token for further API usage.
  */
 
-loginUsingOAuth("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2luZGN4X2lkIjoiYmI4Mjc2NjktNzZjYy00NzIyLWE1Y2MtM2EyNzZlMTg2ZmM2IiwidXNlcl9pZCI6ImJiODI3NjY5LTc2Y2MtNDcyMi1hNWNjLTNhMjc2ZTE4NmZjNiIsInNoYXJlZF9pZCI6bnVsbCwiZGN4X2NyZWF0ZWRfYXQiOm51bGwsInBvcnRmb2xpb0ZhY3RvciI6IjEiLCJhY2NUeXBlIjoid2ViMyIsImFjY291bnRfb3duZXJfaWQiOiJjNTcwMzA0Yi1hOTkwLTVkMGMtYTViZi1hYTI5ODk0ZjQ4MTciLCJzZXNzaW9uSWQiOiI0NDUwYmJjNS1kMTlhLTRkMjYtOTgzZC0zZGUyMWNiMDdiNTIiLCJ1c2VyX2xvZ2luX3ZlbmRvcl9pZCI6ImJkNjMwYWMyLWRiZjgtNGZmMS04YTNhLThjOGMxYjY3MzIzNSIsInMiOiJ3ZWIiLCJ1c2VyQWdlbnQiOiJheGlvcy8xLjguMSIsInNpcCI6IjI0MDk6NDBlMzoxMDAxOjQxYzU6ZmRhODo4MWVhOjEwOWM6NDJkZSIsInNjaXR5IjoiTHVja25vdyIsInNjb3VudHJ5IjoiSU4iLCJzcmVnaW9uIjoiVVAiLCJsb2dpbl9tZWRpdW0iOiJFTUFJTF9PVFAiLCJpYXQiOjE3NDg3NDgzNTksImV4cCI6MTc0OTYxMjM1OX0.rK20rvSGzVlX8_ppQi8l-4OSllOaK7Q4hb12Ii3N9lY", "okto"); // Replace with auth_token received from the verifyOtp() response
+loginUsingOAuth("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "okto"); // Replace with auth_token received from the verifyOtp() response
 // Sample Response
 // session:  SessionKey {
 //   priv: Uint8Array(32) [

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { serializeJSON } from "../helper/serializeJson.js";
+import type { AuthenticateResponse } from "../helper/types.js";
 
 /**
  * Invokes the Okto authenticate JSON-RPC method
@@ -13,7 +14,7 @@ import { serializeJSON } from "../helper/serializeJson.js";
  *
  * @throws Error if authentication fails, with details about the failure.
  */
-export async function invokeAuthenticate(authPayload: any) {
+export async function invokeAuthenticate(authPayload: any): Promise<AuthenticateResponse> {
   // Construct the request body for the authenticate JSON RPC Method
 
   console.log("Request Body:", authPayload);
@@ -30,7 +31,7 @@ export async function invokeAuthenticate(authPayload: any) {
     );
 
     if (response.status === 200) {
-      return response;
+      return response.data;
     } else {
       throw new Error(response.data.error?.message || "Authentication failed");
     }
