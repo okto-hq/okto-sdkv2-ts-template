@@ -1,13 +1,18 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import type { ReadContractResponse } from "../helper/types.js";
+import { Constants } from "../helper/constants.js";
 
 dotenv.config();
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 
-export async function readContractData(payload: any, authToken: string) {
+export async function readContractData(
+  payload: any,
+  authToken: string
+): Promise<ReadContractResponse> {
   try {
     const response = await axios.post(
-      "https://sandbox-api.okto.tech/api/oc/v1/readContractData",
+      `${Constants.getBaseUrl()}/api/oc/v1/readContractData`,
       payload,
       {
         headers: {
@@ -19,7 +24,10 @@ export async function readContractData(payload: any, authToken: string) {
 
     return response.data;
   } catch (error: any) {
-    console.error("Error reading contract data :", error.response?.data || error);
+    console.error(
+      "Error reading contract data :",
+      error.response?.data || error
+    );
     throw error;
   }
 }
@@ -58,31 +66,25 @@ export async function readContractData(payload: any, authToken: string) {
 
 // Sample Usage
 const data = {
-  caip2id: "eip155:84532",
+  caip2Id: "aptos:testnet",
   data: {
-    contractAddress: "0x67C780648E0e2cc2b36FbCec46ABf64c34A95412",
-    abi: {
-      inputs: [],
-      name: "retrieve",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    args: {},
+    function: "0x1::coin::balance",
+    typeArguments: ["0x1::aptos_coin::AptosCoin"],
+    functionArguments: [
+      "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc",
+    ], // 0x<user_address>
   },
 };
 
-const response = await readContractData(data, OktoAuthToken);
-console.log("rawRead response", response);
-// Sample Response : {
+const response: ReadContractResponse = await readContractData(
+  data,
+  OktoAuthToken
+);
+console.log("ReadContract response", response);
+// Sample Response
+// ReadContract response : {
 //   "status": "success",
 //   "data": [
-//     <any data: response from chain>
+//     "1"
 //   ]
 // }

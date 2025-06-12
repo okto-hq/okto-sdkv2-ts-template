@@ -23,12 +23,12 @@ import {
 import { getChains } from "../explorer/getChains.js";
 
 import dotenv from "dotenv";
-import type { Address } from "../helper/types.js";
+import type { Address, ExecuteUserOpResponse } from "../helper/types.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
+import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
 
 dotenv.config();
 const clientSWA = process.env.OKTO_CLIENT_SWA as Hex;
-const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 
 interface Data {
   caip2Id: string;
@@ -52,6 +52,9 @@ export async function transferToken(
   sessionConfig: SessionConfig,
   feePayerAddress?: Address
 ) {
+  // Generate OktoAuthToken using session data
+  const OktoAuthToken = await getAuthorizationToken(sessionConfig);
+
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
@@ -62,7 +65,8 @@ export async function transferToken(
 
   // get the Chain CAIP2ID required for payload construction
   // Note: Only the chains enabled on the Client's Developer Dashboard will be shown in the response
-  const chains = await getChains(OktoAuthToken);
+  const chainsResponse = await getChains(OktoAuthToken);
+  const chains = chainsResponse.data.network;
   console.log("Chains: ", chains);
   // Sample Response:
   //   Chains:  [
@@ -215,7 +219,11 @@ export async function transferToken(
   // }
 
   // Execute the userOp
-  const jobId = await executeUserOp(signedUserOp, OktoAuthToken);
+  const executeResponse: ExecuteUserOpResponse = await executeUserOp(
+    signedUserOp,
+    OktoAuthToken
+  );
+  const jobId = executeResponse.data.jobId;
   console.log("Job ID:", jobId);
   // Sample Response:
   // jobId: a0a54427-11c8-4140-bfcc-e96af15ce9cf
@@ -249,18 +257,19 @@ export async function transferToken(
 
 // Sample Usage
 const data: Data = {
-  caip2Id: "eip155:84532", // BASE_TESTNET
-  recipient: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2", // Sample recipient on BASE_TESTNET
-  token: "", // Left empty because transferring native token
-  amount: 1000000000000, // denomination in lowest decimal (18 for WETH)
+  caip2Id: "aptos:testnet", // APTOS_TESTNET
+  recipient:
+    "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc", // Sample recipient on APTOS_TESTNET
+  token: "0x1::aptos_coin::AptosCoin", // Left empty because transferring native token
+  amount: 100000, // denomination in lowest decimal (8 for APT)
 };
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0x56a4aae62eb5df6c8790eff062f2b0ec9650d591daa6088d3335719ce661c4fd",
-  sessionPubkey:
-    "0x04250d238f5332c5a8928c0d2e32383c82dcdb7cc07d537d1f1be95a366005968008f948b03ab02feab7abccb74d5ab9f44eb1bb160b6ac39f8664acf477c6fc5c",
-  userSWA: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
+    "0xeda300b9343c197a8d07c22110807cde6ea81ceb390143a4424180a140f7308f",
+  sessionPubKey:
+    "0x0411f09aa634f2698759fc6881471279fca19148a3899338fdd5f855a2230ec70d3b162e39b0c1704187167ecd0de5f946d1a57f66293db697de3fe725a89452cc",
+  userSWA: "0xd917DFbdA2Bd9EF9628DA4E55150f6559aF5b6ac",
 };
 
 /*
@@ -268,7 +277,7 @@ const sessionConfig: SessionConfig = {
  * The gas fee will be deducted from the sponsor wallet; the sponsor wallet must be enabled and funded on the source chain on the txn you are performing.
  * Do not provide a field named feePayerAddress in estimateUserOpPayload if sponsorship is not enabled.
  */
-const feePayerAddress: Address = "0xdb9B5bbf015047D84417df078c8F06fDb6D71b76";
+const feePayerAddress: Address = "0x16AE632061A09B43239a20C83eE311245d5e03BA";
 
 /* if sponsorship is not enabled */
 transferToken(data, sessionConfig);

@@ -16,10 +16,10 @@ import { estimateUserOp } from "../utils/invokeEstimateUserOp.js";
 import dotenv from "dotenv";
 import { getChains } from "../explorer/getChains.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
-import type { Address } from "../helper/types.js";
+import type { Address, ExecuteUserOpResponse } from "../helper/types.js";
+import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
 
 dotenv.config();
-const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
 
 interface Data {
   caipId: string;
@@ -43,12 +43,16 @@ async function transferNft(
   sessionConfig: SessionConfig,
   feePayerAddress?: Address
 ) {
+  // Generate OktoAuthToken using session data
+  const OktoAuthToken = await getAuthorizationToken(sessionConfig);
+
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
   // Get the Chain CAIP2ID required for payload construction
   // Note: Only the chains enabled on the Client's Developer Dashboard will be shown in the response
-  const chains = await getChains(OktoAuthToken);
+  const chainsResponse = await getChains(OktoAuthToken);
+  const chains = chainsResponse.data.network;
   console.log("Chains: ", chains);
   // Sample Response:
   // Chains: [
@@ -237,8 +241,12 @@ async function transferNft(
   // }
 
   // Execute the userOp
-  const jobId = await executeUserOp(signedUserOp, OktoAuthToken);
-  console.log("JobId: ", jobId);
+  const executeResponse: ExecuteUserOpResponse = await executeUserOp(
+    signedUserOp,
+    OktoAuthToken
+  );
+  const jobId = executeResponse.data.jobId;
+  console.log("JobId:", jobId);
   // Sample Response:
   // JobId: 14778af1-9d12-42ca-b664-1686f38f3633
 
@@ -264,7 +272,7 @@ const data: Data = {
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
     "0xa7a313f22193aa7a7a8721b23279fcc03f5cd8b54de291f94300128eb9d9962e",
-  sessionPubkey:
+  sessionPubKey:
     "0x044a9339fd9d1526ac66f2514479b1e862340e44a73937c6efe671fa5ec9f27a18f6d3b6ac2d6cc4c70b8dba423878e2fa27d8402da90065b971e0b972898e8d76",
   userSWA: "0x8B20023FC47D8F8BDB7418722dBB0e3e9964a906",
 };

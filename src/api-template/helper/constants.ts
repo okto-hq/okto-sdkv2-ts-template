@@ -5,14 +5,14 @@ import type { Hex } from "./types.js";
 export class Constants {
   static readonly HOURS_IN_MS = 60 * 60 * 1000;
 
-  static readonly EXECUTE_USEROP_FUNCTION_SELECTOR = '0x8dd7712f';
+  static readonly EXECUTE_USEROP_FUNCTION_SELECTOR = "0x8dd7712f";
 
-  static readonly FUNCTION_NAME = 'initiateJob';
+  static readonly FUNCTION_NAME = "initiateJob";
 
   static readonly USEROP_VALUE = BigInt(0);
 
   static readonly FEE_PAYER_ADDRESS =
-    '0x0000000000000000000000000000000000000000';
+    "0x0000000000000000000000000000000000000000";
 
   static readonly GAS_LIMITS = {
     CALL_GAS_LIMIT: BigInt(600_000),
@@ -25,28 +25,27 @@ export class Constants {
   };
 
   static readonly INTENT_TYPE = {
-    TOKEN_TRANSFER: 'TOKEN_TRANSFER',
-    NFT_TRANSFER: 'NFT_TRANSFER',
-    NFT_COLLECTION_CREATION: 'NFT_COLLECTION_CREATION',
-    RAW_TRANSACTION: 'RAW_TRANSACTION',
+    TOKEN_TRANSFER: "TOKEN_TRANSFER",
+    NFT_TRANSFER: "NFT_TRANSFER",
+    NFT_COLLECTION_CREATION: "NFT_COLLECTION_CREATION",
+    RAW_TRANSACTION: "RAW_TRANSACTION",
   };
 
-
-// DO NOT CHANGE THESE VALUES IN YOUR CODE
+  // DO NOT CHANGE THESE VALUES IN YOUR CODE
 
   static readonly ENV_CONFIG = {
     STAGING: {
-      PAYMASTER_ADDRESS: '0xdAa292E9B9a6B287c84d636F3b65f4A5Dc787e3f' as Hex,
-      JOB_MANAGER_ADDRESS: '0xb5e77f7Ff1ab31Fc1bE99F484DB62f01a6b93D4d' as Hex,
+      PAYMASTER_ADDRESS: "0xdAa292E9B9a6B287c84d636F3b65f4A5Dc787e3f" as Hex,
+      JOB_MANAGER_ADDRESS: "0xb5e77f7Ff1ab31Fc1bE99F484DB62f01a6b93D4d" as Hex,
       ENTRYPOINT_CONTRACT_ADDRESS:
-        '0xec3F5f7a3f0e43e61D8711A90B8c8Fc59B9a88ba' as Hex,
+        "0xec3F5f7a3f0e43e61D8711A90B8c8Fc59B9a88ba" as Hex,
       CHAIN_ID: 124736089,
     },
     SANDBOX: {
-      PAYMASTER_ADDRESS: '0x74324fA6Fa67b833dfdea4C1b3A9898574d076e3' as Hex,
-      JOB_MANAGER_ADDRESS: '0x0543aD80b41C5f5956d34503668CDb965deCB617' as Hex,
+      PAYMASTER_ADDRESS: "0x74324fA6Fa67b833dfdea4C1b3A9898574d076e3" as Hex,
+      JOB_MANAGER_ADDRESS: "0x0543aD80b41C5f5956d34503668CDb965deCB617" as Hex,
       ENTRYPOINT_CONTRACT_ADDRESS:
-        '0xCa5b1b0d3893b5152014fD5B519FF50f7C40f9da' as Hex,
+        "0xCa5b1b0d3893b5152014fD5B519FF50f7C40f9da" as Hex,
       CHAIN_ID: 1802466136,
     },
     // PRODUCTION: {
@@ -55,4 +54,22 @@ export class Constants {
     //   CHAIN_ID: 24879,
     // },
   };
+
+  static readonly BASE_URLS = {
+    SANDBOX: "https://sandbox-api.okto.tech",
+    PRODUCTION: "https://production-api.okto.tech",  // NOTE : Prod URL to be updated
+  };
+
+  static getBaseUrl(): string {
+    const env = process.env.OKTO_ENVIRONMENT?.toUpperCase();
+    switch (env) {
+      case "SANDBOX":
+        return Constants.BASE_URLS.SANDBOX;
+      case "PRODUCTION":
+        return Constants.BASE_URLS.PRODUCTION;
+      default:
+        // Default to sandbox if OKTO_ENVIRONMENT is not set or invalid
+        return Constants.BASE_URLS.SANDBOX;
+    }
+  }
 }

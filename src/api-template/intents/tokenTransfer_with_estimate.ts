@@ -16,10 +16,10 @@ import { getChains } from "../explorer/getChains.js";
 import { getOrderHistory } from "../utils/getOrderHistory.js";
 
 import dotenv from "dotenv";
-import type { Address } from "../helper/types.js";
+import type { Address, ExecuteUserOpResponse } from "../helper/types.js";
+import { getAuthorizationToken } from "../utils/getAuthorizationToken.js";
 
 dotenv.config();
-const OktoAuthToken = process.env.OKTO_AUTH_TOKEN as string;
 
 interface Data {
   caipId: string;
@@ -43,12 +43,16 @@ export async function transferToken(
   sessionConfig: SessionConfig,
   feePayerAddress?: Address
 ) {
+  // Generate OktoAuthToken using session data
+  const OktoAuthToken = await getAuthorizationToken(sessionConfig);
+
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
   // get the Chain CAIP2ID required for payload construction
   // Note: Only the chains enabled on the Client's Developer Dashboard will be shown in the response
-  const chains = await getChains(OktoAuthToken);
+  const chainsResponse = await getChains(OktoAuthToken);
+  const chains = chainsResponse.data.network;
   console.log("Chains: ", chains);
   // Sample Response:
   //   Chains:  [
@@ -289,7 +293,11 @@ export async function transferToken(
   // }
 
   // Execute the userOp
-  const jobId = await executeUserOp(signedUserOp, OktoAuthToken);
+  const executeResponse: ExecuteUserOpResponse = await executeUserOp(
+    signedUserOp,
+    OktoAuthToken
+  );
+  const jobId = executeResponse.data.jobId;
   console.log("Job ID:", jobId);
   // Sample Response:
   // jobId: a0a54427-11c8-4140-bfcc-e96af15ce9cf
@@ -305,18 +313,18 @@ export async function transferToken(
 
 // To get the caipId, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
 const data: Data = {
-  caipId: "eip155:84532", // BASE_TESTNET
-  recipient: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2", // Sample recipient on BASE_TESTNET
+  caipId: "eip155:8453", // BASE_TESTNET
+  recipient: "0xbBd103fC30b1f301243A6845c5500A0133C56C1a", // Sample recipient on BASE_TESTNET
   token: "", // Left empty because transferring native token
-  amount: "10000000000000", // denomination in lowest decimal (18 for WETH)
+  amount: "1000000000000", // denomination in lowest decimal (18 for WETH)
 };
 
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0x85ffef45e363f107476800f052102a940fcfa1167023ee462a859d3cada0cc76",
-  sessionPubkey:
-    "0x04869dbfba722c6d3bdcb56ac2475f37c85b21907b3c1f748271a80bca12d60ea45612dfdf7dfbdea0035ee8633d8c6717cea87ee451830bf0ecb35c6b37825e4c",
-  userSWA: "0x281FaF4F242234c7AeD53530014766E845AC1E90",
+    "0xd91ef1a6f72aed67a04179126179c07c92d21b86af5ffef953bd1fb3af6b05b6",
+  sessionPubKey:
+    "0x04923789a99f0bf06456eca9c6196f8bf5d0d8ede65c17c62cc1c728e366d68c4bec1dd7e3d5b17687498d33a8f268dc0f407e1d800bed72aacd014be9e7ce3ae5",
+  userSWA: "0x2FAb7Eb7475F6fF9a0258F1fb4383a6aA30A18e0",
 };
 
 /*

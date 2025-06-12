@@ -14,7 +14,7 @@ export const GoogleAuthenticate = async () => {
     provider: "google",
   };
 
-  await loginUsingOAuth(
+  const authToken: string = await loginUsingOAuth(
     payload.idToken,
     payload.provider
   );

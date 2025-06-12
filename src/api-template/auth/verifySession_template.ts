@@ -1,5 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import { Constants } from "../helper/constants.js";
 
 dotenv.config();
 const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
@@ -29,7 +30,7 @@ const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 export async function verifySession(OktoAuthToken: string) {
     try {
         const response = await axios.get(
-            "https://sandbox-api.okto.tech/api/oc/v1/verify-session",
+            `${Constants.getBaseUrl()}/api/oc/v1/verify-session`,
             {
                 headers: {
                     Authorization: `Bearer ${OktoAuthToken}`,
@@ -46,5 +47,18 @@ export async function verifySession(OktoAuthToken: string) {
 }
 
 // Sample usage
-// const sessionData = await verifySession(OktoAuthToken);
+const sessionData = await verifySession(OktoAuthToken);
+console.log("Session Data:", sessionData);
+
+// Sample Response
+// Session Data: {
+//   status: 'success',
+//   data: {
+//     user_id: '26f7c933-9722-4ac3-aaf3-6f2c872d02ea',
+//     client_id: 'a340b202-e303-42fe-b6af-9701af55410b',
+//     user_swa: '0x2FAb7Eb7475F6fF9a0258F1fb4383a6aA30A18e0',
+//     client_swa: '0xdb70Faf78B19576d3C969487cb75f5152cee2E8F',
+//     is_session_added: true
+//   }
+// }
 

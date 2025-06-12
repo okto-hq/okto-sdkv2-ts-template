@@ -7,6 +7,8 @@ import { generateClientSignature } from "../utils/generateClientSignature.js";
 import { type Hex } from "viem";
 import dotenv from "dotenv";
 import { loginUsingOAuth } from "../utils/generateOktoAuthToken.js";
+import type { SendOTPResponse, VerifyOTPResponse } from "../helper/types.js";
+import { Constants } from "../helper/constants.js";
 dotenv.config();
 
 const client_swa = process.env.OKTO_CLIENT_SWA as Hex;
@@ -45,8 +47,8 @@ export async function sendOtp() {
   };
 
   try {
-    const res = await postSignedRequest(
-      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/whatsapp",
+    const res: SendOTPResponse = await postSignedRequest(
+      `${Constants.getBaseUrl()}/api/oc/v1/authenticate/whatsapp`,
       payload
     );
     console.log("OTP Sent:", res);
@@ -71,8 +73,8 @@ export async function resendOtp(token: any) {
   };
 
   try {
-    const res = await postSignedRequest(
-      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/whatsapp",
+    const res: SendOTPResponse = await postSignedRequest(
+      `${Constants.getBaseUrl()}/api/oc/v1/authenticate/whatsapp`,
       payload
     );
     console.log("OTP Resent:", res);
@@ -99,8 +101,8 @@ export async function verifyOtp(token: any, otp: any) {
   };
 
   try {
-    const res = await postSignedRequest(
-      "https://sandbox-api.okto.tech/api/oc/v1/authenticate/whatsapp/verify",
+    const res: VerifyOTPResponse = await postSignedRequest(
+      `${Constants.getBaseUrl()}/api/oc/v1/authenticate/whatsapp/verify`,
       payload
     );
 

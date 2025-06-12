@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
+import { Constants } from "../helper/constants.js";
 
 /**
  * Estimates a user operation
@@ -22,7 +23,7 @@ export async function estimateUserOp(payload: any, authToken: string) {
     console.log("finally sending the axios request for estimate...........");
     
     const response = await axios.post(
-      "https://sandbox-api.okto.tech/api/oc/v1/estimate",
+      `${Constants.getBaseUrl()}/api/oc/v1/estimate`,
       payload,
       {
         headers: {
@@ -49,7 +50,7 @@ export async function swapEstimateUserOp(requestBody: any, authToken: string) {
 
     console.log("finally sending the axios request ...........");
     const response = await axios.post(
-      "https://sandbox-api.okto.tech/api/oc/v1/estimate", // Okto 3pBFF url
+      `${Constants.getBaseUrl()}/api/oc/v1/estimate`, // Okto 3pBFF url
       swapPayload,
       {
         headers: {
