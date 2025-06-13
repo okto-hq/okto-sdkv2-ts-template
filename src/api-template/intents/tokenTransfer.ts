@@ -1,7 +1,7 @@
 /*
  * This script explains how to perform a token transfer intent when the session config for a user is stored securely and retrieved after successful auth
  * A Token Transfer intent requires 4 parameters: 
- * 1. Network CAIP2 ID: This is the CAIP2 ID of the blockchain network on which you are performing the transaction. CAIP2 ID can be retrieved from https://docs.okto.tech/docs/technical-reference
+ * 1. Network CAIP2 ID: This is the CAIP2 ID of the blockchain network on which you are performing the transaction. CAIP2 ID can be retrieved from https://docs.okto.tech/docs/technical-reference or from the getChains call
  * 2. Token Address: This is the contract address of the fungible token that is being transferred. In case you are sending the Native Token and the contract address is not available, it can be left as an empty string. The Address of the token can be fetched from the response of the GetTokens or GetPortfolio call.
  * 3. Recipient Address: This is the wallet address of the recipient to whom the tokens are being sent on the same blockchain network. In case you are sending tokens to another okto embedded wallet, please fetch the wallet address on the chain needed using the GetWallet function with the recipient's auth token.
  * 4. Amount: This is the amount of tokens being sent in the lowest decimal denomination. The decimal for a token can be retrieved from the response of the GetTokens call. 
@@ -69,7 +69,7 @@ export async function transferToken(
   // Generate a unique UUID based nonce
   const nonce = uuidv4();
 
-  // Get the Intent execute API info
+  // Get the Intent execute API info as required on Okto chain
   const jobParametersAbiType =
     "(string caip2Id, string recipientWalletAddress, string tokenAddress, uint amount)";
   const gsnDataAbiType = `(bool isRequired, string[] requiredNetworks, ${jobParametersAbiType}[] tokens)`;
@@ -102,18 +102,6 @@ export async function transferToken(
   //     gsn_enabled: false,
   //     type: 'SVM',
   //     network_id: 'fb10a9ca-d197-378d-8fb3-fd95345571f3',
-  //     onramp_enabled: false,
-  //     whitelisted: true
-  //   },
-  //   {
-  //     caip_id: 'eip155:84532',
-  //     network_name: 'BASE_TESTNET',
-  //     chain_id: '84532',
-  //     logo: 'BASE_TESTNET',
-  //     sponsorship_enabled: false,
-  //     gsn_enabled: false,
-  //     type: 'EVM',
-  //     network_id: '8970cafe-4fc2-3a71-a7d3-77a672b749e9',
   //     onramp_enabled: false,
   //     whitelisted: true
   //   }
@@ -185,7 +173,7 @@ export async function transferToken(
 
   const gasPrice = await getUserOperationGasPrice(OktoAuthToken);
 
-  // Construct the UserOp with all the data fetched above, sign it and add the signature to the userOp
+  // Construct the UserOp with all the data fetched above, sign it and add the signature to the UserOp
   const userOp = {
     sender: sessionConfig.userSWA,
     nonce: toHex(nonceToBigInt(nonce), { size: 32 }),
@@ -248,32 +236,32 @@ export async function transferToken(
   console.log("Order Details:", JSON.stringify(txn_details, null, 2));
 }
 
-// To get the caipId, please check: https://docsv2.okto.tech/docs/openapi/technical-reference
-
-// Sample data for APTOS_TESTNET
-// const data: Data = {
-//   caip2Id: "aptos:testnet", // APTOS_TESTNET
-//   recipient: "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc", // Sample recipient on APTOS_TESTNET
-//   token: '0x1::aptos_coin::AptosCoin', // Left empty because transferring native token
-//   amount: 100000, // denomination in lowest decimal (8 for APT)
-// };
-
-// Sample data for BASE_TESTNET
-// const data: Data = {
-//   caip2Id: "eip155:84532", // BASE_TESTNET
-//   recipient: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2", // Sample recipient on BASE_TESTNET
-//   token: '', // Left empty because transferring native token
-//   amount: 100000000000, // denomination in lowest decimal (18 for WETH)
-// };
-
-// Sample Usage
-const data: Data = {
-  caip2Id: "aptos:testnet", // APTOS_TESTNET
-  recipient:
-    "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc", // Sample recipient on APTOS_TESTNET
-  token: "0x1::aptos_coin::AptosCoin", // Left empty because transferring native token
-  amount: 100000, // denomination in lowest decimal (8 for APT)
-};
+/* To get the caipId, please check: https://docs.okto.tech/docs/openapi/technical-reference
+* Sample data for APTOS_TESTNET
+* const data: Data = {
+*  caip2Id: "aptos:testnet", // APTOS_TESTNET
+*   recipient: "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc", // Sample recipient on APTOS_TESTNET
+*   token: '0x1::aptos_coin::AptosCoin', // Left empty because transferring native token
+*   amount: 100000, // denomination in lowest decimal (8 for APT)
+* };
+*
+* Sample data for BASE_TESTNET
+* const data: Data = {
+*   caip2Id: "eip155:84532", // BASE_TESTNET
+*   recipient: "0x88beE8eb691FFAFB192BAC4D1E7042e1b44c3eF2", // Sample recipient on BASE_TESTNET
+*   token: '', // Left empty because transferring native token
+*   amount: 100000000000, // denomination in lowest decimal (18 for WETH)
+* };
+*
+* Sample Usage
+* const data: Data = {
+*  caip2Id: "aptos:testnet", // APTOS_TESTNET
+*  recipient:
+*    "0x9ed7f8c95c5e2c3cb06dfbb48681b87401fabeb88b7d710db3720f7a2ca3fffc", // Sample recipient on APTOS_TESTNET
+*  token: "0x1::aptos_coin::AptosCoin", // Left empty because transferring native token
+*  amount: 100000, // denomination in lowest decimal (8 for APT)
+* };
+*/
 
  /*
  * A Session Config is created at the time of okto authentication and should be saved securely on the client side for each user.
@@ -282,10 +270,10 @@ const data: Data = {
  */
 const sessionConfig: SessionConfig = {
   sessionPrivKey:
-    "0xeda300b9343c197a8d07c22110807cde6ea81ceb390143a4424180a140f7308f",
+    "0xeda300b9343c197a8d07c22110807cde6ea81ceb390143a4424180a140f7308f", // created at client side during auth and stored locally; retreived from dashboard in case of treasury wallet
   sessionPubKey:
-    "0x0411f09aa634f2698759fc6881471279fca19148a3899338fdd5f855a2230ec70d3b162e39b0c1704187167ecd0de5f946d1a57f66293db697de3fe725a89452cc",
-  userSWA: "0xd917DFbdA2Bd9EF9628DA4E55150f6559aF5b6ac",
+    "0x0411f09aa634f2698759fc6881471279fca19148a3899338fdd5f855a2230ec70d3b162e39b0c1704187167ecd0de5f946d1a57f66293db697de3fe725a89452cc", // created at client side during auth and stored locally; in case of treasury wallet can be generated from private key
+  userSWA: "0xd917DFbdA2Bd9EF9628DA4E55150f6559aF5b6ac", // retrieved at the time of authenticate for users; or treasurySWA in case the signer is treasury wallet
 };
 
 /*
@@ -298,5 +286,5 @@ const feePayerAddress: Address = "0x16AE632061A09B43239a20C83eE311245d5e03BA";
 /* if sponsorship is not enabled */
 transferToken(data, sessionConfig);
 
-/* if sponsorship is enabled */
-transferToken(data, sessionConfig, feePayerAddress);
+/* uncomment if sponsorship is enabled */
+// transferToken(data, sessionConfig, feePayerAddress);
