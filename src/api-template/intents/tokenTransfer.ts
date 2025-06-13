@@ -1,5 +1,14 @@
 /*
- * This script explains how to perform token transfer intent when the okto auth token is available
+ * This script explains how to perform a token transfer intent when the session config for a user is stored securely and retrieved after successful auth
+ * A Token Transfer intent requires 4 parameters: 
+ * 1. Network CAIP2 ID: This is the CAIP2 ID of the blockchain network on which you are performing the transaction. CAIP2 ID can be retrieved from https://docs.okto.tech/docs/technical-reference
+ * 2. Token Address: This is the contract address of the fungible token that is being transferred. In case you are sending the Native Token and the contract address is not available, it can be left as an empty string. The Address of the token can be fetched from the response of the GetTokens or GetPortfolio call.
+ * 3. Recipient Address: This is the wallet address of the recipient to whom the tokens are being sent on the same blockchain network. In case you are sending tokens to another okto embedded wallet, please fetch the wallet address on the chain needed using the GetWallet function with the recipient's auth token.
+ * 4. Amount: This is the amount of tokens being sent in the lowest decimal denomination. The decimal for a token can be retrieved from the response of the GetTokens call. 
+ * 5. (optional) Fee Payer: This is the paymaster SWA from the okto dashboard. Only pass when the dapp wants to sponsor the user's transaction, and sponsorship is enabled correctly on the okto dashboard. please see https://docs.okto.tech/docs/developer-admin-dashboard/sponsorship on how to enable sponsorship.
+ * Note 1: Token Transfer is always  performed from an okto embedded wallet. Therefore, the signer must have enough balance to perform the token transfer. The balance of the signer can be fetched from the GetPortfolio call.
+ * Note 2: If sponsorship is not enabled on the okto dashboard, make sure you have sufficient native funds on the sender/signer's wallet to account for gas fees. When transferring native tokens, make sure the amount value allows room in the balance for gas fees deduction.
+ * Note 3: Always have a buffer token; it's unlikely that a txn that empties the balance will succeed
  */
 
 import {
@@ -39,6 +48,8 @@ interface Data {
 
 /**
  * Creates and executes a user operation for token transfer.
+ *
+ * All calls to okto must be made to the Okto Chain. Hence, sent as a user operation.
  *
  * This function initiates the process of transferring a token by encoding the necessary parameters into a User Operation.
  * For more information, check https://docs.okto.tech/docs/openapi/tokenTransfer
