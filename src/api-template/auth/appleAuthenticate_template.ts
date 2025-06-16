@@ -1,5 +1,5 @@
 /*
- * This script explains how to perform authentication on Okto using google and generate an okto auth token
+ * This script explains how to perform authentication on Okto using Apple Sign-In and generate an okto auth token
  */
 
 import dotenv from "dotenv";
