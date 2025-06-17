@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const FINAL_STATUSES = ["SUCCESSFUL", "FAILED", "BUNDLER_DISCARDED"];
+const FINAL_STATUSES = ["SUCCESSFUL", "FAILED", "BUNDLER_DISCARDED", "FAILED_ON_CHAIN"];
 
 function delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
