@@ -5,6 +5,27 @@ This repository serves as a template for working with the Okto SDK in TypeScript
 1. **TypeScript SDK Integration** - A simple, direct way to interact with Okto services
 2. **Direct API Integration** - Detailed examples for direct API interactions with Okto
 
+## Table of Contents
+- [Features](#features)
+- [TypeScript SDK Usage](#typescript-sdk-usage)
+- [Template Directories and Use Cases](#template-directories-and-use-cases)
+  - [TypeScript SDK Template](#1-typescript-sdk-template-srctstemplate)
+  - [API Template](#2-api-template-srcapi-template)
+    - [Authentication](#authentication-auth)
+    - [Intents](#intents-intents)
+    - [Utilities](#utilities-utils)
+    - [Explorer](#explorer-explorer)
+    - [Helpers](#helpers-helper)
+  - [Trade Service](#3-trade-service-srctrade-service)
+- [Prerequisites and Setup](#prerequisites-and-setup)
+  - [Required Tools](#required-tools)
+  - [Environment Setup](#environment-setup)
+- [Environment Variables](#environment-variables)
+- [Common Issues and Troubleshooting](#common-issues-and-troubleshooting)
+  - [Authentication Issues](#authentication-issues)
+  - [Development Tips](#development-tips)
+- [Support and Resources](#support-and-resources)
+
 ## Features
 
 - 🔐 **Authentication** with Google Sign-In
@@ -33,78 +54,6 @@ import { tokenTransfer, nftTransfer } from "@okto_web3/core-js-sdk/userop";
 ```
 
 For more details on how to use the TypeScript SDK, please refer to the [TypeScript SDK Setup Guide](https://docs.okto.tech/docs/typescript-sdk).
-
-## Direct API Integration
-
-This template provides detailed examples for direct API integration with Okto. The examples are organized in the following structure:
-
-### API Template (`src/api-template/`)
-- `auth/` - Authentication and token generation
-- `intents/` - Implementation of various intents:
-  - Token transfers
-  - NFT transfers
-  - Raw transactions
-- `utils/` - Okto-specific utility functions
-- `helper/` - Generic helper functions
-- `explorer/` - Blockchain explorer integration
-
-### TypeScript SDK Template (`src/ts-template/`)
-- `index.ts` - Main entry point demonstrating SDK usage
-
-### Trade Service (`src/trade-service/`)
-- `api/` - Trading API integration
-- `utils/` - Trading-specific utilities
-- `index.ts` - Main trading service implementation
-
-Each implementation contains detailed comments explaining the steps and best practices.
-
-### API Integration Process
-
-1. **Authentication**: First, authenticate and generate an auth token using the process in `oktoAuthenticate_template.ts`
-2. **Perform Actions**: After authentication, you can perform any of the following actions:
-   - Token transfers
-   - NFT transfers
-   - Raw transactions
-   - Delegated actions
-
-## Helper and Utility Functions
-
-The repository includes several helper and utility functions:
-
-- **Helper Functions** ([`src/helper/`](src/helper/)): Generic functions for data conversion, serialization, and encoding
-- **Utility Functions** ([`src/utils/`](src/utils/)): Okto-specific functions for generating paymaster data, session keys, and other Okto-related operations
-
-## Environment Variables
-
-The following environment variables are required:
-
-```
-# Okto environment ("sandbox" or "production")
-OKTO_ENVIRONMENT=sandbox
-
-# Okto API credentials (from Developer Dashboard)
-OKTO_CLIENT_PRIVATE_KEY=
-OKTO_CLIENT_SWA=
-
-# Google authentication (optional, only for Google auth)
-GOOGLE_ID_TOKEN=
-
-# For testing intents or delegated access
-USER_SWA=
-SESSION_PUBLIC_KEY=
-SESSION_PRIVATE_KEY=
-OKTO_AUTH_TOKEN=
-```
-
-## Contributing
-
-Contributions are welcome! Please take a moment to review our [CONTRIBUTING.md](CONTRIBUTING.md) guidelines before submitting any Pull Requests. Your contributions are invaluable to the Okto community.
-
-## Learn More
-
-- [Okto Documentation](https://docs.okto.tech/)
-- [Okto Developer Dashboard](https://dashboard.okto.tech/login)
-- For support, join the [Okto Discord Server](https://discord.com/invite/okto)
 
 ## Template Directories and Use Cases
 
@@ -212,6 +161,39 @@ This template focuses on trading-specific functionality:
    ```bash
    cp .env.example .env
    ```
+
+
+## Environment Variables
+
+The following environment variables are required:
+
+```
+# Okto environment ("sandbox" or "production")
+OKTO_ENVIRONMENT=sandbox
+
+# Okto API credentials (from Developer Dashboard)
+OKTO_CLIENT_PRIVATE_KEY=
+OKTO_CLIENT_SWA=
+
+# Google authentication (optional, only for Google auth)
+GOOGLE_ID_TOKEN=
+
+# For testing intents or delegated access
+USER_SWA=
+SESSION_PUBLIC_KEY=
+SESSION_PRIVATE_KEY=
+OKTO_AUTH_TOKEN=
+```
+
+## Contributing
+
+Contributions are welcome! Please take a moment to review our [CONTRIBUTING.md](CONTRIBUTING.md) guidelines before submitting any Pull Requests. Your contributions are invaluable to the Okto community.
+
+## Learn More
+
+- [Okto Documentation](https://docs.okto.tech/)
+- [Okto Developer Dashboard](https://dashboard.okto.tech/login)
+- For support, join the [Okto Discord Server](https://discord.com/invite/okto)
 
 ## Common Issues and Troubleshooting
 
