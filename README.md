@@ -57,7 +57,7 @@ For more details on how to use the TypeScript SDK, please refer to the [TypeScri
 
 ## Template Directories and Use Cases
 
-### 1. TypeScript SDK Template (`src/ts-template/`)
+### 1. TypeScript SDK Template (`src/ts-sdk-template/`)
 This template demonstrates how to use the Okto TypeScript SDK for common operations:
 - **Authentication**: Multiple login methods (Google OAuth, Email, WhatsApp, JWT)
 - **Wallet Management**: View and manage crypto wallets

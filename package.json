@@ -24,7 +24,7 @@
   "dependencies": {
     "@noble/curves": "^1.8.1",
     "@noble/hashes": "^1.7.1",
-    "@okto_web3/core-js-sdk": "0.6.3-dev.15",
+    "@okto_web3/core-js-sdk": "^1.1.0",
     "axios": "^1.8.1",
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
