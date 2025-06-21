@@ -17,15 +17,15 @@ dotenv.config();
 
 const main = async () => {
   // Initialize OktoClient
-  type Env = 'staging' | 'sandbox';
+  type Env = 'staging' | 'sandbox' | 'production';
   console.log("env: ", process.env.OKTO_ENVIRONMENT)
-
 
   const oktoClient = new OktoClient({
     environment: process.env.OKTO_ENVIRONMENT as Env,
     clientPrivateKey: process.env.OKTO_CLIENT_PRIVATE_KEY as Hash,
     clientSWA: process.env.OKTO_CLIENT_SWA as Hex,
   });
+
 
   const method = readlineSync.question('Enter authentication method (social/email/whatsapp/jwt): ').toLowerCase();
 
