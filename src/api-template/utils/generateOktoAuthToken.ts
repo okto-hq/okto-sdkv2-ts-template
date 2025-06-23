@@ -41,7 +41,7 @@ async function generateAuthPayload(
   payload.sessionData.maxPriorityFeePerGas = "0xBA43B7400"; // constant on okto chain
   payload.sessionData.maxFeePerGas = "0xBA43B7400"; // constant on okto chain
   payload.sessionData.paymaster =
-    Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS; // okto testnet paymaster address
+    Constants.getEnvConfig().PAYMASTER_ADDRESS; // okto testnet paymaster address
   payload.sessionData.paymasterData = await generatePaymasterData(
     clientSWA,
     clientPriv,

@@ -27,19 +27,23 @@ export class Constants {
   static readonly INTENT_TYPE = {
     TOKEN_TRANSFER: "TOKEN_TRANSFER",
     NFT_TRANSFER: "NFT_TRANSFER",
-    NFT_COLLECTION_CREATION: "NFT_COLLECTION_CREATION",
+    NFT_CREATE_COLLECTION: "NFT_CREATE_COLLECTION",
     RAW_TRANSACTION: "RAW_TRANSACTION",
+    NFT_MINT: "NFT_MINT",
   };
 
   // DO NOT CHANGE THESE VALUES IN YOUR CODE
 
   static readonly ENV_CONFIG = {
     STAGING: {
-      PAYMASTER_ADDRESS: "0xdAa292E9B9a6B287c84d636F3b65f4A5Dc787e3f" as Hex,
-      JOB_MANAGER_ADDRESS: "0xb5e77f7Ff1ab31Fc1bE99F484DB62f01a6b93D4d" as Hex,
+      PAYMASTER_ADDRESS: "0xc2D31Cdc6EFd02F85Ab943c4587f8D60E6E15F9c" as Hex,
+      JOB_MANAGER_ADDRESS: "0x57820589F31a9e4a34A0299Ea4aDe7c536139682" as Hex,
       ENTRYPOINT_CONTRACT_ADDRESS:
-        "0xec3F5f7a3f0e43e61D8711A90B8c8Fc59B9a88ba" as Hex,
+        "0x322eF240AD89d19a50Ca092CF70De9603bf6778E" as Hex,
       CHAIN_ID: 124736089,
+      AUTH_PAGE_URL: "https://onboarding.oktostage.com/",
+      AUTH_REDIRECT_URL: "https://onboarding.oktostage.com/__/auth/handler",
+      SIGN_MESSAGE_MPC_THRESHOLD: 3,
     },
     SANDBOX: {
       PAYMASTER_ADDRESS: "0x74324fA6Fa67b833dfdea4C1b3A9898574d076e3" as Hex,
@@ -47,17 +51,25 @@ export class Constants {
       ENTRYPOINT_CONTRACT_ADDRESS:
         "0xCa5b1b0d3893b5152014fD5B519FF50f7C40f9da" as Hex,
       CHAIN_ID: 1802466136,
+      AUTH_PAGE_URL: "https://sandbox-onboarding.okto.tech/",
+      AUTH_REDIRECT_URL: "https://sandbox-onboarding.okto.tech/__/auth/handler",
+      SIGN_MESSAGE_MPC_THRESHOLD: 2,
     },
-    // PRODUCTION: {
-    //   PAYMASTER_ADDRESS: '0x0871051BfF8C7041c985dEddFA8eF63d23AD3Fa0' as Hex,
-    //   JOB_MANAGER_ADDRESS: '0xED3D17cae886e008D325Ad7c34F3bdE030B80c2E' as Hex,
-    //   CHAIN_ID: 24879,
-    // },
+    PRODUCTION: {
+      PAYMASTER_ADDRESS: "0xB0E2BD2EFb99F982F8cCB8e6737A572B3B0eCE11" as Hex,
+      JOB_MANAGER_ADDRESS: "0x7F1E1e98Dde775Fae0d340D3E5D28004Db58A0d3" as Hex,
+      ENTRYPOINT_CONTRACT_ADDRESS:
+        "0x0b643Bcd21a72b10075F1938Ebebba6E077A1742" as Hex,
+      CHAIN_ID: 8088,
+      AUTH_PAGE_URL: "https://onboarding.okto.tech/",
+      AUTH_REDIRECT_URL: "https://onboarding.okto.tech/__/auth/handler",
+      SIGN_MESSAGE_MPC_THRESHOLD: 2,
+    },
   };
 
   static readonly BASE_URLS = {
     SANDBOX: "https://sandbox-api.okto.tech",
-    PRODUCTION: "https://production-api.okto.tech",  // NOTE : Prod URL to be updated
+    PRODUCTION: "https://apigw.okto.tech",
   };
 
   static getBaseUrl(): string {
@@ -70,6 +82,21 @@ export class Constants {
       default:
         // Default to sandbox if OKTO_ENVIRONMENT is not set or invalid
         return Constants.BASE_URLS.SANDBOX;
+    }
+  }
+
+  static getEnvConfig(): any {
+    const env = process.env.OKTO_ENVIRONMENT?.toUpperCase();
+    switch (env) {
+      case "staging":
+        return Constants.ENV_CONFIG.STAGING;
+      case "sandbox":
+        return Constants.ENV_CONFIG.SANDBOX;
+      case "production":
+        return Constants.ENV_CONFIG.PRODUCTION;
+      default:
+        // Default to SANDBOX if OKTO_ENVIRONMENT is not set or invalid
+        return Constants.ENV_CONFIG.SANDBOX;
     }
   }
 }

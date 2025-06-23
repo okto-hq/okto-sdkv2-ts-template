@@ -136,7 +136,7 @@ async function rawTransaction(
     parseAbiParameters("bytes4, address,uint256, bytes"),
     [
       Constants.EXECUTE_USEROP_FUNCTION_SELECTOR, //execute userop function selector
-      Constants.ENV_CONFIG.SANDBOX.JOB_MANAGER_ADDRESS, //The Job Manager address is now replaced with "RawTransactionBloc" address
+      Constants.getEnvConfig().JOB_MANAGER_ADDRESS, //The Job Manager address is now replaced with "RawTransactionBloc" address
       Constants.USEROP_VALUE,
       encodeFunctionData({
         abi: INTENT_ABI,
@@ -185,7 +185,7 @@ async function rawTransaction(
   const userOp = {
     sender: sessionConfig.userSWA,
     nonce: toHex(nonceToBigInt(nonce), { size: 32 }),
-    paymaster: Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS, //paymaster address
+    paymaster: Constants.getEnvConfig().PAYMASTER_ADDRESS, //paymaster address
     callGasLimit: toHex(Constants.GAS_LIMITS.CALL_GAS_LIMIT),
     verificationGasLimit: toHex(Constants.GAS_LIMITS.VERIFICATION_GAS_LIMIT),
     preVerificationGas: toHex(Constants.GAS_LIMITS.PRE_VERIFICATION_GAS),
