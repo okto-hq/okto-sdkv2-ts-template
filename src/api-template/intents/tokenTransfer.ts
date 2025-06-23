@@ -128,7 +128,7 @@ export async function transferToken(
     parseAbiParameters("bytes4, address,uint256, bytes"),
     [
       Constants.EXECUTE_USEROP_FUNCTION_SELECTOR,
-      Constants.ENV_CONFIG.SANDBOX.JOB_MANAGER_ADDRESS,
+      Constants.getEnvConfig().JOB_MANAGER_ADDRESS,
       Constants.USEROP_VALUE,
       encodeFunctionData({
         abi: INTENT_ABI,
@@ -177,7 +177,7 @@ export async function transferToken(
   const userOp = {
     sender: sessionConfig.userSWA,
     nonce: toHex(nonceToBigInt(nonce), { size: 32 }),
-    paymaster: Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS, //paymaster address
+    paymaster: Constants.getEnvConfig().PAYMASTER_ADDRESS, //paymaster address
     callGasLimit: toHex(Constants.GAS_LIMITS.CALL_GAS_LIMIT),
     verificationGasLimit: toHex(Constants.GAS_LIMITS.VERIFICATION_GAS_LIMIT),
     preVerificationGas: toHex(Constants.GAS_LIMITS.PRE_VERIFICATION_GAS),

@@ -141,7 +141,7 @@ async function transferNft(
     parseAbiParameters("bytes4, address, uint256, bytes"),
     [
       Constants.EXECUTE_USEROP_FUNCTION_SELECTOR, // execute userOp function selector
-      Constants.ENV_CONFIG.SANDBOX.JOB_MANAGER_ADDRESS, // Job manager Address is replaced by the "NFTTransferBloc" address
+      Constants.getEnvConfig().JOB_MANAGER_ADDRESS, // Job manager Address is replaced by the "NFTTransferBloc" address
       Constants.USEROP_VALUE, // userop value
       encodeFunctionData({
         abi: INTENT_ABI,
@@ -192,7 +192,7 @@ async function transferNft(
   const userOp = {
     sender: sessionConfig.userSWA,
     nonce: toHex(nonceToBigInt(nonce), { size: 32 }),
-    paymaster: Constants.ENV_CONFIG.SANDBOX.PAYMASTER_ADDRESS, //paymaster address
+    paymaster: Constants.getEnvConfig().PAYMASTER_ADDRESS, //paymaster address
     callGasLimit: toHex(Constants.GAS_LIMITS.CALL_GAS_LIMIT),
     verificationGasLimit: toHex(Constants.GAS_LIMITS.VERIFICATION_GAS_LIMIT),
     preVerificationGas: toHex(Constants.GAS_LIMITS.PRE_VERIFICATION_GAS),

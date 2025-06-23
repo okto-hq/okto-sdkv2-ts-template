@@ -119,8 +119,8 @@ export function generateUserOpHash(userOp: PackedUserOp): Hash {
     parseAbiParameters("bytes32, address, uint256"),
     [
       keccak256(pack),
-      Constants.ENV_CONFIG.SANDBOX.ENTRYPOINT_CONTRACT_ADDRESS,
-      BigInt(Constants.ENV_CONFIG.SANDBOX.CHAIN_ID),
+      Constants.getEnvConfig().ENTRYPOINT_CONTRACT_ADDRESS,
+      BigInt(Constants.getEnvConfig().CHAIN_ID),
     ]
   );
 
