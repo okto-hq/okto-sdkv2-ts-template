@@ -88,11 +88,11 @@ export class Constants {
   static getEnvConfig(): any {
     const env = process.env.OKTO_ENVIRONMENT?.toUpperCase();
     switch (env) {
-      case "staging":
+      case "STAGING":
         return Constants.ENV_CONFIG.STAGING;
-      case "sandbox":
+      case "SANDBOX":
         return Constants.ENV_CONFIG.SANDBOX;
-      case "production":
+      case "PRODUCTION":
         return Constants.ENV_CONFIG.PRODUCTION;
       default:
         // Default to SANDBOX if OKTO_ENVIRONMENT is not set or invalid
