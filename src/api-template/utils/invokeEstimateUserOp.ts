@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { Constants } from "../helper/constants.js";
@@ -19,9 +27,9 @@ export async function estimateUserOp(payload: any, authToken: string) {
   try {
     console.log("estimate request payload: ");
     console.dir(payload, { depth: null });
-    
+
     console.log("finally sending the axios request for estimate...........");
-    
+
     const response = await axios.post(
       `${Constants.getBaseUrl()}/api/oc/v1/estimate`,
       payload,

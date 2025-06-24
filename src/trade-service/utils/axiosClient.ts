@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 
@@ -24,4 +32,4 @@ tradeServiceClient.interceptors.request.use((config) => {
   return config;
 });
 
-export default tradeServiceClient; 
+export default tradeServiceClient;

@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import axios from "axios";
 import dotenv from "dotenv";
 import type { GetTokensResponse } from "../helper/types.js";

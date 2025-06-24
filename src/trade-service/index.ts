@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -16,7 +24,7 @@ if (!privateKey || !publicKey) {
 }
 const wallet = new Wallet(privateKey);
 const provider = new JsonRpcProvider('https://mainnet.infura.io');
-const fromAmount = '10000000000000';                   // 0.00001 ETH in wei 
+const fromAmount = '10000000000000';                   // 0.00001 ETH in wei
 const fromChain = 'eip155:1';
 const fromTokenAddress = '';                           // Send empty string for native token
 const walletAddress = publicKey;
@@ -78,7 +86,7 @@ async function submitTransactionByType(type: "approval" | "dex", responseToUse: 
         !responseToUse ||
         !walletAddress ||
         !responseToUse.steps ||
-        responseToUse.steps.length === 0 
+        responseToUse.steps.length === 0
       ) {
         console.error("Some required data missing");
         return;
@@ -92,7 +100,7 @@ async function submitTransactionByType(type: "approval" | "dex", responseToUse: 
       const step = responseToUse.steps.find(
         (s: any) => s.metadata?.transactionType === type
       );
-  
+
       if (!step || !step.txnData) {
         console.warn(`No ${type} transaction found`);
         return;
@@ -103,7 +111,7 @@ async function submitTransactionByType(type: "approval" | "dex", responseToUse: 
     const signer = wallet.connect(provider);
 
     const txRequest: any = step.txnData;
-    
+
     const tx = await signer.sendTransaction({
       to: txRequest.to,
       data: txRequest.data,
@@ -163,19 +171,19 @@ async function handleInitBridgeTxn(callDataResponse: GetCallDataResponse) {
     if (
         !walletAddress ||
         !callDataResponse ||
-        !callDataResponse.steps 
+        !callDataResponse.steps
       ) {
         console.error("Missing data to initiate bridge transaction.");
         return;
       }
-  
+
       const step = callDataResponse.steps.find(
         (s) =>
           s.metadata?.transactionType === "init" &&
           s.metadata?.protocol === "Okto-ULL" &&
           s.metadata?.serviceType === "bridge"
       );
-  
+
       if (!step || !step.txnData) {
         console.error("No bridge transaction data found.");
         return;
@@ -205,7 +213,7 @@ async function handleInitBridgeTxn(callDataResponse: GetCallDataResponse) {
 }
 
 async function handleRegisterIntent(callDataResponse: GetCallDataResponse, fromChain: string) {
-    
+
     if (!walletAddress || !callDataResponse || !fromChain) {
         console.error("Missing required data to register intent.");
         return;
@@ -269,7 +277,7 @@ async function main() {
     const quoteResponse: GetQuoteResponseData = await getQuote(quoteRequestPayload);
     console.log('Quote response: ');
     console.dir({ quoteResponse });
-    
+
 
     // Step 2: Get best route
     console.log('Sending getBestRoute request...');
@@ -302,17 +310,17 @@ async function main() {
         console.log('Signing permit data...');
         const permitData = JSON.parse(routeResponse.permitDataToSign as string);
         const { domain , types, message } = permitData;
-        const permitSignature = await wallet.signTypedData(domain, types, message); // Check Types for better clarity 
-        
+        const permitSignature = await wallet.signTypedData(domain, types, message); // Check Types for better clarity
+
         // Get call data with signature
         console.log('Getting call data with signature...');
         const callDataResponse = await generateCallData(routeResponse, permitData, permitSignature);
-        
+
     } else if (isCrossChain) {
         // Cross-chain without permit data
         console.log('Getting call data for cross-chain without permit...');
         const callDataResponse = await generateCallData(routeResponse);
-     
+
     } else {
         // Same chain → check for approval
         const steps = routeResponse.steps || [];

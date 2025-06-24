@@ -1,6 +1,13 @@
 /*
  * This script explains how to perform raw txn execute intent when the okto auth token is available
  */
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
 
 import {
   encodeAbiParameters,

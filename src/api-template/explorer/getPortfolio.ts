@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import axios from "axios";
 import dotenv from "dotenv";
 import type { GetPortfolioResponse } from "../helper/types.js";
@@ -8,12 +16,12 @@ const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 
 /**
  * Retrieves the aggregated portfolio for the User
- * 
+ *
  * This function makes an API call to Okto's sandbox API to fetch the aggregated portfolio.
- * 
+ *
  * @param OktoAuthToken - Authentication token
  * @returns Object containing aggregated portfolio details , all the token balances and their amounts.
- * 
+ *
  * @throws Error if the API request fails.
  */
 export async function getPortfolio(OktoAuthToken: string): Promise<GetPortfolioResponse> {

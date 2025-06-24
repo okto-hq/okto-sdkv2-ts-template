@@ -1,15 +1,23 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import { signMessage } from "viem/accounts";
 
 /**
  * Creates the Okto Auth Token
- * 
+ *
  * This function is used to create the Okto Auth Token after successfull authentication
- * 
+ *
  * @param sessionConfig - Object containing session authentication details:
  *   - sessionPrivKey: The private key of the current session
  *   - sessionPubKey: The public key corresponding to the session private key
- * 
- * @returns Base64 encoded authorization token 
+ *
+ * @returns Base64 encoded authorization token
  * @throws Error if session keys are not provided in the configuration
  */
 

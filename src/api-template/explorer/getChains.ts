@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import axios from "axios";
 import dotenv from "dotenv";
 import type { GetChainsResponse } from "../helper/types.js";
@@ -8,13 +16,13 @@ const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 
 /**
  * Retrieves all the enabled networks from the Okto Client Dashboard
- * 
+ *
  * This function makes an API call to Okto's sandbox API to fetch all supported networks that have been enabled for the client application.
- * 
+ *
  * @param OktoAuthToken - Authentication token
  * @returns Object containing details of all supported blockchain networks available
- *          to the client application. 
- * 
+ *          to the client application.
+ *
  * @throws Error if the API request fails.
  */
 export async function getChains(OktoAuthToken: string): Promise<GetChainsResponse> {
@@ -34,7 +42,7 @@ export async function getChains(OktoAuthToken: string): Promise<GetChainsRespons
     }
 }
 
-// Sample usage 
+// Sample usage
 // const chains: GetChainsResponse = await getChains(OktoAuthToken);
 // console.log("Supported Chains:", chains);
 
