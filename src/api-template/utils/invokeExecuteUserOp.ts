@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import axios from "axios";
 import { signMessage } from "viem/accounts";
 import { fromHex } from "viem";
@@ -58,7 +66,7 @@ export async function executeUserOp(userop: any, authToken: string): Promise<Exe
     console.log("execute request payload: ", userop);
     console.log("finally sending the axios request for execute...........");
     const response = await axios.post(
-      `${Constants.getBaseUrl()}/api/oc/v1/execute`, 
+      `${Constants.getBaseUrl()}/api/oc/v1/execute`,
       userop,
       {
         headers: {
@@ -78,7 +86,7 @@ export async function executeUserOp(userop: any, authToken: string): Promise<Exe
 export async function getUserOperationGasPrice(authToken: string) {
 
   const response = await axios.get(
-    `${Constants.getBaseUrl()}/api/oc/v1/gas-values`, 
+    `${Constants.getBaseUrl()}/api/oc/v1/gas-values`,
     {
       headers: {
         Authorization: `Bearer ${authToken}`,

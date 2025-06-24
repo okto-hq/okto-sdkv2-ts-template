@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import axios from "axios";
 import dotenv from "dotenv";
 import { Constants } from "../helper/constants.js";
@@ -7,13 +15,13 @@ const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 
 /**
  * Retrieves the session data for the User
- * 
+ *
  * This function makes an API call to Okto's sandbox API to fetch the session data.
- * 
+ *
  * @param OktoAuthToken - Authentication token
  * @returns Object containing following session details:
  *                  status: success if the user is logged in, failed otherwise
- *                  data:     
+ *                  data:
  *                      "user_id": "",
                         "vendor_id": "",
                         "user_swa": "",
@@ -23,8 +31,8 @@ const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 
 
  *          - status: success if the user is logged in, failed otherwise.
- * 
- * 
+ *
+ *
  * @throws Error if the API request fails.
  */
 export async function verifySession(OktoAuthToken: string) {
@@ -38,7 +46,7 @@ export async function verifySession(OktoAuthToken: string) {
             }
         );
 
-        
+
         return response.data;
     } catch (error) {
         console.error("Error fetching session information:", error);
@@ -61,4 +69,3 @@ console.log("Session Data:", sessionData);
 //     is_session_added: true
 //   }
 // }
-

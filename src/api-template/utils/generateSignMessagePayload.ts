@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import crypto from "crypto";
 import { canonicalize } from "json-canonicalize";
 import { signMessage as signMessage3 } from "viem/accounts";
@@ -14,7 +22,7 @@ type GetUserKeysResult = {
 };
 
 type Session = {
-    sessionPrivKey: `0x${string}`; // Viem expects a hex private key  
+    sessionPrivKey: `0x${string}`; // Viem expects a hex private key
     sessionPubKey: `0x${string}`;
     userSWA: string;
 };
@@ -27,10 +35,10 @@ export function generateUUID() {
 
 /**
 * Creates a payload for message signing.
-* 
+*
 * Prepares a structured payload containing the message to be signed, authentication data, and cryptographic challenge for the signing service.
 * Supports both EIP-191 standard messages and EIP-712 typed data.
-* 
+*
 * @param userKeys - User's key information with ECDSA key ID
 * @param session - Session data with keys and user SWA
 * @param message - Message content to sign
@@ -38,7 +46,7 @@ export function generateUUID() {
 * @returns Payload for the Okto signing service
 */
 export async function generateSignMessagePayload(userKeys: GetUserKeysResult, session: Session, message: message, signType: SignType) {
- 
+
     const raw_message_to_sign = {
     requestType: signType,
     signingMessage: message,

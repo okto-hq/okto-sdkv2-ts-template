@@ -1,6 +1,13 @@
 /*
  * This script explains how to perform authentication on Okto using JWT and generate an okto auth token for the User
  */
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
 
 import { loginUsingOAuth } from "../utils/generateOktoAuthToken.js";
 
@@ -10,12 +17,12 @@ export const JwtAuthenticate = async () => {
     provider: "client_jwt",
   };
 
-  /* 
+  /*
    * Okto checks the validity of the JWT token though the whilelisted endpoint provided by the Client and then generates the Okto auth token for the user
    * A sample curl used by Okto to verify the JWT token is as follows:
      curl --location 'https://sandbox-auth.okto.tech/test/client_jwt_verify' \
           --header 'authorization: Bearer pulkit+test1@gmail.com' \
-   
+
     NOTE: The above endpoint is for testing purposes only and always returns 'success:true' for any JWT token provided.
   */
   const authToken: string = await loginUsingOAuth(

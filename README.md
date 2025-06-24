@@ -5,7 +5,7 @@ This repository serves as a template for working with the Okto SDK in TypeScript
 1. **TypeScript SDK Integration** - A simple, direct way to interact with Okto services
 2. **Direct API Integration** - Detailed examples for direct API interactions with Okto
 
-Note: These scripts are used for demonstration purposes only. DO NOT use these scripts as it is in production.
+Note: These scripts are used for demonstration purposes only. DO NOT use these scripts as it is in production. Customise these scripts according to your needs.
 
 ## Table of Contents
 - [Features](#features)

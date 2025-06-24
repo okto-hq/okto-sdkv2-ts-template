@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import tradeServiceClient from '../utils/axiosClient.js';
 
 export async function getBestRoute(request: any) {
@@ -8,4 +16,4 @@ export async function getBestRoute(request: any) {
     console.error('Error getting best route:', error);
     throw error;
   }
-} 
+}

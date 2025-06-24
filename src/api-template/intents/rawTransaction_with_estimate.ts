@@ -2,6 +2,13 @@
 /*
  * This script explains how to perform raw txn execute intent when the okto auth token is available
  */
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
 
 import { toHex, type Hash, type Hex } from "viem";
 import { v4 as uuidv4 } from "uuid";
@@ -252,7 +259,7 @@ async function rawTransaction(
     "RAW_TRANSACTION"
   );
   console.log("Order Details:", JSON.stringify(txn_details, null, 2));
-  
+
 }
 
 // To get the caip2Id, please check: https://docsv2.okto.tech/docs/openapi/technical-reference

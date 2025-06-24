@@ -4,6 +4,13 @@
 * You will be needing to setup GOOGLE_ID_TOKEN if you choose social signin.
 * Please refer to following doc on how to generate GOOGLE_ID_TOKEN: https://docs.okto.tech/docs/typescript-sdk/authentication/google-oauth/get-token-id
 */
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
 
 import { OktoClient } from "@okto_web3/core-js-sdk";
 import type { Hash, Hex } from "@okto_web3/core-js-sdk/types";

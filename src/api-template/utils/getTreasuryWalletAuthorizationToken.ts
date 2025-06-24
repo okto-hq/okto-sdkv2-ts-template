@@ -1,16 +1,23 @@
-import { signMessage } from "viem/accounts";
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
 
+import { signMessage } from "viem/accounts";
 
 /**
  * Creates the Okto Auth Token for Treasury Wallet
- * 
+ *
  * This function is used to create the Okto Auth Token after successfull authentication
- * 
+ *
  * @param sessionConfig - Object containing session authentication details:
  *   - sessionPrivKey: The private key of the current session
  *   - sessionPubKey: The public key corresponding to the session private key
- * 
- * @returns Base64 encoded authorization token 
+ *
+ * @returns Base64 encoded authorization token
  * @throws Error if session keys are not provided in the configuration
  */
 
@@ -23,7 +30,7 @@ export async function getTreasuryWalletAuthorizationToken(sessionConfig: any) {
     const data = {
         expire_at: Math.round(Date.now() / 1e3) + 60 * 90,
         session_pub_key: sessionPub,
-        user_swa: sessionConfig.treasuryWalletSWA, 
+        user_swa: sessionConfig.treasuryWalletSWA,
         acc_type: "CDA"
     };
 

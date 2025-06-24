@@ -1,5 +1,12 @@
 // This script shows how to create the okto auth token for the Client's Treasury Wallet SWA
 // This script is intended to be run in a Node.js environment
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
 
 import { getChains } from "../explorer/getChains.js";
 import { getTreasuryWalletAuthorizationToken } from "../utils/getTreasuryWalletAuthorizationToken.js";

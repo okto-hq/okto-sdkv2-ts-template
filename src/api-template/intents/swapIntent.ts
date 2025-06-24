@@ -1,6 +1,13 @@
 /*
  * This script explains how to perform Swap intent when the okto auth token is available
  */
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
 
 import { toHex, type Hash, type Hex } from "viem";
 import { v4 as uuidv4 } from "uuid";

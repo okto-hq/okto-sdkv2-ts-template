@@ -1,3 +1,11 @@
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
+
 import axios from "axios";
 import dotenv from "dotenv";
 import type { GetPortfolioActivityResponse } from "../helper/types.js";
@@ -8,12 +16,12 @@ const OktoAuthToken = process.env.OKTO_AUTH_TOKEN || "";
 
 /**
  * Retrieves the portfolio activity for the User
- * 
+ *
  * This function makes an API call to Okto's sandbox API to fetch the portfolio activity of the user.
- * 
+ *
  * @param OktoAuthToken - Authentication token
- * @returns Object containing portfolio activity details 
- * 
+ * @returns Object containing portfolio activity details
+ *
  * @throws Error if the API request fails.
  */
 export async function getPortfolioActivity(OktoAuthToken: string): Promise<GetPortfolioActivityResponse> {
@@ -143,4 +151,3 @@ export async function getPortfolioActivity(OktoAuthToken: string): Promise<GetPo
 //     ],
 //   },
 // };
-

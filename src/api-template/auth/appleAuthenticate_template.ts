@@ -1,6 +1,13 @@
 /*
  * This script explains how to perform authentication on Okto using Apple Sign-In and generate an okto auth token
  */
+/*******************************************
+ *                                         *
+ *  WARNING: THIS IS DEMO CODE.            *
+ *  DO NOT USE IN PRODUCTION WITHOUT       *
+ *  CUSTOMIZING TO YOUR SPECIFIC NEEDS.    *
+ *                                         *
+ *******************************************/
 
 import dotenv from "dotenv";
 import { loginUsingOAuth } from "../utils/generateOktoAuthToken.js";
